@@ -1,0 +1,6 @@
+request_id,scenario,source,start_time,first_token_ms,total_ms,status,retries,tokens_in,tokens_out,retrieval_setting,answer_grade
+2c815bc21203,real_smoke,real,2026-11-10T17:36:14.750+00:00,2087.6,2087.7,ok,0,3561,314,h256k5,
+0992b0c8c8c9,real_smoke,real,2026-11-10T17:36:18.356+00:00,1452.5,2256.9,ok,0,2504,652,h256k5,
+f43b62aa11f9,real_smoke,real,2026-11-10T17:36:22.259+00:00,1573.1,1573.2,ok,0,1758,117,h256k5,
+236d753ccc91,real_smoke,real,2026-11-10T17:40:38.167+00:00,1027.3,1105.5,ok,0,1946,226,h256k5,
+261de3570169,real_smoke,real,2026-11-10T17:40:41.050+00:00,2016.6,2494.1,ok,0,2320,569,h256k5,

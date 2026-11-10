@@ -1,0 +1,38 @@
+THE RELAY — QUESTION / ANSWER-KEY VERIFICATION REPORT
+
+Checked against the exact-version PDFs:
+1. Attention Is All You Need, arXiv:1706.03762v7
+2. Moshi: a speech-text foundation model for real-time dialogue, arXiv:2410.00037v1
+3. Dynamic Chunking for End-to-End Hierarchical Sequence Modeling, arXiv:2507.07955v2
+
+RESULT: All 20 questions are grounded in the specified paper library. Q16–Q20 are valid refusal tests for the exact quantities/experiments requested. Five wording/key refinements are incorporated in the verified files: Q6, Q11, Q12, Q15 and Q19.
+
+QUESTION-BY-QUESTION STATUS
+Q1 — PASS. AIAYN §3.2.1: dot products grow with d_k; softmax can enter very small-gradient regions; scale by sqrt(d_k).
+Q2 — PASS. AIAYN §§3.1, 3.2.3: encoder self-attention, masked decoder self-attention, and encoder-decoder attention are described as asked.
+Q3 — PASS. AIAYN §3.5 and Table 3 row (E): sinusoidal positions are added to embeddings; learned embeddings gave near-identical results; extrapolation is stated as a hypothesis, not a demonstrated guarantee.
+Q4 — PASS. AIAYN Table 3 and §3.1: base configuration is N=6, d_model=512, d_ff=2048, h=8, d_k=d_v=64, 100K steps. Do not substitute Transformer Big values.
+Q5 — PASS. Moshi Abstract and §1: latency, text bottleneck/non-written information, and turn-based segmentation are the three limitations. Moshi's speech-to-speech, multi-stream approach addresses them.
+Q6 — PASS WITH WORDING REFINEMENT. Moshi §§3.4.3–3.4.4 and Figure 4: distinct user and Moshi streams are concatenated and jointly modelled. They are not two independent dialogue models. Revised wording makes that explicit.
+Q7 — PASS. Moshi §§3.3.1–3.3.2: Mimi is a SeaNet autoencoder plus RVQ; 24 kHz input is encoded to 12.5 frames/s; Q=8 and codebook size 2048; WavLM semantic distillation and split RVQ are described; causal convolutions support streaming.
+Q8 — PASS. Moshi §3.4.4: system-side text tokens are aligned using Whisper word timestamps, PAD/EPAD are used, the text sequence prefixes semantic tokens, and text/audio delay enables streaming ASR or TTS.
+Q9 — PASS. Moshi Table 1: Depth Transformer is 1024 model dimension, 4096 MLP, 16 heads, 6 layers; audio cardinality 2048; frame rate 12.5 Hz. Do not confuse with Temporal Transformer (4096, 11264, 32 heads, 32 layers).
+Q10 — PASS. H-Net §2.1.1: encoder, chunking layer, main network, dechunking layer, decoder; multistage hierarchy can be recursive.
+Q11 — PASS WITH WORDING REFINEMENT. H-Net §2.2.1: adjacent-vector cosine similarity produces boundary probabilities; threshold 0.5; downsampler directly retains boundary-marked vectors and discards others. Revised question avoids implying a separate semantic-preservation mechanism.
+Q12 — PASS, WITH A REAL INTERNAL DISCREPANCY TO TEST. H-Net Table 2: Large 53.3 vs 55.5 (difference 2.2 points); XL 55.5 vs 58.2 (difference 2.7 points). H-Net §3.1 says +2.2% and +2.6%, respectively. The XL prose figure and subtraction from displayed table values differ. Revised question explicitly asks the model to identify and attribute this.
+Q13 — PASS. AIAYN §3.5 and H-Net Abstract/§2.2: positional encoding injects position information; H-Net learns content/context-dependent segmentation and compresses sequence length. The papers do not directly compare these mechanisms, so synthesis must be attributed to each source.
+Q14 — PASS. AIAYN §§3.1, 3.2.3; Moshi §§3.4.1, 3.4.2, 3.4.4: causal masking constrains future-token access; Moshi has acoustic delays and a separate text-audio delay for ASR/TTS behaviour. Revised question asks to distinguish the two.
+Q15 — PASS WITH WORDING REFINEMENT. Moshi §3.4.1; H-Net §2.1.1: Moshi decomposes time and per-step sub-sequences/codebook depth; H-Net compresses sequence length through learned chunking and restores it before decoding. Revised wording explicitly includes H-Net's decoder.
+Q16 — PASS AS UNANSWERABLE. Moshi does not report the requested RTX 4090 power draw or GPU memory figures.
+Q17 — PASS AS UNANSWERABLE. Moshi does not report Hindi-English code-switch WER/CER or the requested dataset benchmark. The paper's described language/data setup does not establish this result.
+Q18 — PASS AS UNANSWERABLE. H-Net reports 8192 UTF-8 bytes per sequence in its training data-budget setup (§3.2), not a maximum inference length on a 24 GB GPU. This is a deliberate near-miss trap.
+Q19 — PASS AS UNANSWERABLE, WITH WORDING REFINEMENT. Moshi describes its own stream plus one user stream and does not report the requested multi-human group experiment or group-overlap accuracy. Revised wording asks directly about that missing experiment to avoid implying that the system's two streams mean two human participants.
+Q20 — PASS AS UNANSWERABLE. Neither Moshi nor H-Net reports exact training expenditure in US dollars. Compute, training-step, or GPU details are not a dollar-cost figure.
+
+USEFUL NAIVE-RETRIEVER EXAMPLES ALREADY IN THE SET
+- Q4: Transformer Base versus Big values in the same Table 3.
+- Q9: Moshi Temporal Transformer versus Depth Transformer values in the same Table 1.
+- Q12: H-Net Table 2 arithmetic versus the prose summary in §3.1.
+
+OPTIONAL ADDITIONAL TRAP (NOT INCLUDED IN THE 20-QUESTION SET)
+Attention Is All You Need has an English-to-French BLEU discrepancy: the Abstract and Table 2 report 41.8, while §6.1 prose says 41.0. This can be added as an extra adversarial probe if desired; it is not necessary to have three measured naive-retrieval examples because Q4, Q9 and Q12 already supply them.

@@ -1,0 +1,215 @@
+{
+  "about": "Answer key for eval/the_relay_20_evaluation_questions.txt. Questions written by the author. This key was DRAFTED BY THE ASSISTANT from the parsed paper text (data/corpus/blocks.jsonl) on 2026-11-10 and must be checked by the author: set verified=true per question after checking it against the PDF.",
+  "grading_rule": {
+    "decided_by": "author, 2026-11-10 (strict)",
+    "correct": "Answerable question: EVERY required point is present and right, and each claim carries a citation to a passage that supports it (the cite need only match one of the listed acceptable cites for that point).",
+    "wrong": "Answerable question: any required point missing, any stated fact wrong (including a forbidden value from 'traps'), or a claim cited to a passage that does not support it. Unanswerable question: anything other than a refusal, i.e. the asked quantity is given or guessed.",
+    "refused_correctly": "Unanswerable question: the answer says the three papers do not establish the asked information and gives no value for it. Adjacent facts may be mentioned only if cited and explicitly framed as not answering the question.",
+    "refused_wrongly": "Answerable question: the system refuses or says the papers do not cover it."
+  },
+  "cite_format": "PAPER §section | PAPER Table N | PAPER Figure N | PAPER Abstract, with PAPER in {AIAYN, MOSHI, HNET}",
+  "questions": [
+    {
+      "id": "Q1", "paper": ["AIAYN"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "For large d_k the dot products grow large in magnitude", "cites": ["AIAYN §3.2.1"]},
+        {"point": "This pushes the softmax into regions with extremely small gradients", "cites": ["AIAYN §3.2.1"]},
+        {"point": "Dot products are scaled by 1/sqrt(d_k) to counteract this", "cites": ["AIAYN §3.2.1"]}
+      ],
+      "optional": ["Footnote: if q and k components are independent with mean 0 and variance 1, q·k has mean 0 and variance d_k", "Without scaling, additive attention outperforms dot-product attention for larger d_k"],
+      "traps": ["The paper says the authors 'suspect' this; stating it as proven is acceptable but should not add reasons the paper does not give"]
+    },
+    {
+      "id": "Q2", "paper": ["AIAYN"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Encoder self-attention: queries, keys and values all come from the output of the previous encoder layer; each position attends to all positions", "cites": ["AIAYN §3.2.3"]},
+        {"point": "Decoder self-attention: each position attends only to positions up to and including itself, enforced by masking (setting to -inf) illegal connections in the softmax input", "cites": ["AIAYN §3.2.3", "AIAYN §3.1"]},
+        {"point": "Encoder-decoder attention: queries from the previous decoder layer, keys and values from the encoder output; every decoder position attends over all input positions", "cites": ["AIAYN §3.2.3"]},
+        {"point": "Masking prevents leftward information flow to preserve the auto-regressive property: with output embeddings offset by one, predictions for position i depend only on known outputs at positions < i", "cites": ["AIAYN §3.2.3", "AIAYN §3.1"]}
+      ],
+      "optional": ["Figure 2 shows the mask inside scaled dot-product attention"],
+      "traps": []
+    },
+    {
+      "id": "Q3", "paper": ["AIAYN"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Positional encodings are added to the input embeddings at the bottoms of the encoder and decoder stacks; same dimension d_model so they can be summed", "cites": ["AIAYN §3.5"]},
+        {"point": "They use sine and cosine functions of different frequencies (PE(pos,2i)=sin(pos/10000^(2i/d_model)), PE(pos,2i+1)=cos(...)); wavelengths form a geometric progression from 2π to 10000·2π", "cites": ["AIAYN §3.5"]},
+        {"point": "Learned positional embeddings produced nearly identical results (Table 3 row (E))", "cites": ["AIAYN §3.5", "AIAYN Table 3"]},
+        {"point": "Sinusoidal was chosen because it may allow the model to extrapolate to sequence lengths longer than those seen in training", "cites": ["AIAYN §3.5"]}
+      ],
+      "optional": ["Hypothesis: lets the model attend by relative position, since PE(pos+k) is a linear function of PE(pos)", "Table 3 row (E): PPL 4.92, BLEU 25.7 vs base 4.92 / 25.8"],
+      "traps": ["The extrapolation reason is a 'may allow', not a demonstrated result"]
+    },
+    {
+      "id": "Q4", "paper": ["AIAYN"], "type": "numeric", "answerable": true, "verified": true,
+      "required": [
+        {"point": "N = 6 layers (encoder and decoder each)", "cites": ["AIAYN Table 3", "AIAYN §3.1"]},
+        {"point": "d_model = 512", "cites": ["AIAYN Table 3", "AIAYN §3.1"]},
+        {"point": "d_ff = 2048", "cites": ["AIAYN Table 3", "AIAYN §3.3"]},
+        {"point": "h = 8 heads", "cites": ["AIAYN Table 3", "AIAYN §3.2.2"]},
+        {"point": "d_k = 64 and d_v = 64", "cites": ["AIAYN Table 3", "AIAYN §3.2.2"]},
+        {"point": "100K training steps", "cites": ["AIAYN Table 3", "AIAYN §5.2"]}
+      ],
+      "optional": ["P_drop = 0.1, ε_ls = 0.1, dev PPL 4.92, dev BLEU 25.8, 65M params"],
+      "traps": ["Big-model values must not appear as the answer: d_model 1024, d_ff 4096, h 16, P_drop 0.3, 300K steps, 213M params", "'Table 3' exists in all three papers (MOSHI Table 3 is a Mimi ablation, HNET Table 3 is HellaSwag robustness)"]
+    },
+    {
+      "id": "Q5", "paper": ["MOSHI"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Limitation 1, latency: it compounds along the pipeline's components, giving a global latency of several seconds (vs a few hundred ms in natural conversation)", "cites": ["MOSHI §1", "MOSHI Abstract"]},
+        {"point": "Limitation 2, text bottleneck: understanding and generation happen in text, so non-written information (paralinguistics such as emotion and accent, non-speech audio) is lost", "cites": ["MOSHI §1", "MOSHI Abstract"]},
+        {"point": "Limitation 3, turn-based modeling: assumes well-defined single-speaker segments, so it cannot model interruptions, overlapping speech and backchanneling", "cites": ["MOSHI §1", "MOSHI Abstract"]},
+        {"point": "Moshi casts dialogue as speech-to-speech generation in the audio domain on top of a text LLM backbone (Helium), removing the text bottleneck", "cites": ["MOSHI §1", "MOSHI Abstract"]},
+        {"point": "Streaming hierarchical architecture with theoretical latency 160 ms (200 ms in practice)", "cites": ["MOSHI §1", "MOSHI Abstract"]},
+        {"point": "Multi-stream modeling of its own and the user's audio removes the speaker-turn concept, allowing overlap and interruptions", "cites": ["MOSHI §1", "MOSHI Abstract", "MOSHI §3.4.3"]}
+      ],
+      "optional": ["Overlapping speech is 10 to 20% of spoken time", "Natural conversation average response time 230 ms across 10 languages"],
+      "traps": []
+    },
+    {
+      "id": "Q6", "paper": ["MOSHI"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "The two audio streams are Moshi's own speech and the user's speech", "cites": ["MOSHI §3.4.3", "MOSHI Abstract", "MOSHI §1"]},
+        {"point": "The acoustic delay is applied to both streams and they are concatenated into the jointly modeled multi-sequence", "cites": ["MOSHI §3.4.3", "MOSHI §3.4.4"]},
+        {"point": "There are no explicit turn boundaries: the model always listens and always generates (speech or silence), i.e. full-duplex", "cites": ["MOSHI §3.4.4", "MOSHI §1"]},
+        {"point": "At inference Moshi's stream is sampled while the user's predicted stream is replaced by the real user audio", "cites": ["MOSHI §3.4.4"]},
+        {"point": "Because there is no speaker-turn segmentation, overlap and interruptions can be modeled", "cites": ["MOSHI §1", "MOSHI Abstract"]}
+      ],
+      "optional": ["Predicting the user stream too enables simulated dialogues for offline evaluation", "Total K = 2Q+1 = 17 streams including the text stream"],
+      "traps": ["The text (Inner Monologue) stream is only for Moshi's speech, not the user's"]
+    },
+    {
+      "id": "Q7", "paper": ["MOSHI"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Mimi is an autoencoder (SeaNet with Transformers) with a residual vector quantization bottleneck: 24 kHz audio to 12.5 Hz latents, Q = 8 quantizers with codebook size 2048", "cites": ["MOSHI §3.3.1", "MOSHI §3.3"]},
+        {"point": "Semantic information is distilled from WavLM into the first quantizer level using a cosine distance", "cites": ["MOSHI §3.3.2"]},
+        {"point": "Split RVQ: distillation into a single RVQ's first level hurt audio quality, so semantic information goes into a plain VQ and acoustic information into a 7-level RVQ in parallel, with outputs summed", "cites": ["MOSHI §3.3.2"]},
+        {"point": "All convolutions are causal, so Mimi encodes and decodes in streaming fashion: an 80 ms frame yields a latent step that decodes to 80 ms of audio, which makes real-time generation possible", "cites": ["MOSHI §3.3.1"]}
+      ],
+      "optional": ["Bitrate 1.1 kbps", "Quantization applied only 50% of the time during training", "Non-causal pooling of WavLM targets is fine because it is only used in training"],
+      "traps": ["The latent is 512-d but projected to 256-d before RVQ"]
+    },
+    {
+      "id": "Q8", "paper": ["MOSHI"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Inner Monologue: Moshi also models the text of its own speech as a time-aligned text stream inserted as a prefix to the semantic tokens", "cites": ["MOSHI §3.4.4"]},
+        {"point": "Alignment: Whisper word-level timestamps are mapped to the 12.5 Hz frames, with PAD and EPAD special tokens filling the gaps between words", "cites": ["MOSHI §3.4.4"]},
+        {"point": "It provides scaffolding that increases the linguistic quality of generated speech", "cites": ["MOSHI §3.4.4", "MOSHI Table 6", "MOSHI Abstract"]},
+        {"point": "Delay controls which modality decides content: audio ahead of text (sample only text with real audio) gives streaming ASR; text ahead of audio gives streaming TTS", "cites": ["MOSHI §3.4.4", "MOSHI §C"]}
+      ],
+      "optional": ["Padding tokens are about 65% of text tokens in English conversational speech", "The user's speech is not transcribed"],
+      "traps": []
+    },
+    {
+      "id": "Q9", "paper": ["MOSHI"], "type": "numeric", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Depth Transformer model dimension 1024", "cites": ["MOSHI Table 1", "MOSHI §3.4.1"]},
+        {"point": "Depth Transformer MLP dimension 4096", "cites": ["MOSHI Table 1"]},
+        {"point": "Depth Transformer 16 heads", "cites": ["MOSHI Table 1", "MOSHI §3.4.1"]},
+        {"point": "Depth Transformer 6 layers", "cites": ["MOSHI Table 1", "MOSHI §3.4.1"]},
+        {"point": "Audio cardinality 2048", "cites": ["MOSHI Table 1", "MOSHI §3.3.1"]},
+        {"point": "Frame rate 12.5 Hz", "cites": ["MOSHI Table 1", "MOSHI §3.3.1"]}
+      ],
+      "optional": [],
+      "traps": ["Temporal Transformer values must not appear as the answer: model dim 4096, MLP 11264, 32 heads, 32 layers", "Text cardinality is 32000, not the audio cardinality", "'Table 1' exists in all three papers"]
+    },
+    {
+      "id": "Q10", "paper": ["HNET"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Encoder networks process the raw (byte-level) input sequence", "cites": ["HNET §2.1.1"]},
+        {"point": "The chunking layer (routing module + downsampler) compresses the sequence into fewer vectors using dynamically learned boundaries", "cites": ["HNET §2.1.1", "HNET §2.2.1"]},
+        {"point": "The main network processes the compressed sequence and can itself be an H-Net, giving recursive multi-stage hierarchies", "cites": ["HNET §2.1.1"]},
+        {"point": "The dechunking layer (smoothing module + upsampler) restores the original resolution, combined with a residual Linear(x) from the encoder side", "cites": ["HNET §2.1.1", "HNET §2.2.2"]},
+        {"point": "Decoder networks process the dechunked sequence back at the original resolution to produce outputs", "cites": ["HNET §2.1.1"]}
+      ],
+      "optional": ["Inspired by U-Net, but with dynamic rather than fixed-size pooling", "Components are stacks of sequence-mixing layers such as Transformers or SSMs"],
+      "traps": []
+    },
+    {
+      "id": "Q11", "paper": ["HNET"], "type": "single", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Routing module: cosine similarity between adjacent encoder outputs; q_t = W_q x_t, k_t = W_k x_t, p_t = ½(1 − cos(q_t, k_{t−1})), with p_1 = 1", "cites": ["HNET §2.2.1"]},
+        {"point": "Low similarity at a contextual or semantic shift gives a high boundary probability; boundary indicator b_t = 1 if p_t ≥ 0.5", "cites": ["HNET §2.2.1"]},
+        {"point": "Downsampler: keeps the vectors where b_t = 1 and discards those where b_t = 0 (direct selection, chosen over mean/max pooling and cross-attention)", "cites": ["HNET §2.2.1", "HNET §E.1"]},
+        {"point": "The boundary probabilities are compressed the same way and passed to the dechunking layer", "cites": ["HNET §2.2.1"]}
+      ],
+      "optional": ["Smoothing module (EMA) makes boundaries differentiable during training"],
+      "traps": ["The question's 'preserving important information' has no separate mechanism in the downsampler; the paper's reason is selecting boundary-marked vectors for simplicity and effectiveness"]
+    },
+    {
+      "id": "Q12", "paper": ["HNET"], "type": "numeric", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Large: BPE Transformer average 53.3 vs H-Net (2-stage) 55.5", "cites": ["HNET Table 2"]},
+        {"point": "XL: BPE Transformer average 55.5 vs H-Net (2-stage) 58.2", "cites": ["HNET Table 2"]},
+        {"point": "H-Net (2-stage) outperforms the tokenized baseline at both scales (the text states +2.2% at Large and +2.6% at XL)", "cites": ["HNET §3.1", "HNET Table 2"]},
+        {"point": "The Large H-Net (2-stage) matches the average downstream performance of the XL BPE Transformer", "cites": ["HNET §3.1", "HNET Table 2"]}
+      ],
+      "optional": ["H-Net (2-stage) achieves the highest performance across most tasks"],
+      "traps": ["Self-contradiction: §3.1 says +2.6% at XL, but Table 2 gives 58.2 − 55.5 = 2.7. Either is acceptable if attributed correctly; claiming the text says 2.7 is wrong", "The table labels the baseline 'Transformer (Token)'; the text calls it the BPE Transformer", "'Table 2' exists in all three papers"]
+    },
+    {
+      "id": "Q13", "paper": ["AIAYN", "HNET"], "type": "cross", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Positional encoding solves the lack of order information in a model with no recurrence or convolution: fixed sinusoids of position are added to the embeddings", "cites": ["AIAYN §3.5"]},
+        {"point": "Dynamic chunking learns content- and context-dependent segmentation end-to-end, replacing tokenization, and compresses the sequence into chunks", "cites": ["HNET Abstract", "HNET §2.2", "HNET §2.2.1"]},
+        {"point": "Contrast: positional encoding is fixed (not learned), depends only on position, and leaves sequence length unchanged; dynamic chunking is learned, depends on content (similarity of adjacent representations), and changes sequence length", "cites": ["AIAYN §3.5", "HNET §2.2.1"]}
+      ],
+      "optional": ["Learned positional embeddings performed about the same (AIAYN Table 3 (E))", "DC allocates compute by compressing low-information regions"],
+      "traps": ["Neither paper compares the two mechanisms; every comparative claim must rest on cited facts from each paper"]
+    },
+    {
+      "id": "Q14", "paper": ["AIAYN", "MOSHI"], "type": "cross", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Causal masking enforces that each output position depends only on earlier positions (positions < i), preserving the auto-regressive property", "cites": ["AIAYN §3.1", "AIAYN §3.2.3"]},
+        {"point": "Moshi's acoustic delay: a delay of 1 or 2 steps between semantic and acoustic tokens, which gave more stable, higher-quality generation and lets the Temporal Transformer model their inter-dependence", "cites": ["MOSHI §3.4.2"]},
+        {"point": "Moshi's text–audio delay decides which modality determines content, giving streaming ASR (audio ahead) or TTS (text ahead)", "cites": ["MOSHI §3.4.4"]},
+        {"point": "Moshi remains autoregressive over time steps: the Temporal Transformer conditions on previous steps", "cites": ["MOSHI §3.4.1"]}
+      ],
+      "optional": ["The delay reduces dependencies between sub-sequences at the same step, so a weaker model can approximate the joint distribution"],
+      "traps": []
+    },
+    {
+      "id": "Q15", "paper": ["MOSHI", "HNET"], "type": "cross", "answerable": true, "verified": true,
+      "required": [
+        {"point": "Moshi: the Temporal Transformer models the time axis, mapping past steps to a context vector z_s; the smaller Depth Transformer models the K sub-sequences (codebooks/streams) within one step, conditioned on z_s", "cites": ["MOSHI §3.4.1"]},
+        {"point": "Moshi's problem: flattening the codebooks would need about 100 steps per second (30,000 for 5 minutes), which is computationally costly and incompatible with streaming", "cites": ["MOSHI §3.4.1"]},
+        {"point": "H-Net: encoder, then chunking that compresses the sequence length with learned boundaries, then the main network on fewer vectors, then dechunking back to the original resolution; stages can nest", "cites": ["HNET §2.1.1"]},
+        {"point": "H-Net's problem: replace fixed tokenization with learned end-to-end segmentation and allocate compute by compressing low-information regions", "cites": ["HNET Abstract", "HNET §2.2"]},
+        {"point": "Contrast: Moshi decomposes the per-step depth (codebook) axis, while H-Net decomposes along sequence length", "cites": ["MOSHI §3.4.1", "HNET §2.1.1"]}
+      ],
+      "optional": ["Both are cited as RQ-Transformer / hierarchical relatives (Moshi notes a similar approach was suggested for byte-level modeling)"],
+      "traps": []
+    },
+    {
+      "id": "Q16", "paper": ["MOSHI"], "type": "unanswerable", "answerable": false, "verified": true,
+      "expected": "Refuse: no power draw or GPU memory figures for an RTX 4090 in the papers.",
+      "near_miss_facts": ["Moshi reports 160 ms theoretical / 200 ms practical latency", "Moshi's models were trained on H100 GPUs"],
+      "traps": ["Presenting latency or training hardware as if it answered the question = wrong"]
+    },
+    {
+      "id": "Q17", "paper": ["MOSHI"], "type": "unanswerable", "answerable": false, "verified": true,
+      "expected": "Refuse: no Hindi-English code-switching evaluation; no WER/CER for it.",
+      "near_miss_facts": ["Helium is pretrained on English data", "Moshi reports streaming ASR results on English benchmarks"],
+      "traps": ["Quoting an English ASR number as if it applied = wrong"]
+    },
+    {
+      "id": "Q18", "paper": ["HNET"], "type": "unanswerable", "answerable": false, "verified": true,
+      "expected": "Refuse: no inference memory limit on a 24 GB GPU is reported.",
+      "near_miss_facts": ["All tokenizer-free models process 8192 UTF-8 bytes per sequence in training"],
+      "traps": ["Answering '8192 bytes' as the maximum inference length = wrong"]
+    },
+    {
+      "id": "Q19", "paper": ["MOSHI"], "type": "unanswerable", "answerable": false, "verified": true,
+      "expected": "Refuse: Moshi models two speakers (itself and one user); no multi-party experiments or overlapping-speech accuracy for groups.",
+      "near_miss_facts": ["Two-speaker conversation modeling", "Overlapping speech is 10–20% of spoken time (motivation, not a result)", "Fisher two-speaker conversational data"],
+      "traps": ["Answering 'two speakers' as a demonstrated group-conversation maximum, or quoting turn-taking statistics as accuracy = wrong"]
+    },
+    {
+      "id": "Q20", "paper": ["MOSHI", "HNET"], "type": "unanswerable", "answerable": false, "verified": true,
+      "expected": "Refuse: neither paper reports training costs in US dollars.",
+      "near_miss_facts": ["Moshi: trained on H100 GPUs; Helium trained for 500k steps", "H-Net: FLOP-matched comparisons and FLOPs computation (Appendix B)"],
+      "traps": ["Converting compute or GPU counts into a dollar estimate = wrong"]
+    }
+  ]
+}

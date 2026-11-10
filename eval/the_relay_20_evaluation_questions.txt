@@ -1,0 +1,102 @@
+THE RELAY — 20 EVALUATION QUESTIONS (PDF-VERIFIED)
+
+Source versions checked:
+- Attention Is All You Need, arXiv:1706.03762v7
+- Moshi: a speech-text foundation model for real-time dialogue, arXiv:2410.00037v1
+- Dynamic Chunking for End-to-End Hierarchical Sequence Modeling, arXiv:2507.07955v2
+
+PART A — ATTENTION IS ALL YOU NEED
+
+Q1. Scaled dot-product attention
+In the Transformer's scaled dot-product attention mechanism, why are the query-key dot products divided by the square root of the key dimension before applying softmax? What problem does this scaling prevent?
+
+Q2. Encoder versus decoder attention
+The Transformer uses self-attention in both the encoder and decoder, but they do not operate identically. Explain the difference between encoder self-attention, masked decoder self-attention and encoder-decoder attention. Why is masking necessary in the decoder?
+
+Q3. Positional encoding
+The Transformer does not use recurrence or convolution to process sequence order. How does it incorporate positional information into token representations? Why did the authors choose sinusoidal positional encodings over learned positional embeddings, despite observing nearly identical results?
+
+Q4. Transformer base model — numerical question
+According to Table 3, what are the following hyperparameters of the original Transformer base model?
+- Number of encoder and decoder layers.
+- Model dimension (d_model).
+- Feed-forward dimension (d_ff).
+- Number of attention heads.
+- Key and value dimensions (d_k and d_v).
+- Number of training steps.
+
+Do not use the Transformer Big configuration in your answer.
+
+PART B — MOSHI
+
+Q5. Why did the authors introduce Moshi?
+The authors identify three major limitations of conventional spoken dialogue systems that rely on separate speech recognition, text-based dialogue and text-to-speech components. What are these three limitations, and how does Moshi's speech-to-speech approach attempt to address them?
+
+Q6. Multi-stream architecture
+Moshi is described as a full-duplex speech-to-speech model that jointly models multiple streams. What are the two audio streams—whose speech is represented in each—and how are these distinct streams jointly modelled to support simultaneous listening and speaking, overlapping speech and interruptions?
+
+Q7. Understanding Mimi
+Mimi is the neural audio codec used by Moshi. Explain how Mimi combines semantic and acoustic information into its audio representation. What role do residual vector quantization and knowledge distillation play, and why is Mimi's causal design important for real-time speech generation?
+
+Q8. Inner Monologue
+What is the Inner Monologue technique introduced in Moshi? Explain how time-aligned text tokens are incorporated into audio generation, why this improves linguistic quality, and how changing the delay between text and audio tokens allows the model to derive streaming ASR and TTS behaviour.
+
+Q9. Moshi model configuration — numerical question
+According to Table 1, report the following configuration details:
+- Depth Transformer's model dimension.
+- Depth Transformer's MLP dimension.
+- Number of Depth Transformer attention heads.
+- Number of Depth Transformer layers.
+- Audio token cardinality.
+- Audio frame rate.
+
+Be careful not to confuse the Depth Transformer configuration with the Temporal Transformer configuration.
+
+PART C — DYNAMIC CHUNKING AND H-NET
+
+Q10. Understanding H-Net
+The authors propose H-Net as an end-to-end hierarchical architecture that avoids conventional fixed-vocabulary tokenization. Describe the complete processing pipeline for byte-level language modelling, from the input sequence through the encoder, dynamic chunking, main network, dechunking and decoder. What does each stage do?
+
+Q11. Dynamic chunking mechanism
+H-Net's dynamic chunking mechanism consists of a routing module and a downsampler. How does the routing module identify potential chunk boundaries using adjacent representations? How does the downsampler use the boundary indicators to compress the sequence? Specifically, which vectors does it retain and which does it discard?
+
+Q12. H-Net experimental results — numerical question
+According to Table 2, compare the average zero-shot downstream accuracy of the BPE Transformer baseline and H-Net (2-stage) at both model scales:
+- Large (760M).
+- XL (1.3B).
+
+Then compare the gains implied by the displayed table values with the gains stated in §3.1. Is there any discrepancy? Attribute each figure to its source.
+
+PART D — QUESTIONS REQUIRING MULTIPLE PAPERS
+
+Q13. Positional encoding versus dynamic chunking
+Compare the sinusoidal positional encoding mechanism proposed in Attention Is All You Need with the learned dynamic chunking mechanism proposed in Dynamic Chunking for End-to-End Hierarchical Sequence Modeling. What problem does each mechanism solve? How do they differ in terms of injecting sequence structure versus learning content-dependent segmentation?
+
+Q14. Autoregressive generation in Transformers versus Moshi
+The original Transformer uses causal masking in its decoder to prevent access to future output tokens. Moshi uses multiple parallel token streams with configurable delays between different token types. Compare these two mechanisms. What dependency does causal masking enforce in the original Transformer, and what purpose do the delay patterns serve in Moshi's multi-stream autoregressive generation? Distinguish the acoustic delay from the text-audio delay used by Inner Monologue.
+
+Q15. Comparing hierarchical architectures: Moshi versus H-Net
+Both Moshi and H-Net use hierarchical processing, but their hierarchies serve different purposes. Compare:
+- Moshi's Temporal Transformer and Depth Transformer.
+- H-Net's encoder, dynamic chunking, main network, dechunking and decoder.
+
+What dimensions or structures are being decomposed in each architecture, and what computational or modelling problem is each hierarchy intended to address?
+
+PART E — QUESTIONS THE PAPERS CANNOT ANSWER
+
+For these questions, the expected behaviour is to refuse with an explanation that the requested information is not established by the three-paper library. Do not guess or use outside knowledge.
+
+Q16. Moshi's hardware requirements
+What is the exact power consumption in watts and GPU memory usage of Moshi when running continuous real-time dialogue on an NVIDIA RTX 4090?
+
+Q17. Indic language performance
+What Word Error Rate (WER) and Character Error Rate (CER) does Moshi achieve on Hindi-English code-switched conversational speech? Provide the corresponding evaluation dataset and benchmark results.
+
+Q18. H-Net deployment limits
+What is the maximum input sequence length, in bytes, that the proposed H-Net architecture can process during inference on a machine with 24 GB of GPU memory without running out of memory?
+
+Q19. Multi-party dialogue
+Does the paper report an experiment in which Moshi handles a group conversation with more than one human participant? If so, what is the maximum number of human participants and what measured accuracy does it achieve under overlapping speech conditions?
+
+Q20. Actual training expenditure
+What was the exact training expenditure in US dollars for Moshi and H-Net, including hardware rental, electricity, storage and data acquisition costs?
