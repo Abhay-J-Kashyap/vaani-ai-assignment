@@ -1,0 +1,4 @@
+# Binary files must never get line-ending conversion (core.autocrlf is on for this Windows checkout)
+*.pdf binary
+*.png binary
+*.npy binary
