@@ -1,0 +1,106 @@
+{
+  "source": "results\\probe_raw.jsonl",
+  "models": {
+    "openai/gpt-oss-120b": {
+      "n_calls": 120,
+      "queue_calm_ms": {
+        "mu": 5.6282,
+        "sigma": 0.478,
+        "n": 118,
+        "median_ms": 278.2
+      },
+      "queue_episode": {
+        "threshold_ms": 1000,
+        "share": 0.0167,
+        "extra_ms": null,
+        "note": "episodes are correlated: requests arriving together are delayed together",
+        "extra_ms_pooled": {
+          "mu": 7.4929,
+          "sigma": 0.279,
+          "n": 10,
+          "median_ms": 1795.3
+        }
+      },
+      "rest_first_token": {
+        "log_ms_intercept": 5.0316,
+        "log_ms_per_prompt_token": 0.0002996,
+        "sigma": 0.3342,
+        "n": 118
+      },
+      "server_tokens_per_s": {
+        "median": 475.3,
+        "p10": 468.1
+      },
+      "trickle": {
+        "share": 0.0417,
+        "n": 5,
+        "tokens_per_s": 67.3
+      },
+      "reasoning_tokens_median": 8.0
+    },
+    "openai/gpt-oss-20b": {
+      "n_calls": 76,
+      "queue_calm_ms": {
+        "mu": 5.6362,
+        "sigma": 0.5181,
+        "n": 68,
+        "median_ms": 280.4
+      },
+      "queue_episode": {
+        "threshold_ms": 1000,
+        "share": 0.1053,
+        "extra_ms": {
+          "mu": 7.4523,
+          "sigma": 0.2963,
+          "n": 8,
+          "median_ms": 1723.9
+        },
+        "note": "episodes are correlated: requests arriving together are delayed together",
+        "extra_ms_pooled": {
+          "mu": 7.4929,
+          "sigma": 0.279,
+          "n": 10,
+          "median_ms": 1795.3
+        }
+      },
+      "rest_first_token": {
+        "log_ms_intercept": 4.8741,
+        "log_ms_per_prompt_token": 0.0003012,
+        "sigma": 0.2457,
+        "n": 68
+      },
+      "server_tokens_per_s": {
+        "median": 894.8,
+        "p10": 792.2
+      },
+      "trickle": {
+        "share": 0.0,
+        "n": 0,
+        "tokens_per_s": null
+      },
+      "reasoning_tokens_median": 6.0
+    }
+  },
+  "rate_limited_response_ms": {
+    "mu": 4.6267,
+    "sigma": 0.3461,
+    "n": 24,
+    "median_ms": 102.2
+  },
+  "over_capacity_503": {
+    "share": 0.0064,
+    "n": 2,
+    "delay_ms": 30071.8,
+    "seen_on": [
+      "qwen/qwen3.8-27b"
+    ]
+  },
+  "limits": {
+    "rpm": 30,
+    "tpm": 8000,
+    "rpd": 1000,
+    "tpd": 200000,
+    "refill": "continuous token buckets; TPM reserves prompt + max_tokens; TPD charges actual usage",
+    "evidence": "probe_raw.jsonl headers + 429 bodies; results/groq_console_limits_2026-11-09.md"
+  }
+}
