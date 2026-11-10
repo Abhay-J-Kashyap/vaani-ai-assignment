@@ -37,20 +37,36 @@ ROUTER_COST, COMPLETION_EST = 480, 450        # measured on real_smoke: router ~
 SLACK = 0.15                                  # keep 15% of the day's budget for reruns (Budget plan)
 
 
-def done_pairs() -> set[tuple[str, str]]:
+def done_pairs(scenario: str) -> set[tuple[str, str]]:
     if not ANSWERS.exists():
         return set()
     out = set()
     for line in ANSWERS.read_text(encoding="utf-8").splitlines():
         a = json.loads(line)
-        if a["status"] == "ok" and a["sentences"]:
+        if a.get("scenario") == scenario and a["status"] == "ok" and a["sentences"]:
             out.add((a["setting"], a["qid"]))
     return out
 
 
-def projected(settings: list[str], pairs: list[tuple[str, str]]) -> dict[str, int]:
+def scan_prompts() -> dict[tuple[str, str], int]:
     import csv
-    prompt = {(r["setting"], r["qid"]): int(r["prompt_tokens"]) for r in csv.DictReader(SCAN.open(encoding="utf-8"))}
+    return {(r["setting"], r["qid"]): int(r["prompt_tokens"]) for r in csv.DictReader(SCAN.open(encoding="utf-8"))}
+
+
+async def wait_for_budget(ledger: Ledger, prompt: int) -> float:
+    """Sleep until both the router and a drafter call of about this size would be admitted at once. The margin
+    covers the gap between the scan's prompt estimate and the real prompt (the LLM router's query differs)."""
+    t = time.perf_counter()
+    while True:
+        w = max(ledger.wait_s(S.FULL_MODEL, prompt + 400, S.FULL_MAX_TOKENS)[0],
+                ledger.wait_s(S.ROUTER_MODEL, ROUTER_COST, S.ROUTER_MAX_TOKENS)[0])
+        if w <= 0:
+            return time.perf_counter() - t
+        await asyncio.sleep(w + 0.05)
+
+
+def projected(settings: list[str], pairs: list[tuple[str, str]]) -> dict[str, int]:
+    prompt = scan_prompts()
     drafter = sum(prompt.get(p, 2500) + COMPLETION_EST for p in pairs)
     return {S.FULL_MODEL: drafter, S.ROUTER_MODEL: ROUTER_COST * len(pairs)}
 
@@ -70,7 +86,8 @@ def withheld_sentences(rid: str) -> list[str]:
 async def main_async(a) -> None:
     qs = load_questions()
     qids = a.questions or list(qs)
-    have = done_pairs()
+    prompt_est = scan_prompts()
+    have = done_pairs(a.scenario)
     pairs = [(s, q) for q in qids for s in a.settings if (s, q) not in have]
     ledger = Ledger("real")
     need = projected(a.settings, pairs)
@@ -86,23 +103,29 @@ async def main_async(a) -> None:
     if not ok and not a.force:
         raise SystemExit("projected spend exceeds today's room; wait for refill or pass --force")
 
-    rows, trace = log_paths("real", "eval")
-    relays = {s: Relay("real", s, "eval", ledger=ledger, use_cache=False, allow_downgrade=False,
+    rows, trace = log_paths("real", a.scenario)
+    relays = {s: Relay("real", s, a.scenario, ledger=ledger, use_cache=False, allow_downgrade=False,
                        rows_path=rows, trace_path=trace) for s in a.settings}
     stamp = datetime.now(timezone.utc).strftime("%m%d%H%M")
     t0 = time.perf_counter()
     try:
         for i, (s, qid) in enumerate(pairs, 1):
-            rid = f"eval-{s}-{qid}-{stamp}"
+            # Wait for per-minute budget BEFORE the request starts, so its first-token time measures the pipeline
+            # and not this runner's own pacing (the first eval run, 2026-11-11, sent back to back and recorded
+            # 10-25 s first tokens that were almost all admission wait).
+            waited = await wait_for_budget(ledger, prompt_est.get((s, qid), 2500))
+            rid = f"{a.scenario}-{s}-{qid}-{stamp}"
             res = await relays[s].ask(qs[qid], request_id=rid, patience_s=PATIENCE_S)
-            rec = {"setting": s, "qid": qid, "request_id": rid, "question": qs[qid],
+            rec = {"scenario": a.scenario, "setting": s, "qid": qid, "request_id": rid, "question": qs[qid],
+                   "pre_wait_s": round(waited, 2),
                    "sentences": res["sentences"], "notices": res["notices"],
                    "withheld_sentences": withheld_sentences(rid)} | {k: res[k] for k in (
                        "status", "branch", "first_token_ms", "total_ms", "tokens_in", "tokens_out", "withheld",
                        "drafter_calls", "retries")}
             with ANSWERS.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            print(f"[{i:>2}/{len(pairs)} {time.perf_counter() - t0:6.0f}s] {s:<9} {qid:<4} {res['status']:<12} "
+            print(f"[{i:>2}/{len(pairs)} {time.perf_counter() - t0:6.0f}s pre-wait {waited:4.1f}s] {s:<9} {qid:<4} "
+                  f"{res['status']:<12} "
                   f"{res['branch']:<9} ft={res['first_token_ms']} total={res['total_ms']} "
                   f"tok={res['tokens_in']}/{res['tokens_out']} withheld={res['withheld']} calls={res['drafter_calls']}",
                   flush=True)
@@ -116,6 +139,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--settings", nargs="+", default=SETTINGS)
     ap.add_argument("--questions", nargs="+")
+    ap.add_argument("--scenario", default="eval", help="results.csv scenario; also names the rows file")
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--confirm-real", action="store_true")
     ap.add_argument("--force", action="store_true")
