@@ -1,0 +1,32 @@
+﻿[latency] openai/gpt-oss-20b small  status=200 ttft=330.4 total=446.6 tok=258/105 rem_req(day)=999 rem_tok(min)=7542 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=481.7 total=586.5 tok=1261/100 rem_req(day)=998 rem_tok(min)=6539 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=1434.8 total=1535.0 tok=2812/103 rem_req(day)=997 rem_tok(min)=4988 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=261.3 total=351.4 tok=265/102 rem_req(day)=996 rem_tok(min)=7635 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=770.3 total=880.3 tok=1264/104 rem_req(day)=995 rem_tok(min)=6631 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=611.2 total=714.8 tok=2812/110 rem_req(day)=994 rem_tok(min)=5083 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=477.4 total=592.2 tok=262/108 rem_req(day)=993 rem_tok(min)=7628 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=473.8 total=574.0 tok=1265/102 rem_req(day)=992 rem_tok(min)=6633 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=416.7 total=514.4 tok=2810/104 rem_req(day)=991 rem_tok(min)=5087 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=410.8 total=527.6 tok=264/105 rem_req(day)=990 rem_tok(min)=7626 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=553.9 total=654.7 tok=1266/106 rem_req(day)=989 rem_tok(min)=6624 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=596.9 total=1266.1 tok=2817/112 rem_req(day)=988 rem_tok(min)=5073 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=473.7 total=574.1 tok=268/99 rem_req(day)=987 rem_tok(min)=7620 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=528.9 total=627.9 tok=1262/102 rem_req(day)=986 rem_tok(min)=6626 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=681.1 total=778.2 tok=2810/107 rem_req(day)=985 rem_tok(min)=5088 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=498.2 total=602.7 tok=261/111 rem_req(day)=984 rem_tok(min)=7627 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=491.6 total=607.4 tok=1265/106 rem_req(day)=983 rem_tok(min)=6631 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=575.7 total=694.4 tok=2813/107 rem_req(day)=982 rem_tok(min)=5081 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=483.8 total=600.7 tok=262/98 rem_req(day)=981 rem_tok(min)=7626 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=544.6 total=638.9 tok=1266/103 rem_req(day)=980 rem_tok(min)=6627 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=582.7 total=690.3 tok=2816/111 rem_req(day)=979 rem_tok(min)=5077 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=526.7 total=697.3 tok=265/102 rem_req(day)=978 rem_tok(min)=7628 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=818.3 total=1695.6 tok=1263/106 rem_req(day)=977 rem_tok(min)=6625 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=1488.8 total=1606.6 tok=2811/102 rem_req(day)=976 rem_tok(min)=5077 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=515.7 total=673.1 tok=263/102 rem_req(day)=975 rem_tok(min)=7630 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=546.4 total=645.4 tok=1264/102 rem_req(day)=974 rem_tok(min)=6629 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=643.4 total=752.6 tok=2814/101 rem_req(day)=973 rem_tok(min)=5079 retry_after=None limit=None
+[latency] openai/gpt-oss-20b small  status=200 ttft=445.6 total=543.1 tok=265/101 rem_req(day)=972 rem_tok(min)=7623 retry_after=None limit=None
+[latency] openai/gpt-oss-20b medium status=200 ttft=561.3 total=669.8 tok=1264/110 rem_req(day)=971 rem_tok(min)=6629 retry_after=None limit=None
+[latency] openai/gpt-oss-20b large  status=200 ttft=304.7 total=438.8 tok=2817/107 rem_req(day)=970 rem_tok(min)=5072 retry_after=None limit=None
+
+30 requests sent; raw lines appended to results\probe_raw.jsonl (run 20261109T122441Z)
