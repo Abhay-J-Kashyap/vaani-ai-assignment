@@ -1,0 +1,25 @@
+# Secrets: the Groq key must never be committed (brief: "Do not include your key in your submission")
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Downloaded paper sources and built indexes (reproducible from the ingest script)
+data/raw/
+data/index/
+# Runtime state (budget ledger, answer cache) and stand-in development runs; real and scenario runs log to results/
+data/state/
+data/dev/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
