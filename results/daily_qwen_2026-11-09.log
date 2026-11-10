@@ -1,0 +1,44 @@
+﻿[daily_check_before] openai/gpt-oss-20b tiny   status=200 ttft=None total=509.4 tok=99/8 rem_req(day)=984 rem_tok(min)=7893 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=877.5 tok=2761/2 rem_req(day)=990 rem_tok(min)=5071 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=360.6 tok=2758/2 rem_req(day)=980 rem_tok(min)=5077 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=344.4 tok=2760/2 rem_req(day)=970 rem_tok(min)=5074 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=358.5 tok=2759/2 rem_req(day)=960 rem_tok(min)=5074 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=503 ttft=None total=30100.5 tok=None/None rem_req(day)=953 rem_tok(min)=5170 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=358.1 tok=2759/2 rem_req(day)=950 rem_tok(min)=5107 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=397.7 tok=2760/2 rem_req(day)=940 rem_tok(min)=5071 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=200 ttft=None total=723.1 tok=2761/2 rem_req(day)=930 rem_tok(min)=5105 retry_after=None limit=None
+[daily_tokens] qwen/qwen3.8-27b large  status=429 ttft=None total=98.3 tok=None/None rem_req(day)=927 rem_tok(min)=7900 retry_after=1180 limit=daily
+   daily limit hit after 74 requests, 30.9 min in.
+   message: Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m23mgkvfe918kwnmb4gqcdvf` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199910, Requested 2821. Please try again in 19m39.792s. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing
+[daily_check_after] openai/gpt-oss-20b tiny   status=200 ttft=None total=723.7 tok=103/8 rem_req(day)=999 rem_tok(min)=7889 retry_after=None limit=None
+   +    0.7s [daily_drain/drain] tiny  status=503 limit=None used=None requested=None stated_wait=None
+   +   32.9s [daily_drain/drain] tiny  status=200 limit=None used=None requested=None stated_wait=None
+   +   35.3s [daily_drain/drain] tiny  status=200 limit=None used=None requested=None stated_wait=None
+   +   37.5s [daily_drain/drain] tiny  status=429 limit=daily used=199983 requested=58 stated_wait=17.712
+   bucket empty: 3 tiny requests still got through after the large one was refused
+   +   67.6s [daily_watch/close] tiny  status=200 limit=None used=None requested=None stated_wait=None
+   tiny request succeeded 68s after the first daily 429
+   +   97.6s [daily_watch/close] large status=429 limit=daily used=199897 requested=2831 stated_wait=1178.495999999
+   +  157.9s [daily_watch/close] large status=429 limit=daily used=199758 requested=2831 stated_wait=1118.448
+   +  218.0s [daily_watch/close] large status=429 limit=daily used=199618 requested=2832 stated_wait=1058.4
+   +  278.1s [daily_watch/close] large status=429 limit=daily used=199479 requested=2829 stated_wait=997.056
+   +  338.2s [daily_watch/close] large status=429 limit=daily used=199340 requested=2829 stated_wait=937.008
+   +  398.4s [daily_watch/close] large status=429 limit=daily used=199201 requested=2830 stated_wait=877.392
+   +  458.5s [daily_watch/close] large status=429 limit=daily used=199062 requested=2830 stated_wait=817.343999999
+   +  518.6s [daily_watch/close] large status=429 limit=daily used=198922 requested=2833 stated_wait=758.16
+   +  578.8s [daily_watch/close] large status=429 limit=daily used=198783 requested=2833 stated_wait=698.112
+   +  638.9s [daily_watch/close] large status=429 limit=daily used=198644 requested=2832 stated_wait=637.632
+   +  699.0s [daily_watch/close] large status=429 limit=daily used=198505 requested=2828 stated_wait=575.856
+   +  759.1s [daily_watch/close] large status=429 limit=daily used=198366 requested=2830 stated_wait=516.672
+   +  819.2s [daily_watch/close] large status=429 limit=daily used=198227 requested=2834 stated_wait=458.352
+   +  879.3s [daily_watch/close] large status=429 limit=daily used=198087 requested=2831 stated_wait=396.576
+   +  939.5s [daily_watch/close] large status=429 limit=daily used=197948 requested=2828 stated_wait=335.23199999999997
+   +  999.5s [daily_watch/close] large status=429 limit=daily used=197809 requested=2831 stated_wait=276.48
+   + 1059.7s [daily_watch/close] large status=429 limit=daily used=197670 requested=2829 stated_wait=215.567999999
+   + 1119.8s [daily_watch/close] large status=429 limit=daily used=197531 requested=2831 stated_wait=156.38400000000001
+   + 1179.9s [daily_watch/close] large status=429 limit=daily used=197392 requested=2829 stated_wait=95.47200000000001
+   + 1240.0s [daily_watch/close] large status=429 limit=daily used=197253 requested=2829 stated_wait=35.424
+   + 1276.5s [daily_watch/close] large status=200 limit=None used=None requested=None stated_wait=None
+   large request succeeded 1277s after the first daily 429
+
+102 requests sent; raw lines appended to results\probe_raw.jsonl (run 20261109T180359Z)
