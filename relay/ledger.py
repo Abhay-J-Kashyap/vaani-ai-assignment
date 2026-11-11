@@ -100,7 +100,10 @@ class Ledger:
         """Charge actual tokens to TPD; re-sync RPD and TPM from Groq's headers when present."""
         a = self.acct(model)
         if usage:
-            a.tpd.take(usage.get("total_tokens") or (usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0)), now)
+            total = usage.get("total_tokens") or (usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0))
+            # Groq: cached prompt tokens (automatic prefix caching on gpt-oss) don't count toward rate limits
+            cached = (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0
+            a.tpd.take(max(0, total - cached), now)
         h = {k.lower(): v for k, v in (headers or {}).items()}
         if h.get("x-ratelimit-remaining-requests") is not None:
             a.rpd.set_level(float(h["x-ratelimit-remaining-requests"]), now)

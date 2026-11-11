@@ -86,6 +86,7 @@ class Req:
     truncated: str = ""               # why the answer was cut short, if it was
     on_event: object = None
     use_cache: bool = True            # False: this request neither reads nor writes the answer cache
+    cached_in: int = 0                # prompt tokens Groq served from its prefix cache (subset of tokens_in)
 
     @property
     def deadline(self) -> float:
@@ -232,7 +233,7 @@ class Relay:
                                   first_token_s=S.ROUTER_TIMEOUT_S, total_s=S.ROUTER_TIMEOUT_S, charge_start=False)
         self.count(r, res)
         route = parse_tool_call(r.question, res.tool_calls) if res.status == "ok" else None
-        self.trace(r, "route_end", by="llm" if route else "heuristic", status=res.status, ms=res.total_ms,
+        self.trace(r, "route_end", by="llm" if route else "heuristic", status=res.status, ms=res.total_ms, usage=res.usage,
                    tool=route and route.action, papers=route and route.papers,
                    subs=route and route.sub_questions, err=None if route else str(res.error)[:200])
         # A failed router call is not retried: the heuristic router is free and nearly as good for retrieval.
@@ -620,6 +621,7 @@ class Relay:
         if res and res.usage:
             r.tokens_in += int(res.usage.get("prompt_tokens") or 0)
             r.tokens_out += int(res.usage.get("completion_tokens") or 0)
+            r.cached_in += int((res.usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0)
 
     def trace(self, r: Req, ev: str, **kw) -> None:
         self.rec.trace({"rid": r.id, "t_ms": r.ms(), "ev": ev, **{k: v for k, v in kw.items() if v is not None}})
@@ -627,7 +629,8 @@ class Relay:
     def _finish(self, r: Req) -> None:
         status = r.cause or "ok"
         self.trace(r, "done", status=status, tier=r.tier, branch=r.branch, sentences=len(r.sentences),
-                   withheld=r.withheld, drafter_calls=r.drafter_calls, retries=r.retries)
+                   withheld=r.withheld, drafter_calls=r.drafter_calls, retries=r.retries,
+                   tokens_in=r.tokens_in, cached_in=r.cached_in)
         self.rec.row({
             "request_id": r.id, "scenario": r.scenario, "source": self.source, "start_time": r.start_iso,
             "first_token_ms": "" if r.first_token_ms is None else r.first_token_ms, "total_ms": r.ms(),
