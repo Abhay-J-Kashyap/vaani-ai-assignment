@@ -51,6 +51,17 @@ def embedder():
     return TextEmbedding(EMBED_MODEL, cache_dir=str(INDEX / "models"))
 
 
+LATE_MODEL = "answerdotai/answerai-colbert-small-v1"
+
+
+@lru_cache(maxsize=1)
+def late_model():
+    """ColBERT-style late interaction (one 96-d vector per token). Experiment, 2026-11-11: as a re-ranker of the
+    fused pool, scoring each candidate by MaxSim, i.e. for every query token its best-matching passage token."""
+    from fastembed import LateInteractionTextEmbedding
+    return LateInteractionTextEmbedding(LATE_MODEL, cache_dir=str(INDEX / "models"))
+
+
 @lru_cache(maxsize=1)
 def reranker():
     from fastembed.rerank.cross_encoder import TextCrossEncoder
@@ -65,6 +76,7 @@ class Hit:
     dense_rank: int | None
     dense_cos: float
     rerank: float | None = None
+    late: float | None = None
 
 
 class Index:
@@ -85,8 +97,25 @@ class Index:
             self.emb /= np.linalg.norm(self.emb, axis=1, keepdims=True)
             np.save(cache, self.emb)
 
+    def late_embeddings(self) -> tuple[np.ndarray, np.ndarray]:
+        """Per-token ColBERT vectors for every piece, cached as one array plus offsets (computed once, ~1 min)."""
+        if getattr(self, "_late", None) is None:
+            raw = "\n".join(json.dumps(c, sort_keys=True) for c in self.chunks).encode()
+            key = hashlib.sha256(raw + LATE_MODEL.encode()).hexdigest()[:16]
+            cache = INDEX / f"late_{self.size}_{key}.npz"
+            if cache.exists():
+                z = np.load(cache)
+                self._late = (z["vecs"], z["offsets"])
+            else:
+                embs = list(late_model().passage_embed([passage(c) for c in self.chunks]))
+                offsets = np.cumsum([0] + [len(e) for e in embs])
+                vecs = np.concatenate(embs).astype(np.float32)
+                np.savez(cache, vecs=vecs, offsets=offsets)
+                self._late = (vecs, offsets)
+        return self._late
+
     def search(self, query: str, k: int = 5, rerank: bool = False, pool: int = 30,
-               papers: list[str] | None = None, dense: bool = True) -> tuple[list[Hit], dict]:
+               papers: list[str] | None = None, dense: bool = True, late: bool = False) -> tuple[list[Hit], dict]:
         """`papers` restricts the search to those papers (used by the decompose branch: one sub-query per paper).
         `dense=False` is BM25 only (the naive baseline); the dense cosine is still computed for the confidence signal."""
         t0 = time.perf_counter()
@@ -113,6 +142,15 @@ class Index:
             for h, s in zip(hits, scores):
                 h.rerank = float(s)
                 h.score = float(s)
+            hits.sort(key=lambda h: h.score, reverse=True)
+        elif late and hits:
+            vecs, offsets = self.late_embeddings()
+            q = next(iter(late_model().query_embed([query])))
+            ids = {c["id"]: i for i, c in enumerate(self.chunks)}
+            for h in hits:
+                i = ids[h.chunk["id"]]
+                h.late = float((q @ vecs[offsets[i]:offsets[i + 1]].T).max(axis=1).sum())
+                h.score = h.late
             hits.sort(key=lambda h: h.score, reverse=True)
         t2 = time.perf_counter()
         timing = {"retrieve_ms": round((t1 - t0) * 1000, 1), "fuse_rerank_ms": round((t2 - t1) * 1000, 1),

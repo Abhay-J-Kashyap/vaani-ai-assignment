@@ -58,16 +58,17 @@ class Setting:
     k: int
     rerank: bool
     dense: bool = True
+    late: bool = False           # 'cb' suffix: ColBERT late-interaction re-rank (experiment, 2026-11-11)
 
 
-SETTING_RE = re.compile(r"^(h|bm)(\d+)k(\d+)(rr)?$")
+SETTING_RE = re.compile(r"^(h|bm)(\d+)k(\d+)(rr|cb)?$")
 
 
 def parse_setting(name: str) -> Setting:
     m = SETTING_RE.match(name)
     if not m:
-        raise ValueError(f"retrieval setting must look like h256k5, h512k4rr or bm256k8; got {name!r}")
-    return Setting(name, int(m.group(2)), int(m.group(3)), bool(m.group(4)), m.group(1) == "h")
+        raise ValueError(f"retrieval setting must look like h256k5, h512k4rr, h256k8cb or bm256k8; got {name!r}")
+    return Setting(name, int(m.group(2)), int(m.group(3)), m.group(4) == "rr", m.group(1) == "h", m.group(4) == "cb")
 
 
 DEFAULT_SETTING = "h256k8"    # chosen from Table 3 by the author, 2026-11-11 (65.0% good, 0 misreads past the gate)

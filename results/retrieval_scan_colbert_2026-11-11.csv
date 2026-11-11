@@ -1,0 +1,61 @@
+setting,qid,answerable,branch,confidence,points,reachable,missing,prompt_tokens,retrieval_ms,cites
+h256k8,Q1,True,answer,0.861,3,3,,2048,21.7,AIAYN §3.2.1 | AIAYN §3.2.1 | AIAYN §3.2.3 | AIAYN §6.2 | HNET §C | AIAYN Figure 2 | AIAYN §4 | AIAYN §2
+h256k8,Q2,True,answer,0.852,4,4,,1833,17.0,AIAYN §3.2.3 | AIAYN §3.1 | AIAYN §4 | AIAYN §7 | AIAYN §4 | AIAYN §2 | AIAYN §3 | AIAYN §3.1
+h256k8,Q3,True,answer,0.895,4,4,,1956,22.4,AIAYN §3.5 | AIAYN §3.5 | AIAYN §6.2 | AIAYN §3.4 | AIAYN §2 | MOSHI §3.2.1 | AIAYN Abstract | AIAYN §7
+h256k8,Q4,True,answer,0.793,6,6,,2029,64.7,AIAYN §6.2 | AIAYN §3.3 | AIAYN Table 3 | MOSHI §3.4.1 | HNET §2.1.2
+h256k8,Q5,True,answer,0.886,6,6,,2188,26.3,MOSHI Abstract | MOSHI §3.1 | MOSHI §1 | MOSHI §7 | MOSHI §1 | MOSHI §1 | MOSHI §2 | MOSHI §1
+h256k8,Q6,True,answer,0.925,5,3,The acoustic delay is applied to both streams and they are c; At inference Moshi's stream is sampled while the user's pred,2092,24.5,MOSHI §1 | MOSHI §3.1 | MOSHI Abstract | MOSHI §1 | MOSHI Abstract | MOSHI §7 | MOSHI §1 | MOSHI §2
+h256k8,Q7,True,answer,0.911,4,1,"Semantic information is distilled from WavLM into the first ; Split RVQ: distillation into a single RVQ's first level hurt; All convolutions are causal, so Mimi encodes and decodes in ",1894,22.0,MOSHI Figure 2 | MOSHI §3.3 | MOSHI §1 | MOSHI Table 4 | MOSHI §5.2 | MOSHI §3.1 | MOSHI §3.3
+h256k8,Q8,True,answer,0.922,4,4,,1954,23.7,MOSHI §7 | MOSHI §2 | MOSHI §5.7 | MOSHI §3.4.4 | MOSHI §3.4.4 | MOSHI §1 | MOSHI §1 | MOSHI §C
+h256k8,Q9,True,answer,0.813,6,6,,2408,74.0,MOSHI Table 1 | MOSHI §3.4.1 | MOSHI §3.4.1 | MOSHI §3.4.1 | MOSHI §5.8 | MOSHI Figure 3 | MOSHI §3.3.1 | MOSHI §4.4 | MOSHI §3.4.1
+h256k8,Q10,True,answer,0.907,5,5,,2007,18.7,HNET Abstract | HNET §1 | HNET §1 | HNET §F | HNET §2 | HNET §1 | HNET §5 | HNET §2.1.1
+h256k8,Q11,True,answer,0.926,4,4,,1867,20.3,HNET §2.2.1 | HNET Figure 1 | HNET §1 | HNET §2.2.3 | HNET §2.2.1 | HNET Figure 2 | HNET §2.2.1 | HNET §2.2.2
+h256k8,Q12,True,answer,0.849,3,3,,2092,25.0,HNET §3.1 | HNET Table 2 | HNET Figure 3 | HNET §3.1
+h256k8,Q13,True,decompose,0.868,3,3,,3072,61.1,AIAYN §3.5 | HNET §1 | AIAYN §2 | HNET §1 | AIAYN §3.5 | HNET §5 | AIAYN §4 | HNET §1 | HNET §A.1.4 | AIAYN §1 | HNET Figure 1 | HNET Abstract | HNET §1
+h256k8,Q14,True,decompose,0.832,4,2,Moshi's acoustic delay: a delay of 1 or 2 steps between sema; Moshi remains autoregressive over time steps: the Temporal T,2963,84.6,AIAYN §4 | MOSHI §5.3 | AIAYN §3.1 | MOSHI Figure 9 | AIAYN §7 | MOSHI §4.4 | AIAYN §3.2.3 | MOSHI Figure 8 | AIAYN §6.2 | MOSHI §5.3 | MOSHI §3.4.4 | MOSHI Figure 4
+h256k8,Q15,True,decompose,0.817,6,5,H-Net's problem: replace fixed tokenization with learned end,2972,73.1,HNET §2.1.1 | MOSHI §3.4.1 | HNET §2.1.2 | MOSHI §4.4 | HNET §1 | MOSHI §5.8 | HNET §2 | MOSHI §3.4.1 | HNET §3.3 | MOSHI §3.4.1 | HNET §2.1.2 | HNET §2.1.2 | HNET Figure 3
+h256k8,Q16,False,answer,0.78,0,0,,1884,27.0,MOSHI §7 | MOSHI §3.1 | MOSHI Abstract | MOSHI §1 | MOSHI Abstract | MOSHI §5.8 | MOSHI §7 | MOSHI §5.2
+h256k8,Q17,False,answer,0.806,0,0,,1791,17.0,MOSHI Table 3 | MOSHI §5.6 | MOSHI §5.2 | MOSHI §5.7 | MOSHI Table 17
+h256k8,Q18,False,answer,0.816,0,0,,2201,14.3,HNET §4 | AIAYN §6.1 | HNET §F | HNET §4 | HNET §4 | HNET §1 | AIAYN §1 | HNET §2.1.2
+h256k8,Q19,False,answer,0.826,0,0,,2283,20.3,MOSHI §5.5 | MOSHI §5.6 | MOSHI §4.3 | MOSHI §2 | MOSHI §5.4 | MOSHI §5.5 | MOSHI §3.1 | MOSHI Abstract
+h256k8,Q20,False,decompose,0.797,0,0,,2959,57.5,HNET §E.2 | MOSHI Acknowledgements | MOSHI §1 | HNET Figure 5 | MOSHI §4.4 | MOSHI §4.3 | HNET §3.2 | MOSHI §4.4 | MOSHI §3.1 | HNET §2.1.2 | MOSHI §4.4 | MOSHI §1 | HNET §F
+h256k8cb,Q1,True,answer,0.861,3,3,,2899,827.3,AIAYN §3.2.1 | AIAYN §3.2.3 | AIAYN §3.2.1 | AIAYN §6.2 | HNET §B | HNET §3 | AIAYN §3.2.2 | HNET Table 1
+h256k8cb,Q2,True,answer,0.852,4,4,,1951,595.5,AIAYN §3.2.3 | AIAYN §3.1 | AIAYN §3 | AIAYN §4 | AIAYN §3.1 | AIAYN §7 | HNET §A.2 | HNET §3.3
+h256k8cb,Q3,True,answer,0.895,4,4,,2695,247.8,AIAYN §3.5 | AIAYN §3.5 | AIAYN §6.2 | AIAYN §2 | AIAYN Table 3 | MOSHI §3.2.1 | AIAYN §4 | AIAYN Abstract
+h256k8cb,Q4,True,answer,0.793,6,6,,2444,1112.3,AIAYN §6.2 | HNET Table 1 | AIAYN Table 3 | AIAYN §3.3
+h256k8cb,Q5,True,answer,0.886,6,6,,2345,205.3,MOSHI §2 | MOSHI §1 | MOSHI Abstract | MOSHI §2 | MOSHI §1 | MOSHI §7 | MOSHI §3.1 | MOSHI §1
+h256k8cb,Q6,True,answer,0.925,5,3,The acoustic delay is applied to both streams and they are c; At inference Moshi's stream is sampled while the user's pred,2363,273.1,MOSHI §1 | MOSHI §2 | MOSHI §3.1 | MOSHI §1 | MOSHI Abstract | MOSHI §4.2 | MOSHI §7 | MOSHI §5.4
+h256k8cb,Q7,True,answer,0.911,4,2,Semantic information is distilled from WavLM into the first ; Split RVQ: distillation into a single RVQ's first level hurt,2144,225.9,MOSHI Figure 2 | MOSHI §3.1 | MOSHI Figure 1 | MOSHI §1 | MOSHI §3.3.1 | MOSHI §3.3 | MOSHI §3.3 | MOSHI Table 4
+h256k8cb,Q8,True,answer,0.922,4,4,,1906,158.6,MOSHI §3.4.4 | MOSHI §7 | MOSHI §3.4.4 | MOSHI §2 | MOSHI §5.7 | MOSHI §1 | MOSHI §3.4.4 | MOSHI §C
+h256k8cb,Q9,True,answer,0.813,6,6,,2235,478.0,MOSHI §3.4.1 | MOSHI §5.8 | MOSHI §3.3.1 | MOSHI Table 1 | MOSHI §4.4 | MOSHI §4.4 | MOSHI Figure 4 | MOSHI §3.4.1
+h256k8cb,Q10,True,answer,0.907,5,0,Encoder networks process the raw (byte-level) input sequence; The chunking layer (routing module + downsampler) compresses; The main network processes the compressed sequence and can i; The dechunking layer (smoothing module + upsampler) restores; Decoder networks process the dechunked sequence back at the ,2165,350.3,HNET §1 | HNET Abstract | HNET §F | HNET §1 | HNET §4 | HNET §1 | HNET §3.3 | HNET §A.2
+h256k8cb,Q11,True,answer,0.926,4,4,,1695,298.9,HNET Figure 1 | HNET §2.2.1 | HNET §1 | HNET §2.2.1 | HNET §2.2.2 | HNET §2.2.1 | HNET §2.2.2 | HNET §E.1
+h256k8cb,Q12,True,answer,0.849,3,3,,1449,360.2,HNET Table 2
+h256k8cb,Q13,True,decompose,0.868,3,2,Dynamic chunking learns content- and context-dependent segme,3066,667.9,AIAYN §2 | HNET §1 | AIAYN §1 | HNET §1 | AIAYN §4 | HNET §A.1.4 | AIAYN §3.5 | HNET §2 | AIAYN Abstract | HNET §A.2 | HNET §5 | HNET §3.1 | HNET §2.3
+h256k8cb,Q14,True,decompose,0.832,4,1,Moshi's acoustic delay: a delay of 1 or 2 steps between sema; Moshi's text–audio delay decides which modality determines c; Moshi remains autoregressive over time steps: the Temporal T,3071,1212.5,AIAYN §3.2.3 | MOSHI §5.3 | AIAYN §2 | MOSHI §4.4 | AIAYN §3.1 | MOSHI §4.4 | AIAYN §7 | MOSHI §2 | AIAYN §3 | MOSHI Figure 9 | MOSHI Table 6
+h256k8cb,Q15,True,decompose,0.817,6,5,H-Net's problem: replace fixed tokenization with learned end,3025,710.4,HNET §2.1.1 | MOSHI §3.4.1 | HNET §3.3 | MOSHI §3.4.1 | HNET §1 | MOSHI §2 | HNET §2.1.2 | MOSHI Table 1 | HNET Table 5 | HNET §2.4
+h256k8cb,Q16,False,answer,0.78,0,0,,2140,228.6,MOSHI §7 | MOSHI §3.1 | MOSHI §5.3 | MOSHI Figure 1 | MOSHI §1 | MOSHI §5.8 | MOSHI §5.8 | MOSHI §1
+h256k8cb,Q17,False,answer,0.806,0,0,,2045,152.9,MOSHI §5.7 | MOSHI §5.6 | MOSHI §5.7 | MOSHI §5.2 | MOSHI Table 3 | MOSHI Table 17
+h256k8cb,Q18,False,answer,0.816,0,0,,2123,85.2,HNET §4 | AIAYN §6.1 | HNET §F | HNET §A.1.2 | HNET §2.1.2 | HNET §4 | HNET §3.3 | HNET §3
+h256k8cb,Q19,False,answer,0.826,0,0,,2139,138.0,MOSHI §5.5 | MOSHI §4.3 | MOSHI §4.2 | MOSHI §5.5 | MOSHI Table 9 | MOSHI §6.3 | MOSHI §4.4
+h256k8cb,Q20,False,decompose,0.797,0,0,,3035,465.4,HNET Table 6 | MOSHI Table 1 | MOSHI §1 | HNET §3.1 | HNET Figure 5 | HNET Figure 3 | MOSHI §4.4 | MOSHI §3.1 | HNET §4 | MOSHI §4.4 | HNET §3.1
+h512k4cb,Q1,True,answer,0.867,3,3,,1645,899.4,AIAYN §3.2.1 | AIAYN §3.2.3 | AIAYN §6.2 | HNET §B
+h512k4cb,Q2,True,answer,0.852,4,4,,1289,954.7,AIAYN §3.2.3 | AIAYN §3.1 | AIAYN §3 | AIAYN §4
+h512k4cb,Q3,True,answer,0.904,4,4,,1453,479.9,AIAYN §3.5 | AIAYN §6.2 | AIAYN §2 | MOSHI §3.2.1
+h512k4cb,Q4,True,answer,0.793,6,6,,2444,2339.9,AIAYN Table 3 | AIAYN §6.2 | HNET Table 1 | AIAYN §3.3
+h512k4cb,Q5,True,answer,0.885,6,6,,2037,280.9,MOSHI §2 | MOSHI §1 | MOSHI Abstract | MOSHI §3.1
+h512k4cb,Q6,True,answer,0.929,5,3,The acoustic delay is applied to both streams and they are c; At inference Moshi's stream is sampled while the user's pred,2101,394.5,MOSHI §2 | MOSHI §3.1 | MOSHI §1 | MOSHI §1
+h512k4cb,Q7,True,answer,0.911,4,1,"Semantic information is distilled from WavLM into the first ; Split RVQ: distillation into a single RVQ's first level hurt; All convolutions are causal, so Mimi encodes and decodes in ",1245,182.4,MOSHI Figure 2 | MOSHI §3.1 | MOSHI Figure 1 | MOSHI §3.3
+h512k4cb,Q8,True,answer,0.916,4,4,,2039,196.1,MOSHI §1 | MOSHI §3.4.4 | MOSHI §2 | MOSHI §5.7
+h512k4cb,Q9,True,answer,0.813,6,6,,1985,760.7,MOSHI Table 1 | MOSHI §3.4.1 | MOSHI §5.3 | MOSHI §5.8
+h512k4cb,Q10,True,answer,0.906,5,5,,2239,403.3,HNET §4 | HNET §2.1.1 | HNET §1 | HNET §2.4
+h512k4cb,Q11,True,answer,0.919,4,4,,1766,415.2,HNET §2.2.1 | HNET Figure 1 | HNET §1 | HNET §2.2.2
+h512k4cb,Q12,True,answer,0.849,3,3,,1702,274.0,HNET Table 2 | HNET §3.1
+h512k4cb,Q13,True,decompose,0.869,3,0,"Positional encoding solves the lack of order information in ; Dynamic chunking learns content- and context-dependent segme; Contrast: positional encoding is fixed (not learned), depend",2634,627.7,AIAYN §2 | HNET §1 | AIAYN §1 | HNET §A.1.4 | AIAYN §4 | HNET §3.1
+h512k4cb,Q14,True,decompose,0.819,4,1,Moshi's acoustic delay: a delay of 1 or 2 steps between sema; Moshi's text–audio delay decides which modality determines c; Moshi remains autoregressive over time steps: the Temporal T,3037,882.4,AIAYN §3.2.3 | MOSHI §5.7 | AIAYN §2 | MOSHI §5.3 | AIAYN §3.1 | MOSHI §2 | MOSHI §5.3
+h512k4cb,Q15,True,decompose,0.821,6,5,H-Net's problem: replace fixed tokenization with learned end,2892,1742.0,HNET §2.1.1 | MOSHI §2 | HNET §2.4 | MOSHI §3.3.1 | HNET §4 | MOSHI §3.4.1
+h512k4cb,Q16,False,answer,0.774,0,0,,2085,396.5,MOSHI §5.8 | MOSHI §1 | MOSHI §3.1 | MOSHI §7
+h512k4cb,Q17,False,answer,0.809,0,0,,2040,123.4,MOSHI §5.7 | MOSHI §5.6 | MOSHI §5.2 | MOSHI Table 3
+h512k4cb,Q18,False,answer,0.822,0,0,,2071,156.9,HNET §4 | HNET §3 | HNET §2.1.2 | HNET §F
+h512k4cb,Q19,False,answer,0.83,0,0,,2256,170.0,MOSHI §5.5 | MOSHI §4.2 | MOSHI §4.3 | MOSHI §2
+h512k4cb,Q20,False,decompose,0.802,0,0,,2876,508.9,HNET Table 6 | MOSHI §4.4 | MOSHI §5.5 | HNET Figure 5 | HNET Figure 3 | HNET §4 | MOSHI Table 1

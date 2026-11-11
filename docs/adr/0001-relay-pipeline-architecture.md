@@ -386,6 +386,20 @@ Naive retries more than doubled the median wait and reserved 81% more per-minute
 
   Of answerable questions: h512k4 6/15, h256k8 10/15, h512k4rr 7/15. The choice of h256k8 holds. The grading history (strict → less strict → frozen rubric) stays visible in each changed answer's note.
 
+**Four strategies the author proposed, reviewed against sources and our measurements (2026-11-11):**
+- **Prefix caching (adopted, small).** Groq caches prompt prefixes automatically on gpt-oss only. Cached tokens cost 50% less and don't count toward rate limits. In the real eval, 7,680 of 117,962 drafter prompt tokens were cached (6.5%). Our prompt is already static-first; the only fully repeated prompts are identical questions, which the answer cache serves without a call. Change: the trace records cached tokens per request (router included), and the ledger no longer charges them to TPD.
+- **CQRS (not applicable).** Ingestion (fetch → parse → chunk → index) is already an offline batch; the query path only reads a fixed index.
+- **HyDE (deliberately not built; heading 8).** It searches with a model-written hypothetical answer. In a narrow, fact-bound library that answer can carry invented details ("knowledge leakage"), which would pull unanswerable questions (Q16–Q20, refused 15/15 today) toward plausible passages. Our measured misses weren't vocabulary gaps (split tables, table-number collisions, gate bugs), so HyDE fixes none of them.
+- **ColBERT late interaction (tested locally, rejected).** It was used as a re-ranker of the fused pool (`answerdotai/answerai-colbert-small-v1` via FastEmbed, MaxSim over per-token vectors; setting suffix `cb`). Local scan, no Groq (`results/retrieval_scan_colbert_2026-11-11.csv`):
+
+  | Setting | Points reachable | All points reachable | Retrieval p50 / max ms |
+  |---|---|---|---|
+  | h256k8 | 88.1% | 11/15 | 24 / 85 |
+  | h256k8cb | 79.1% | 9/15 | 325 / 1,212 |
+  | h512k4cb | 82.1% | 10/15 | 409 / 2,340 |
+
+  Token-level matching rewards passages that mention the most question terms, which in these papers are the overviews. For Q10 every passage became H-Net's introduction, abstract or appendix (5/5 → 0/5); Q13 and Q14 lost points to AIAYN §1/§2 and Moshi §4.4 overviews. It makes the "introduction outranks the method section" trap worse, and is evidence for the naive-retriever heading. The code stays as an opt-in setting; the default is unchanged.
+
 **Decisions on the pipeline (author, 2026-11-10):** all three accepted as recommended below.
 
 1. **`status` for a downgraded answer (author: accepted).** Recommended: `rate_limited` whenever a limit (a 429, or the ledger predicting one) gave the person a weaker answer than Full, including Lean and quoted passages; `ok` only when nothing forced a downgrade. Otherwise Table 2b would show 100% `ok` in the daily-exhausted row and hide the event.

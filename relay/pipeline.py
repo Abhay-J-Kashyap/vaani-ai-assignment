@@ -118,7 +118,7 @@ class Relay:
         self.pending_full = 0     # requests past admission that will want a Full draft but haven't reserved it yet
         # Warm up before the first request: index, embedding model (and re-ranker), tokenizer. Cold, the first
         # search took ~1.1 s instead of ~0.05 s, which would land on whichever request came first.
-        get_index(self.setting.size).search("warm up", 1, self.setting.rerank)
+        get_index(self.setting.size).search("warm up", 1, self.setting.rerank, late=self.setting.late)
         ntok("warm up")
 
     async def close(self) -> None:
@@ -247,7 +247,7 @@ class Relay:
         idx = get_index(self.setting.size)
         loop = asyncio.get_running_loop()
         fut = loop.run_in_executor(self.cpu, lambda: idx.search(query, k, rerank, pool=30, papers=papers,
-                                                                 dense=self.setting.dense))
+                                                                 dense=self.setting.dense, late=self.setting.late))
         limit = S.RETRIEVAL_TIMEOUT_S * (6 if rerank else 1)
         try:
             return await asyncio.wait_for(fut, timeout=limit)
@@ -659,7 +659,7 @@ async def dry_run(question: str, setting: str) -> None:
     s = S.parse_setting(setting)
     idx = get_index(s.size)
     route = heuristic_route(question)
-    hits, timing = idx.search(question, s.k, s.rerank, dense=s.dense)
+    hits, timing = idx.search(question, s.k, s.rerank, dense=s.dense, late=s.late)
     msgs = Relay.draft_messages(question, Relay.cap_passages(hits))
     prompt = S.CHAT_OVERHEAD + sum(ntok(m["content"]) for m in msgs)
     router = S.CHAT_OVERHEAD + S.TOOLS_TOKENS + sum(ntok(m["content"]) for m in router_messages(question))
