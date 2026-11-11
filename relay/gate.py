@@ -23,7 +23,12 @@ PAPER_CODES = ("AIAYN", "MOSHI", "HNET")
 ABBREV = {"e.g", "i.e", "et al", "al", "fig", "figs", "eq", "eqs", "sec", "vs", "cf", "approx", "resp", "no", "tab",
           "etc", "ca", "appx"}
 BRACKET = re.compile(r"\[([^\[\]]{2,120})\]")
-NUM = re.compile(r"(?<![\w.])[-−]?\d[\d,]*(?:\.\d+)?(?:[eE][-−]?\d+)?(?:[KMB](?![a-zA-Z]))?")
+# A unit suffix may follow a space ("100 K", "760 M", "1.3 B" as gpt-oss writes them; the papers write "100K").
+NUM = re.compile(r"(?<![\w.])[-−]?\d[\d,]*(?:\.\d+)?(?:[eE][-−]?\d+)?(?:[   ]?[KMB](?![a-zA-Z]))?")
+# Not data values, so never checked against the passages (real eval, 2026-11-11: each made the gate withhold a
+# correct sentence): list markers "(1) (2) (3)" / "1)", and super/subscripts in notation such as p^0, x_t, z^{s+1}.
+LIST_MARK = re.compile(r"\(\s*(?:\d{1,2}|[ivx]{1,4}|[a-h])\s*\)|(?<![\w.])\d{1,2}\)(?=\s)")
+SUBSUP = re.compile(r"[\^_](?:\{[^{}]*\}|[A-Za-z0-9]+)")
 REF_NUM = re.compile(r"(?:§\s*|\b(?:Table|Tables|Figure|Figures|Fig\.|Section|Sections|Sec\.|Eq\.|Equation|Appendix|"
                      r"Algorithm|Q|arXiv:?)\s*)[A-Z]?\d+(?:\.\d+)*(?:\s*(?:,|and|–|-)\s*[A-Z]?\d+(?:\.\d+)*)*", re.I)
 NOT_COVERED = re.compile(
@@ -68,7 +73,7 @@ def strip_cites(sentence: str) -> str:
 
 
 def num_value(tok: str) -> float | None:
-    t = tok.replace(",", "").replace("−", "-")
+    t = re.sub(r"[\s,]", "", tok).replace("−", "-")
     mult = {"K": 1e3, "M": 1e6, "B": 1e9}.get(t[-1:], 1)
     if mult != 1:
         t = t[:-1]
@@ -80,7 +85,7 @@ def num_value(tok: str) -> float | None:
 
 def numbers(text: str, drop_refs: bool = True) -> list[tuple[str, float]]:
     if drop_refs:
-        text = REF_NUM.sub(" ", text)
+        text = SUBSUP.sub(" ", LIST_MARK.sub(" ", REF_NUM.sub(" ", text)))
     out = []
     for m in NUM.finditer(text):
         v = num_value(m.group(0))
@@ -90,7 +95,7 @@ def numbers(text: str, drop_refs: bool = True) -> list[tuple[str, float]]:
 
 
 def decimals(tok: str) -> int:
-    t = tok.rstrip("KMB").replace(",", "")
+    t = re.sub(r"[\s,]", "", tok).rstrip("KMB")
     return len(t.split(".")[1]) if "." in t else 0
 
 

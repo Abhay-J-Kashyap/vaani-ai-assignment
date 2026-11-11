@@ -105,7 +105,7 @@ async def main_async(a) -> None:
 
     rows, trace = log_paths("real", a.scenario)
     relays = {s: Relay("real", s, a.scenario, ledger=ledger, use_cache=False, allow_downgrade=False,
-                       rows_path=rows, trace_path=trace, verify=a.verify) for s in a.settings}
+                       rows_path=rows, trace_path=trace) for s in a.settings}
     stamp = datetime.now(timezone.utc).strftime("%m%d%H%M")
     t0 = time.perf_counter()
     try:
@@ -139,10 +139,7 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--settings", nargs="+", default=SETTINGS)
     ap.add_argument("--questions", nargs="+")
-    ap.add_argument("--scenario", default="eval", help="results.csv scenario; also names the rows file")
-    ap.add_argument("--verify", choices=["gate", "judge"], default="gate",
-                    help="gate = Option C (default); judge = Option B, for the C-vs-B comparison")
-    ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--scenario", default="eval", help="results.csv scenario; also names the rows file")    ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--confirm-real", action="store_true")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()

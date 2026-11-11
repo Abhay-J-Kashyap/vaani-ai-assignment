@@ -303,6 +303,26 @@ Modules: `relay/pipeline.py` (stages 0–6, CLI), `relay/gate.py` (sentence spli
   - *Borderline points* (strict reading requires detail the question doesn't ask for): Q3 wavelength progression, Q7 codec numbers, Q10 recursion, Q11 probabilities to dechunking, Q13 length contrast. Pending the author's ruling; a lenient ruling would flip h256k8 to 7/15 and h512k4rr to 6/15, h512k4 to 5/15.
 - **Re-rank breaks the first-token target** (p95 14.9 s against 4 s) without improving quality.
 
+**Decisions after the graded eval (author, 2026-11-11):**
+1. **Setting: h512k4** (on the assistant's recommendation from the strict grades). *Reopened the same day:* under the less-strict rule below, h256k8 leads (65.0% vs 50.0%); the assistant asked the author to confirm or switch.
+2. **Fix the gate's three false positives before step 3** (accepted). List markers "(1) (2) (3)", a space before K/M/B ("100 K"), and super/subscripts ("p^0") are no longer read as data values; tests added; real counts and made-up numbers are still caught ("4 problems", "300 K steps"). Replaying the fixed gate on the eval's withheld sentences: all six false positives now pass, and three *wrong* Q12 sentences ("53.3 % at both scales") also pass. They had been withheld only by accident. That is the gate's known blind spot (a real number attached to the wrong row), shown on real output. Trace events now keep the whole sentence (they were cut at 300 characters, which hid the citations of long sentences).
+3. **Grading made less strict (author: "right now the results make it seem as if we have a useless RAG system").** A required point counts when its main idea is stated correctly. Specific details inside it (numbers, names, formulas, secondary clauses) are required only when the question asks for them. Wrong facts and unsupported citations still make an answer wrong; refusal grading is unchanged. The first, stricter grades are kept in each changed answer's note ("strict: wrong"). Table 3 under each rule:
+
+   | Setting | Strict: good % (correct) | Less strict: good % (correct) |
+   |---|---|---|
+   | h512k4 | 45.0% (4/15) | 50.0% (5/15) |
+   | h256k8 | 40.0% (3/15) | 65.0% (8/15) |
+   | h512k4rr | 40.0% (3/15) | 60.0% (7/15) |
+4. **No Groq judge (author overruled the planned Option B run: "you be the judge cause we don't have a lot of tokens").** The Option B mode (buffer + one LLM judge on the 20b) that had been added for the comparison was removed unrun. The comparison is computed from the eval run alone (`python -m eval.c_vs_b`, 0 tokens): B sends nothing until the draft is complete, so B's first token is C's `total_ms`; the assistant's grading is the judge of "misread but passed the gate".
+
+   | Setting | C first token p50 / p95 | B first token p50 / p95 | C lower by (p50 / p95) | Misread but passed | Gate-fail rate |
+   |---|---|---|---|---|---|
+   | h512k4 | 1,318 / 2,268 ms | 1,740 / 2,568 ms | 24.3% / 11.7% | 4/14 = 28.6% | 5/53 = 9.4% |
+   | h256k8 | 1,388 / 2,542 ms | 1,788 / 3,447 ms | 22.3% / 26.3% | 0/14 = 0.0% | 6/57 = 10.5% |
+   | h512k4rr | 5,583 / 14,883 ms | 5,865 / 15,229 ms | 4.8% / 2.3% | 3/15 = 20.0% | 8/56 = 14.3% |
+
+   Against the pre-registered triggers: gate-fail stays under 25% everywhere. C's first-token p50 is 22–24% below a *judge-free* B, short of the 30% bar; but any runtime judge call adds to B's first token, and the bar is met once that call takes ≥ 143 ms at h512k4 (1,318 ≤ 0.7 × (1,740 + 143)). No Groq call measured on Day 1 or since returned that fast. The misread trigger (> 10%) fires at h512k4 (28.6%) and not at h256k8 (0%): this is the gate's blind spot, which only a meaning check (a judge) would catch, at a token cost the author ruled out.
+
 **Decisions on the pipeline (author, 2026-11-10):** all three accepted as recommended below.
 
 1. **`status` for a downgraded answer (author: accepted).** Recommended: `rate_limited` whenever a limit (a 429, or the ledger predicting one) gave the person a weaker answer than Full, including Lean and quoted passages; `ok` only when nothing forced a downgrade. Otherwise Table 2b would show 100% `ok` in the daily-exhausted row and hide the event.

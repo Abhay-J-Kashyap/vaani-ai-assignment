@@ -36,17 +36,20 @@ def main() -> None:
         if g["answer_grade"] not in allowed:
             raise SystemExit(f"{g['request_id']} ({a['qid']}): {g['answer_grade']} not allowed for this question")
 
-    have = set()
+    last = {}                                         # latest recorded grade event per request (append-only trace)
     if TRACE.exists():
         for line in TRACE.read_text(encoding="utf-8").splitlines():
             if '"ev": "grade"' in line:
-                have.add(json.loads(line)["rid"])
+                e = json.loads(line)
+                last[e["rid"]] = (e["grade"], e["points_covered"], e["points_required"])
     with TRACE.open("a", encoding="utf-8") as f:
         for g in grades:
-            if g["request_id"] not in have and g["points_required"]:
-                f.write(json.dumps({"rid": g["request_id"], "ev": "grade", "grade": g["answer_grade"],
-                                    "points_covered": int(g["points_covered"]),
-                                    "points_required": int(g["points_required"])}) + "\n")
+            if not g["points_required"]:
+                continue
+            now = (g["answer_grade"], int(g["points_covered"]), int(g["points_required"]))
+            if last.get(g["request_id"]) != now:      # first grade, or a regrade that changed it
+                f.write(json.dumps({"rid": g["request_id"], "ev": "grade", "grade": now[0], "points_covered": now[1],
+                                    "points_required": now[2], "regrade": g["request_id"] in last}) + "\n")
 
     by = defaultdict(lambda: defaultdict(int))
     cov = defaultdict(lambda: [0, 0])

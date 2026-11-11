@@ -6,8 +6,8 @@ eval-h512k4-Q2-11110706,h512k4,Q2,correct,4,4,all points; 'offset by one' detail
 eval-h256k8-Q2-11110706,h256k8,Q2,correct,4,4,all points; 'offset by one' detail omitted (subordinate)
 eval-h512k4rr-Q2-11110706,h512k4rr,Q2,correct,4,4,all points; 'offset by one' detail omitted (subordinate)
 eval-h512k4-Q3-11110706,h512k4,Q3,correct,4,4,all points incl. formula and wavelength progression
-eval-h256k8-Q3-11110706,h256k8,Q3,wrong,3,4,"R2 missing wavelength geometric progression [borderline: not asked by Q3]; R3 cited 6.2, which supports it"
-eval-h512k4rr-Q3-11110706,h512k4rr,Q3,wrong,3,4,R2 formula given but wavelength progression missing [borderline: not asked by Q3]
+eval-h256k8-Q3-11110706,h256k8,Q3,correct,4,4,"all main ideas; wavelength progression not given (not asked by Q3; strict: wrong); R3 cited 6.2, which supports it"
+eval-h512k4rr-Q3-11110706,h512k4rr,Q3,correct,4,4,all main ideas with formula; wavelength progression not given (not asked; strict: wrong)
 eval-h512k4-Q4-11110706,h512k4,Q4,refused_wrongly,0,6,said the papers don't give the values [retrieval: AIAYN Table 3 not retrieved for the router's query]
 eval-h256k8-Q4-11110706,h256k8,Q4,refused_wrongly,0,6,"same refusal [retrieval: got HNET Table 1 x5 instead of AIAYN Table 3, the 'Table N in every paper' trap]"
 eval-h512k4rr-Q4-11110706,h512k4rr,Q4,wrong,5,6,"R6 100K steps withheld: model wrote '100 K', gate read 100 [gate-FP]"
@@ -18,31 +18,31 @@ eval-h512k4-Q6-11110706,h512k4,Q6,wrong,3,5,R2 delay+concatenation and R4 infere
 eval-h256k8-Q6-11110706,h256k8,Q6,wrong,4,5,"R4 (user stream replaced by real audio at inference) missing; a second summary sentence withheld for '2' [gate-FP, no grade effect]"
 eval-h512k4rr-Q6-11110706,h512k4rr,Q6,wrong,3,5,R2 and R4 missing; 'processed jointly by a Depth-Transformer architecture' [wrong-fact]
 eval-h512k4-Q7-11110706,h512k4,Q7,wrong,1,4,"R1 lacks Q=8/2048 [borderline]; R2 says WavLM distilled 'into the causal encoder', not the first quantizer level; R3 split RVQ named but described as a plain RVQ [wrong-fact]"
-eval-h256k8-Q7-11110706,h256k8,Q7,wrong,3,4,"R2-R4 right incl. split RVQ; R1 lacks 24 kHz->12.5 Hz, Q=8, 2048 [borderline: Q7 does not ask for these numbers]"
-eval-h512k4rr-Q7-11110706,h512k4rr,Q7,wrong,3,4,R2-R4 right; R1 lacks the codec numbers [borderline]
+eval-h256k8-Q7-11110706,h256k8,Q7,correct,4,4,all main ideas incl. split RVQ; codec numbers not given (not asked by Q7; strict: wrong)
+eval-h512k4rr-Q7-11110706,h512k4rr,Q7,correct,4,4,all main ideas; codec numbers not given (not asked; strict: wrong)
 eval-h512k4-Q8-11110706,h512k4,Q8,wrong,3,4,"R2 alignment (Whisper timestamps, PAD/EPAD) missing"
 eval-h256k8-Q8-11110706,h256k8,Q8,wrong,3,4,R2 alignment missing
-eval-h512k4rr-Q8-11110706,h512k4rr,Q8,wrong,3,4,"R2 partly: padding tokens mentioned, Whisper word timestamps missing"
+eval-h512k4rr-Q8-11110706,h512k4rr,Q8,correct,4,4,R2 main idea present (text aligned to the frame rate with padding tokens); Whisper not named (strict: wrong)
 eval-h512k4-Q9-11110706,h512k4,Q9,correct,6,6,"all six from MOSHI Table 1, no Temporal values"
 eval-h256k8-Q9-11110706,h256k8,Q9,wrong,3,6,"dim/heads/layers right; says the papers don't give MLP dim, cardinality, frame rate [retrieval: MOSHI Table 1 not retrieved]"
 eval-h512k4rr-Q9-11110706,h512k4rr,Q9,correct,6,6,all six from MOSHI Table 1
-eval-h512k4-Q10-11110706,h512k4,Q10,wrong,3,5,R2 chunking sentence withheld: '0' from the superscript in p^0 read as a number [gate-FP]; R3 recursion missing [borderline]
-eval-h256k8-Q10-11110706,h256k8,Q10,wrong,3,5,R3 recursion missing [borderline]; R4 omits the encoder residual Linear(x); cites HNET 1 (intro) throughout
-eval-h512k4rr-Q10-11110706,h512k4rr,Q10,wrong,3,5,R3 recursion missing [borderline]; says the decoder upsamples to byte resolution (dechunking does) [wrong-fact]
-eval-h512k4-Q11-11110706,h512k4,Q11,wrong,3,4,R1-R3 right with formula and 0.5 threshold; R4 (probabilities passed to dechunking) missing [borderline: not asked by Q11]
-eval-h256k8-Q11-11110706,h256k8,Q11,wrong,3,4,R1-R3 right with formula and 0.5 threshold; R4 (probabilities passed to dechunking) missing [borderline: not asked by Q11]
-eval-h512k4rr-Q11-11110706,h512k4rr,Q11,wrong,3,4,R1-R3 right with formula and 0.5 threshold; R4 (probabilities passed to dechunking) missing [borderline: not asked by Q11]
+eval-h512k4-Q10-11110706,h512k4,Q10,wrong,4,5,R2 chunking sentence withheld: '0' from the superscript in p^0 read as a number [gate-FP]
+eval-h256k8-Q10-11110706,h256k8,Q10,correct,5,5,"every stage's main idea, cited to HNET 1 (intro), which states them; recursion and residual Linear(x) not given (not asked; strict: wrong)"
+eval-h512k4rr-Q10-11110706,h512k4rr,Q10,wrong,4,5,says the decoder upsamples to byte resolution (dechunking does) [wrong-fact]
+eval-h512k4-Q11-11110706,h512k4,Q11,correct,4,4,"routing (cosine, 0.5 threshold) and downsampler (keep b=1, discard rest); probabilities-to-dechunking not given (not asked by Q11; strict: wrong)"
+eval-h256k8-Q11-11110706,h256k8,Q11,correct,4,4,"routing (cosine, 0.5 threshold) and downsampler (keep b=1, discard rest); probabilities-to-dechunking not given (not asked by Q11; strict: wrong)"
+eval-h512k4rr-Q11-11110706,h512k4rr,Q11,correct,4,4,"routing (cosine, 0.5 threshold) and downsampler (keep b=1, discard rest); probabilities-to-dechunking not given (not asked by Q11; strict: wrong)"
 eval-h512k4-Q12-11110706,h512k4,Q12,wrong,0,3,only the 3.1 prose figures sent; table sentences withheld and were wrong (58.2 placed at Large) [retrieval: table split into row parts]
 eval-h256k8-Q12-11110706,h256k8,Q12,wrong,0,3,"H-Net averages and 3.1 figures sent, no baselines or differences; withheld sentences wrong (53.3 at both scales)"
 eval-h512k4rr-Q12-11110706,h512k4rr,Q12,wrong,0,3,3.1 figures sent; table reading confused by row-part chunks; withheld sentences wrong (gain 0%)
-eval-h512k4-Q13-11110706,h512k4,Q13,wrong,2,3,"R3 contrast lacks the sequence-length difference; contrast sentence about sinusoids cited only HNET 1, which doesn't support that half"
-eval-h256k8-Q13-11110706,h256k8,Q13,wrong,2,3,R3 contrast lacks the sequence-length difference [borderline]
+eval-h512k4-Q13-11110706,h512k4,Q13,wrong,3,3,"the contrast sentence's claims about sinusoids are cited only to HNET 1, which doesn't support that half (unsupported citation)"
+eval-h256k8-Q13-11110706,h256k8,Q13,correct,3,3,"both purposes and the fixed/position vs learned/content contrast, each cited to its paper; length difference not stated (strict: wrong)"
 eval-h512k4rr-Q13-11110706,h512k4rr,Q13,wrong,2,3,both contrast sentences withheld for missing citations (genuine gate catch)
 eval-h512k4-Q14-11110706,h512k4,Q14,wrong,1,4,'tau = 2 corresponds to a 2-second audio delay' [wrong-fact: 2 steps = 160 ms]; R3 lacks ASR/TTS; R4 missing
 eval-h256k8-Q14-11110706,h256k8,Q14,correct,4,4,causal mask; acoustic delay and Temporal Transformer; text-audio delay -> TTS/ASR; autoregressive
 eval-h512k4rr-Q14-11110706,h512k4rr,Q14,wrong,1,4,acoustic delay described as latency only; text-audio delay lacks ASR/TTS; R4 missing
-eval-h512k4-Q15-11110706,h512k4,Q15,wrong,2,6,"R2 flattening cost/streaming, R5 compute allocation, R6 explicit contrast missing; R3 lacks nesting"
-eval-h256k8-Q15-11110706,h256k8,Q15,wrong,1,6,"R2, R4 residual combination, R5, R6 missing; R3 lacks nesting"
+eval-h512k4-Q15-11110706,h512k4,Q15,wrong,3,6,"R2 (why flattening fails), R5 (H-Net's problem), R6 (explicit contrast of axes) missing"
+eval-h256k8-Q15-11110706,h256k8,Q15,wrong,2,6,"R2, R4 (decoder combines coarse output with residuals), R5, R6 missing"
 eval-h512k4rr-Q15-11110706,h512k4rr,Q15,wrong,2,6,"R2 only partly (S vs K*S steps, no streaming); R4 says the decoder restores resolution [wrong-fact]; R5, R6 missing"
 eval-h512k4-Q16-11110706,h512k4,Q16,refused_correctly,,,refused; no value given
 eval-h256k8-Q16-11110706,h256k8,Q16,refused_correctly,,,refused; no value given

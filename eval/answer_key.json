@@ -3,6 +3,7 @@
   "grading_rule": {
     "decided_by": "author, 2026-11-10 (strict); citation rule amended by author, 2026-11-10",
     "correct": "Answerable question: EVERY required point is present and right, and each claim carries a citation to a passage that supports it.",
+    "point_rule": "Amended by the author 2026-11-11 ('drop down the strictness a bit'): a required point counts when its main idea is stated correctly; specific details inside it (numbers, names, formulas, secondary clauses) are required only when the question asks for them. Wrong facts and unsupported citations still make an answer wrong.",
     "citation_rule": "A citation counts if the cited passage actually supports the claim. The 'cites' listed for each point are a guide to where the support is, not an exhaustive allowed set: papers repeat facts across the abstract, introduction and method sections. A cite to a passage that does not support the claim is still wrong.",
     "diagnostic_not_a_grade": "For each answerable question, the grader also records required-point coverage (points covered / points required) in trace.jsonl. It is not written to results.csv and does not change answer_grade; it is only used to explain differences between retrieval settings in the write-up, labelled as coming from the trace.",
     "wrong": "Answerable question: any required point missing, any stated fact wrong (including a forbidden value from 'traps'), or a claim cited to a passage that does not support it. Unanswerable question: anything other than a refusal, i.e. the asked quantity is given or guessed.",

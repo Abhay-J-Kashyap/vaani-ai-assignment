@@ -23,9 +23,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
-import json
 import math
-import re
 import sys
 import time
 import uuid
@@ -54,8 +52,6 @@ DRAFT_SYSTEM = """You answer engineers' questions using ONLY the passages provid
 4. If the passages answer only part of the question, answer that part and say which part the papers do not cover.
 5. If two passages disagree (e.g. prose versus a table), report both and attribute each.
 6. Plain sentences only: no headings, no tables, no bullet symbols. At most 10 sentences."""
-
-JUDGE_SYSTEM = """You check a draft answer against the passages it was written from. For each numbered sentence, decide whether it is supported: the passage it cites must state what the sentence says, including every number. A sentence saying the papers do not cover something is supported only if no passage answers that part. Reply with JSON only: {"supported": [numbers], "unsupported": [numbers]}"""
 
 REGEN_NOTE = ("Your previous answer was rejected because its sentences lacked valid citations or used numbers not in "
               "the cited passage. Every sentence must end with one of these labels: {labels}.")
@@ -87,7 +83,6 @@ class Req:
     drafter_calls: int = 0
     truncated: str = ""               # why the answer was cut short, if it was
     on_event: object = None
-    buffer: list[str] = field(default_factory=list)    # Option B: draft sentences awaiting the judge
 
     @property
     def deadline(self) -> float:
@@ -104,11 +99,7 @@ class Relay:
     def __init__(self, source: str = "stand-in", setting: str = S.DEFAULT_SETTING, scenario: str = "dev",
                  ledger: Ledger | None = None, base_url: str | None = None, use_cache: bool = True,
                  allow_downgrade: bool = True, retry_mode: str = "policy", llm_router: bool = True,
-                 rows_path: Path | None = None, trace_path: Path | None = None, cpu_workers: int = 2,
-                 verify: str = "gate"):
-        """verify='gate' is Option C (per-sentence deterministic gate, streamed). verify='judge' is Option B, kept
-        for the C-vs-B comparison only: buffer the whole draft, one LLM judge call, then send what it supports."""
-        self.verify = verify
+                 rows_path: Path | None = None, trace_path: Path | None = None, cpu_workers: int = 2):
         self.source, self.scenario = source, scenario
         self.setting = S.parse_setting(setting)
         self.llm = LLM(source, ledger, base_url)
@@ -348,11 +339,6 @@ class Relay:
             msgs = self.draft_messages(r.question, use, regen)
             prompt = S.CHAT_OVERHEAD + sum(ntok(m["content"]) for m in msgs)
             outcome = await self.call_drafter(r, model, msgs, prompt, max_tokens, passages)
-            if self.verify == "judge" and r.buffer and outcome == "done":
-                if not await self.judge(r, r.question, use, passages):
-                    if self.allow_downgrade:
-                        await self.extractive(r, hits, True, "error")
-                    return
             if outcome in ("downgrade", "fallback"):
                 if outcome == "downgrade" and not lean and self.allow_downgrade and self.lean_ok(prompt):
                     r.tier = "lean"
@@ -459,54 +445,10 @@ class Relay:
             return attempt < 1 and r.left() >= 2 * S.FIRST_TOKEN_P50_S + S.DRAFT_MARGIN_S, 0.0
         return attempt < 1 and r.left() > S.DRAFT_MARGIN_S + 1, self.retry.backoff(attempt)   # 5xx / connection
 
-    async def judge(self, r: Req, question: str, hits, passages: dict[str, str]) -> bool:
-        """Option B's check: one LLM call judges every buffered sentence; supported ones are sent together.
-        Returns False when the judge itself fails (limit, error, unparseable reply): B then sends nothing."""
-        sents, r.buffer = r.buffer, []
-        body = "\n".join(f"[{h.chunk['cite']}] {h.chunk['text']}" for h in hits)
-        numbered = "\n".join(f"{i}. {s}" for i, s in enumerate(sents, 1))
-        msgs = [{"role": "system", "content": JUDGE_SYSTEM},
-                {"role": "user", "content": f"PASSAGES:\n{body}\nQUESTION: {question}\nDRAFT SENTENCES:\n{numbered}"}]
-        prompt = S.CHAT_OVERHEAD + sum(ntok(m["content"]) for m in msgs)
-        if not await self.admit(r, S.JUDGE_MODEL, prompt, S.JUDGE_MAX_TOKENS, max_wait=r.left() - 0.5):
-            r.cause = r.cause or "rate_limited"
-            self.trace(r, "judge_end", status="shed")
-            return False
-        self.trace(r, "judge_start", model=S.JUDGE_MODEL, prompt_est=prompt, n=len(sents))
-        res = await self.llm.chat(model=S.JUDGE_MODEL, messages=msgs, max_tokens=S.JUDGE_MAX_TOKENS,
-                                  prompt_tokens=prompt, stream=False, first_token_s=S.CALL_TOTAL_TIMEOUT_S,
-                                  total_s=min(S.CALL_TOTAL_TIMEOUT_S, max(1.0, r.left())), charge_start=False)
-        self.count(r, res)
-        supported = None
-        if res.status == "ok":
-            m = re.search(r"\{.*\}", res.content or "", flags=re.S)
-            try:
-                supported = {int(i) for i in json.loads(m.group(0)).get("supported", [])} if m else None
-            except (ValueError, TypeError, AttributeError):
-                supported = None
-        self.trace(r, "judge_end", status=res.status, ms=res.total_ms, usage=res.usage,
-                   supported=sorted(supported) if supported is not None else None,
-                   err=None if supported is not None else (str(res.error) if res.error else (res.content or "")[:200]))
-        if supported is None:
-            r.cause = r.cause or ("rate_limited" if res.status == "rate_limited" else
-                                  "timeout" if res.status == "timeout" else "error")
-            return False
-        for i, s in enumerate(sents, 1):
-            if i in supported:
-                self.emit(r, "sentence", s)
-            else:
-                r.withheld += 1
-                self.trace(r, "judge_reject", text=s[:300])
-        return True
-
     def gate(self, r: Req, sentence: str, passages: dict[str, str]) -> None:
-        if self.verify == "judge":
-            if re.search(r"[A-Za-z]{2}", sentence):
-                r.buffer.append(sentence)                 # Option B: nothing is sent until the judge has ruled
-            return
         g = check_citations(sentence, passages, r.question)
         self.trace(r, "gate_pass" if g.ok else "gate_fail", kind=g.kind, reason=g.reason, cites=g.cites,
-                   derived=g.derived or None, text=sentence[:300])
+                   derived=g.derived or None, text=sentence[:2000])   # whole sentence: the ungated answer is rebuilt from these
         if not g.ok:
             r.withheld += 1
         elif g.kind != "skip":

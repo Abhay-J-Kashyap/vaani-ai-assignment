@@ -62,7 +62,15 @@ def main() -> None:
         ("The papers do not report it, but it is about 450 W.", False, "fail"),                # guess smuggled in
         ("As Table 3 shows, the base model uses 8 heads [AIAYN Table 3].", True, "answer"),    # 'Table 3' is a ref
         ("**Encoder:**", True, "skip"),
+        # false positives seen in the real eval (2026-11-11): each withheld a correct sentence
+        ("The model was trained for 100 K steps (train = 100K) [AIAYN Table 3].", True, "answer"),
+        ("Pipelines suffer from (1) latency, (2) a text bottleneck and (3) turns [AIAYN §3.2.1].", True, "answer"),
+        ("The chunks (x^1, p^0) and z^{s+1} go to the next stage [AIAYN §3.2.1].", True, "answer"),
+        ("The Large (760 M) Transformer scores 53.3 [HNET Table 2].", True, "answer"),
+        ("The base model trains for 300 K steps [AIAYN Table 3].", False, "fail"),           # still caught
+        ("Pipelines suffer from 4 problems [AIAYN §3.2.1].", False, "fail"),                  # a real count, still checked
     ]
+    P["HNET Table 2"] += " Large 760M"
     for s, ok, kind in cases:
         r = check_citations(s, P, Q)
         assert (r.ok, r.kind) == (ok, kind), (s, r)
