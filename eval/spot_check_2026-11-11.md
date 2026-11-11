@@ -26,7 +26,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `correct` (4/4 points). all main ideas; wavelength progression not given (not asked by Q3; strict: wrong); R3 cited 6.2, which supports it
 
-**Your verdict:** 
+**Your verdict:** Correct. 4/4 points are present and the answer is similar to the key.
 
 ---
 
@@ -53,7 +53,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `correct` (4/4 points). all main ideas incl. split RVQ; codec numbers not given (not asked by Q7; strict: wrong)
 
-**Your verdict:** 
+**Your verdict:** Correct. 4/4 points are present and all main ideas included.
 
 ---
 
@@ -81,7 +81,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `correct` (5/5 points). every stage's main idea, cited to HNET 1 (intro), which states them; recursion and residual Linear(x) not given (not asked; strict: wrong)
 
-**Your verdict:** 
+**Your verdict:** Correct. 5/5 and all main ideas are present.
 
 ---
 
@@ -106,7 +106,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `correct` (3/3 points). both purposes and the fixed/position vs learned/content contrast, each cited to its paper; length difference not stated (strict: wrong)
 
-**Your verdict:** 
+**Your verdict:** Correct. all 3/3 points are present and main ideas are included.
 
 ---
 
@@ -130,7 +130,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `wrong` (3/3 points). the contrast sentence's claims about sinusoids are cited only to HNET 1, which doesn't support that half (unsupported citation)
 
-**Your verdict:** 
+**Your verdict:** Correct. But citation is wrong. So maybe partial correct.
 
 ---
 
@@ -158,7 +158,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `correct` (4/4 points). R2 main idea present (text aligned to the frame rate with padding tokens); Whisper not named (strict: wrong)
 
-**Your verdict:** 
+**Your verdict:** Correct. al main ideas present. 
 
 ---
 
@@ -188,7 +188,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `wrong` (4/5 points). R4 (user stream replaced by real audio at inference) missing; a second summary sentence withheld for '2' [gate-FP, no grade effect]
 
-**Your verdict:** 
+**Your verdict:** Partial correct. idea is present but some poitns are missing.
 
 ---
 
@@ -215,7 +215,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `wrong` (1/4 points). 'tau = 2 corresponds to a 2-second audio delay' [wrong-fact: 2 steps = 160 ms]; R3 lacks ASR/TTS; R4 missing
 
-**Your verdict:** 
+**Your verdict:** Agree. It is wrong.
 
 ---
 
@@ -241,7 +241,7 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `wrong` (2/6 points). R2 only partly (S vs K*S steps, no streaming); R4 says the decoder restores resolution [wrong-fact]; R5, R6 missing
 
-**Your verdict:** 
+**Your verdict:** Agree with assistant's grade. Wrong.
 
 ---
 
@@ -261,6 +261,6 @@ For each item write **agree** or **disagree + your grade**. Disagreements are re
 
 **Assistant's grade:** `refused_correctly`. refused at the decide branch (re-rank score below threshold), no drafter call
 
-**Your verdict:** 
+**Your verdict:** Refused correctly. agree with assistant's grade.
 
 ---
