@@ -287,6 +287,22 @@ Modules: `relay/pipeline.py` (stages 0–6, CLI), `relay/gate.py` (sentence spli
 - **Grading: the assistant grades all 60 answers against the author's key**, by the amended strict rule, with a written note per required point (`results/grades_eval.csv`). No LLM judge on Groq. The author reviews a sample and overrules where they disagree; overrules are recorded as evidence for the write-up.
 - **Option C vs B comparison: run it** (author: "no harm in running it"). It runs on the setting Table 3 picks, so after the main eval. The ungated baseline (Option D) costs nothing extra: the trace keeps every withheld sentence, so D's answer is C's answer plus what the gate withheld.
 
+**Eval run, graded (2026-11-11; 60 real answers, `results/grades_eval.csv`; Table 3 from `python -m tools.tables --table 3`).**
+
+| Setting | Good % | Correct (answerable) | Refused correctly | Tokens/answer | First token p50 / p95 ms | Total p50 / p95 ms |
+|---|---|---|---|---|---|---|
+| h512k4 | 45.0% | 4/15 | 5/5 | 2,602 | 1,318 / 2,268 | 1,740 / 2,568 |
+| h256k8 | 40.0% | 3/15 | 5/5 | 2,988 | 1,388 / 2,542 | 1,788 / 3,447 |
+| h512k4rr | 40.0% | 3/15 | 5/5 | 2,431 | 5,583 / 14,883 | 5,865 / 15,229 |
+
+- **Every unanswerable question was refused correctly under every setting** (15/15); re-rank refused 3 of them at the decide branch with no drafter call, which is why its tokens/answer is lowest.
+- **Why strict correctness is low (causes tagged per answer in the notes):**
+  - *Gate false positives* (the gate withheld correct sentences): list markers "(1) (2) (3)" read as numbers (Q5, all three settings); "100 K" with a space vs "100K" (Q4 rr); a superscript in "p^0" read as 0 (Q10). These alone cost Q5 ×3 and Q4 rr.
+  - *Retrieval misses*: the LLM router's rewritten query missed AIAYN Table 3 for Q4 at h512k4/h256k8 (both refused wrongly; h256k8 pulled HNET Table 1, the "Table N exists in every paper" trap); MOSHI Table 1 missed for Q9 at h256k8; H-Net Table 2 split into row-part pieces confused Q12 under every setting.
+  - *Drafter omissions and wrong facts*: Q6, Q8, Q14, Q15 detail; "τ = 2 is a 2-second delay" (Q14 h512k4); "the decoder upsamples" (Q10/Q15 rr).
+  - *Borderline points* (strict reading requires detail the question doesn't ask for): Q3 wavelength progression, Q7 codec numbers, Q10 recursion, Q11 probabilities to dechunking, Q13 length contrast. Pending the author's ruling; a lenient ruling would flip h256k8 to 7/15 and h512k4rr to 6/15, h512k4 to 5/15.
+- **Re-rank breaks the first-token target** (p95 14.9 s against 4 s) without improving quality.
+
 **Decisions on the pipeline (author, 2026-11-10):** all three accepted as recommended below.
 
 1. **`status` for a downgraded answer (author: accepted).** Recommended: `rate_limited` whenever a limit (a 429, or the ledger predicting one) gave the person a weaker answer than Full, including Lean and quoted passages; `ok` only when nothing forced a downgrade. Otherwise Table 2b would show 100% `ok` in the daily-exhausted row and hide the event.
