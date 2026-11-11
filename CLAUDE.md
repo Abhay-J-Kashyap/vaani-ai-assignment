@@ -84,7 +84,10 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
 .\.venv\Scripts\python.exe -m standin.server --port 8088 [--tpm-scale 0.5] [--tpd-start 0]   # stand-in Groq; admin at /admin/state, /admin/config
 .\.venv\Scripts\python.exe -m tests.smoke_standin                      # client + ledger + stand-in end to end; no Groq
 .\.venv\Scripts\python.exe -m eval.check_key                           # every answer-key cite resolves to a real corpus place
-.\.venv\Scripts\python.exe -m relay.pipeline "question" [--setting h256k5] [--no-cache]   # one request on the stand-in (start it first); logs to data/dev/
+.\.venv\Scripts\python.exe -m relay.pipeline "question" [--setting h256k8] [--no-cache]   # one request on the stand-in (start it first); logs to data/dev/. Default setting h256k8 (author, 2026-11-11)
+.\.venv\Scripts\python.exe -m eval.run_eval --dry-run                  # gold set on real Groq per setting (then --confirm-real)
+.\.venv\Scripts\python.exe -m tools.tables --table 3                   # Table 3 from results.csv alone
+.\.venv\Scripts\python.exe -m eval.c_vs_b                              # Option C vs B from the eval run (0 tokens)
 .\.venv\Scripts\python.exe -m relay.pipeline "question" --source real --dry-run           # route + retrieve locally, print the token cost; no Groq
 .\.venv\Scripts\python.exe -m tests.test_gate                          # citation gate + streaming sentence splitter
 .\.venv\Scripts\python.exe -m tests.smoke_pipeline                     # every pipeline path on its own stand-in (burst, TPM halved, daily gone, give-up)

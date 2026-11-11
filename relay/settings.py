@@ -68,7 +68,7 @@ def parse_setting(name: str) -> Setting:
     return Setting(name, int(m.group(2)), int(m.group(3)), bool(m.group(4)), m.group(1) == "h")
 
 
-DEFAULT_SETTING = "h256k5"    # provisional until Table 3 picks one
+DEFAULT_SETTING = "h256k8"    # chosen from Table 3 by the author, 2026-11-11 (65.0% good, 0 misreads past the gate)
 
 
 def setting_label(setting: str, tier: str) -> str:
