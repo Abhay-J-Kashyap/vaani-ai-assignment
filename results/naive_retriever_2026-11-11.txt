@@ -1,0 +1,39 @@
+﻿1. Every paper has a Table 1-3
+  Q: According to Table 3, what are the hyperparameters of the original Transformer base model?
+  want AIAYN Table 3
+  BM25 top 8: ['AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN §6.1']
+  dense-only top 8: ['AIAYN §6.2', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3', 'AIAYN Table 3']
+
+1. Every paper has a Table 1-3
+  Q: According to Table 1, what are the Depth Transformer's model dimension, MLP dimension, heads and layers?
+  want MOSHI Table 1
+  BM25 top 8: ['MOSHI Table 1', 'MOSHI §3.4.1', 'MOSHI §3.3.1', 'MOSHI Table 1', 'HNET §F', 'AIAYN §3.2.2', 'HNET §2.1.2', 'AIAYN §3.4']
+  dense-only top 8: ['MOSHI §3.4.1', 'AIAYN §3.2.2', 'AIAYN §6.2', 'HNET §2.1.2', 'AIAYN Figure 1', 'MOSHI §3.4.1', 'MOSHI §3.4.1', 'AIAYN §3.3']
+
+2. Introductions restate the method in the same words
+  Q: Describe the H-Net pipeline: encoder, dynamic chunking, main network, dechunking and decoder. What does each do?
+  want HNET §2.1.1 (method), not HNET §1 (introduction)
+  BM25 top 8: ['HNET §2.4', 'HNET §1', 'HNET §F', 'HNET §2.1.1', 'HNET §2.1.1', 'HNET §2.1.2', 'HNET §1', 'HNET Figure 2']
+  dense-only top 8: ['HNET §1', 'HNET §1', 'HNET Figure 1', 'HNET §1', 'HNET §2', 'HNET §2.1.1', 'HNET §1', 'HNET §2.2']
+
+3. The papers contradict themselves
+  Q: What BLEU score does the Transformer reach on WMT 2014 English-to-French?
+  Abstract and Table 2 say 41.8; §6.1 prose says 41.0
+  BM25 top 8: ['AIAYN §6.1', 'AIAYN Abstract', 'AIAYN §5.1', 'AIAYN §7', 'AIAYN Table 2', 'AIAYN Table 2', 'AIAYN Table 4', 'AIAYN Table 4']
+  dense-only top 8: ['AIAYN §6.1', 'AIAYN Table 2', 'AIAYN Table 2', 'AIAYN Abstract', 'HNET §3.1', 'AIAYN §5.1', 'HNET Table 2', 'HNET Figure 5']
+     AIAYN §6.1 contains 41.0
+     AIAYN Abstract contains 41.8
+     AIAYN Table 2 contains 41.8
+     AIAYN Table 4 contains 2.7
+
+3. The papers contradict themselves
+  Q: By how much does H-Net (2-stage) beat the BPE Transformer at XL scale?
+  §3.1 prose says +2.6; Table 2 gives 58.2 - 55.5 = 2.7
+  BM25 top 8: ['HNET §3.1', 'HNET §3.1', 'HNET §3.2', 'HNET Figure 3', 'HNET Figure 5', 'HNET Table 4', 'HNET §3.1', 'HNET Table 4']
+  dense-only top 8: ['HNET §3.1', 'HNET Table 4', 'HNET §3.1', 'HNET Figure 5', 'HNET Table 4', 'HNET Table 4', 'HNET Figure 3', 'HNET §3.3']
+     HNET §3.1 contains 2.6
+
+4. Unpublished source: data\raw\1706.03762v7\src\parameter_attention.tex (490 words) ships in the arXiv source, but its \input is commented out of ms.tex, so it is not in the published paper.
+   It begins: * Two Feed-Forward Layers = Attention over Parameters sec:parameter_attention In addition to attention layers, our model contains position-wise feed-forward networks (Section sec:ffn ), which consist of two linear transf...
+4. Unpublished source: data\raw\1706.03762v7\src\sqrt_d_trick.tex (305 words) ships in the arXiv source, but its \input is commented out of ms.tex, so it is not in the published paper.
+   It begins: * Justfication of the Scaling Factor in Dot-product Attention In Section~ sec:scaled-dot-prod , we introduced Scaled dot-product attention, where we scale down the dot products by d_k . In this section, we will give a ro...

@@ -1,0 +1,15 @@
+What the person sees at 3pm with the daily budget gone (stand-in; replies as rendered to the person)
+
+State A (120b daily budget gone, 20b has budget): status=rate_limited tier=lean first text after 929.6 ms, done after 1031 ms, tokens 1829/172
+  Person asks: How does Mimi combine semantic and acoustic information in its tokens?
+  [Shorter answer: today's budget for full answers is used up; the next full answer should be possible in about 21 minutes.]
+    Consequently, and taking inspiration from previous work on SpeechTokenizer , Mimi uses distillation to transfer non-causal, high-level semantic information into the tokens produced by a causal model, allowing for streaming encoding and decoding of semantic-acoustic tokens [MOSHI §3.3].
+    Audio language models typically combine such acoustic tokens with semantic tokens from a self-supervised speech model as it is necessary to produce intelligible speech in absence of text conditioning  [MOSHI §1].
+    During training (blue part, top), we distill non-causal embeddings from WavLM into a single vector quantizer which produces semantic tokens, and is combined with separate acoustic tokens for reconstruction [MOSHI Figure 2].
+
+State B (both daily budgets gone): status=rate_limited tier=extractive first text after 30.3 ms, done after 31 ms, tokens 0/0
+  Person asks: How does Mimi combine semantic and acoustic information in its tokens?
+  [Full answers are paused: today's model budget is used up. The budget refills continuously; the next full answer should be possible in about 22 minutes. These are the most relevant passages, quoted from the papers:]
+    “Consequently, and taking inspiration from previous work on SpeechTokenizer , Mimi uses distillation to transfer non-causal, high-level semantic information into the tokens produced by a causal model, allowing for streaming encoding and decoding of semantic-acoustic tokens.” [MOSHI §3.3]
+    “Audio language models typically combine such acoustic tokens with semantic tokens from a self-supervised speech model as it is necessary to produce intelligible speech in absence of text conditioning .” [MOSHI §1]
+    “During training (blue part, top), we distill non-causal embeddings from WavLM into a single vector quantizer which produces semantic tokens, and is combined with separate acoustic tokens for reconstruction.” [MOSHI Figure 2]

@@ -35,10 +35,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from relay import settings as S
-from relay.extractive import NOT_COVERED, extractive_notice, extractive_sentences
+from relay.extractive import NOT_COVERED, extractive_notice, extractive_sentences, human_wait
 from relay.gate import SentenceSplitter, check_citations
 from relay.ledger import Ledger
-from relay.limits import fmt_wait
 from relay.llm import LLM, CallResult
 from relay.retrieval import Hit, full_tables, get_index
 from relay.router import TOOLS, Route, detect_papers, heuristic_route, parse_tool_call, router_messages
@@ -207,6 +206,15 @@ class Relay:
         hits = self.cap_passages(self.expand_tables(hits))
 
         # [4]+[5] draft through the gate, by tier
+        if r.tier == "lean":
+            # Say so whenever the person gets the weaker answer, not only when a draft is downgraded mid-way.
+            if self.daily_gone():
+                wait, _ = self.ledger.wait_s(S.FULL_MODEL, self.est_prompt(r.question, self.setting.k),
+                                             S.FULL_MAX_TOKENS)
+                self.emit(r, "notice", "Shorter answer: today's budget for full answers is used up; the next full "
+                                       f"answer should be possible in {human_wait(wait)}.")
+            else:
+                self.emit(r, "notice", "Shorter answer: full answers are being rationed right now.")
         if r.tier == "extractive":
             await self.extractive(r, hits, conf >= tau["refuse"], "daily" if self.daily_gone() else "busy")
             return
@@ -615,6 +623,7 @@ class Relay:
             r.sentences.append(text)
         else:
             r.notices.append(text)
+            self.trace(r, "notice", text=text[:1000])       # what the person was told (heading 7 evidence)
         if r.on_event:
             r.on_event(kind, text)
 
