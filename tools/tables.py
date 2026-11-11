@@ -133,6 +133,54 @@ def table2(rs: list[dict]) -> None:
               f"{1000 * cost / len(answered):.3f}" + (f" | error {share['error']:.1f}%" if share["error"] else ""))
 
 
+def table1(rs: list[dict]) -> None:
+    """Table 1 from results.csv where the CSV supports it (probe_* rows); the exact limit values come from Groq's
+    own headers and 429 bodies (results/probe_raw.jsonl) and the console capture, as decided on 2026-11-09."""
+    def t(r):
+        return ts(r) / 1000
+
+    def first(scn, status):
+        g = sorted((r for r in rs if r["scenario"] == scn), key=t)
+        return g, next((r for r in g if r["status"] == status), None)
+
+    rpm, rl = first("probe_rpm", "rate_limited")
+    rpm_ok = [r for r in rpm if r["status"] == "ok" and t(r) < t(rl)]
+    rpm_rec = next(r for r in sorted(rs, key=t) if r["scenario"] == "probe_rpm_recovery" and r["status"] == "ok")
+    tpm, tl = first("probe_tpm", "rate_limited")
+    tpm_used = sum(int(r["tokens_in"]) + int(r["tokens_out"]) for r in tpm
+                   if r["status"] == "ok" and t(tl) - 60 <= t(r) < t(tl))
+    tpm_rec = next(r for r in sorted(rs, key=t) if r["scenario"] == "probe_tpm_recovery" and r["status"] == "ok")
+    conc = [r for r in rs if r["scenario"] == "probe_concurrency" and r["status"] == "ok"]
+    spans = [(t(r), t(r) + float(r["total_ms"]) / 1000) for r in conc]
+    in_flight = max(sum(1 for s, e in spans if s <= s0 < e) for s0, _ in spans)
+    daily = [r for r in rs if r["scenario"] == "probe_daily" and r["status"] == "ok"]
+    daily_tok = sum(int(r["tokens_in"]) + int(r["tokens_out"]) for r in daily)
+    rl_ms = sorted(float(r["total_ms"]) for r in rs if r["scenario"].startswith("probe_") and r["status"] == "rate_limited")
+    rec = sorted((r for r in rs if r["scenario"] == "probe_daily_recovery"), key=t)
+    first_rl = next((r for r in rec if r["status"] == "rate_limited"), None)
+    rec_ok = [r for r in rec if r["status"] == "ok" and first_rl and t(r) > t(first_rl)]
+    daily_rec = f"first ok {t(rec_ok[0]) - t(first_rl):,.0f} s after a daily 429" if rec_ok else "see probe_raw"
+    print("Table 1 - limits found in the real service (gpt-oss-120b / gpt-oss-20b; daily budget measured on "
+          "qwen/qwen3.8-27b, same console limits)\n")
+    print("Limit | Value found | How found | Confidence")
+    print(f"Requests per minute | 30 | {len(rpm_ok)} ok in a back-to-back burst, then rate_limited "
+          f"{(t(rl) - t(rpm[0])) * 1000:,.0f} ms in (probe_rpm); 429 body 'Limit 30'; console | high")
+    print(f"Tokens per minute | 8,000 | {tpm_used:,} tokens used in the 60 s before the first token 429 (a lower bound, "
+          f"since max_tokens is reserved up front); 429 body 'Limit 8000'; console | high")
+    print("Requests per day | 1,000 | x-ratelimit-limit-requests header on every response (probe_raw); console; not "
+          "driven to the limit | medium")
+    print(f"Tokens per day | 200,000 per model | {len(daily)} ok requests used {daily_tok:,} tokens before the first "
+          f"daily 429 (probe_daily); 429 body 'Limit 200000'; refill fitted at 2.31 tokens/s; console | high")
+    print(f"Requests in flight at once | no limit hit at {in_flight} | {in_flight} requests overlapped, all ok "
+          f"(probe_concurrency); RPM 30 stops a larger test | low")
+    print(f"What it returns when a limit is hit | HTTP 429 in {pct(rl_ms, 50):,.0f} ms (p50, n={len(rl_ms)}) | "
+          f"error.type 'requests' or 'tokens'; message states limit, used, requested and the exact wait; retry-after "
+          f"header; separately, 503 'over capacity' after ~30 s (2 of ~310 calls) | high")
+    print(f"Time until it recovers | RPM {(t(rpm_rec) - t(rl)) * 1000:,.0f} ms, TPM {(t(tpm_rec) - t(tl)) * 1000:,.0f} ms "
+          f"(start to start); daily: continuous refill, {daily_rec} | next ok request after each 429 "
+          f"(probe_*_recovery); the daily 429's stated wait was exact | high")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--table", default="3")
@@ -142,6 +190,8 @@ def main() -> None:
         table3(rows(), a.scenario)
     elif a.table == "2":
         table2(rows())
+    elif a.table == "1":
+        table1(rows())
 
 
 if __name__ == "__main__":
