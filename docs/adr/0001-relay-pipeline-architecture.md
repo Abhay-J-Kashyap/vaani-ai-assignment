@@ -388,6 +388,18 @@ Naive retries more than doubled the median wait and reserved 81% more per-minute
 
 **eval_v2 scope: h256k8 only, run at 17:15 (author's choice of option C, 2026-11-11).** The setting comparison stands on the first run: three settings, the same 20 questions, graded with the frozen rubric. eval_v2 measures the shipped pipeline (gate fixes and retrieval fixes) on the chosen setting only. That's ~53K tokens instead of ~150K, it fits the day's budget without waiting, and it leaves the 120b at ~200K for the real load runs on 2026-11-12. Table 3 shows the three first-run settings plus a labelled fourth row: h256k8 on the shipped pipeline. The other two settings are not re-measured after the fixes; the local scan showed the fixes help all settings about equally. The 22:30 job (`eval/run_eval_v2_2230.ps1`) was cancelled before it started.
 
+**eval_v2 graded (2026-11-11, frozen rubric, `results/grades_eval_v2.csv`): h256k8 on the shipped pipeline.**
+
+| Run | Correct and cited % | Wrong % | Correctly refused % | Refused wrongly | Required points covered | Tokens / answer | First token p50 / p95 |
+|---|---|---|---|---|---|---|---|
+| eval (first run) | 50.0% | 25.0% | 25.0% | 1 | 47/67 (70.1%) | 2,988 | 1,388 / 2,542 ms |
+| eval_v2 (shipped) | 50.0% | 25.0% | 25.0% | 0 | 56/67 (83.6%) | 3,065 | 1,399 / 3,265 ms |
+
+- **The fixes worked on what they targeted.** Q4 (refused wrongly → correct), Q5 (gate bug → correct) and Q9 (wrong table → correct) are all fixed; Q12 now reads every Table 2 number right.
+- **The binary score is flat because the drafter varies.** Q6, Q7 and Q14 were correct in the first run and dropped a Level 1 point here (temperature 0.2), and Q14 added a wrong fact. On 15 answerable questions, run-to-run variance at one setting is about ±3 questions. Required-point coverage (+9 points, 70.1% → 83.6%) is the steadier signal of improvement.
+- **Q12's remaining miss is a genuine gate catch.** The sentence answering "is there any discrepancy?" had no citation and was withheld, so the question's explicit part went unanswered.
+- **For the write-up:** both runs belong in Table 3, labelled. The variance finding is itself a measured result: one run of 15 questions cannot rank settings within ~3 questions of each other.
+
 **Four strategies the author proposed, reviewed against sources and our measurements (2026-11-11):**
 - **Prefix caching (adopted, small).** Groq caches prompt prefixes automatically on gpt-oss only. Cached tokens cost 50% less and don't count toward rate limits. In the real eval, 7,680 of 117,962 drafter prompt tokens were cached (6.5%). Our prompt is already static-first; the only fully repeated prompts are identical questions, which the answer cache serves without a call. Change: the trace records cached tokens per request (router included), and the ledger no longer charges them to TPD.
 - **CQRS (not applicable).** Ingestion (fetch → parse → chunk → index) is already an offline batch; the query path only reads a fixed index.

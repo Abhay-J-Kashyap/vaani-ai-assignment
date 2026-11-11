@@ -8234,3 +8234,18 @@
 {"rid": "eval_v2-h256k8-Q20-11111147", "t_ms": 1077.9, "ev": "gate_pass", "kind": "not_covered", "reason": "", "cites": [], "text": "The papers do not say the exact training expenditure in US dollars for Moshi and H‑Net, including hardware rental, electricity, storage and data acquisition costs."}
 {"rid": "eval_v2-h256k8-Q20-11111147", "t_ms": 1078.0, "ev": "first_answer_token"}
 {"rid": "eval_v2-h256k8-Q20-11111147", "t_ms": 1078.0, "ev": "done", "status": "ok", "tier": "full", "branch": "decompose", "sentences": 1, "withheld": 0, "drafter_calls": 1, "retries": 0, "tokens_in": 3332, "cached_in": 0}
+{"rid": "eval_v2-h256k8-Q1-11111147", "ev": "grade", "grade": "correct", "points_covered": 3, "points_required": 3, "regrade": false}
+{"rid": "eval_v2-h256k8-Q2-11111147", "ev": "grade", "grade": "correct", "points_covered": 4, "points_required": 4, "regrade": false}
+{"rid": "eval_v2-h256k8-Q3-11111147", "ev": "grade", "grade": "correct", "points_covered": 4, "points_required": 4, "regrade": false}
+{"rid": "eval_v2-h256k8-Q4-11111147", "ev": "grade", "grade": "correct", "points_covered": 6, "points_required": 6, "regrade": false}
+{"rid": "eval_v2-h256k8-Q5-11111147", "ev": "grade", "grade": "correct", "points_covered": 6, "points_required": 6, "regrade": false}
+{"rid": "eval_v2-h256k8-Q6-11111147", "ev": "grade", "grade": "wrong", "points_covered": 3, "points_required": 5, "regrade": false}
+{"rid": "eval_v2-h256k8-Q7-11111147", "ev": "grade", "grade": "wrong", "points_covered": 3, "points_required": 4, "regrade": false}
+{"rid": "eval_v2-h256k8-Q8-11111147", "ev": "grade", "grade": "correct", "points_covered": 4, "points_required": 4, "regrade": false}
+{"rid": "eval_v2-h256k8-Q9-11111147", "ev": "grade", "grade": "correct", "points_covered": 6, "points_required": 6, "regrade": false}
+{"rid": "eval_v2-h256k8-Q10-11111147", "ev": "grade", "grade": "correct", "points_covered": 5, "points_required": 5, "regrade": false}
+{"rid": "eval_v2-h256k8-Q11-11111147", "ev": "grade", "grade": "correct", "points_covered": 3, "points_required": 4, "regrade": false}
+{"rid": "eval_v2-h256k8-Q12-11111147", "ev": "grade", "grade": "wrong", "points_covered": 2, "points_required": 3, "regrade": false}
+{"rid": "eval_v2-h256k8-Q13-11111147", "ev": "grade", "grade": "correct", "points_covered": 3, "points_required": 3, "regrade": false}
+{"rid": "eval_v2-h256k8-Q14-11111147", "ev": "grade", "grade": "wrong", "points_covered": 1, "points_required": 4, "regrade": false}
+{"rid": "eval_v2-h256k8-Q15-11111147", "ev": "grade", "grade": "wrong", "points_covered": 3, "points_required": 6, "regrade": false}

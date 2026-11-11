@@ -1,0 +1,21 @@
+request_id,setting,qid,answer_grade,points_covered,points_required,notes
+eval_v2-h256k8-Q1-11111147,h256k8,Q1,correct,3,3,"all Level 1 points, cited 3.2.1"
+eval_v2-h256k8-Q2-11111147,h256k8,Q2,correct,4,4,"all four, incl. masking to -inf and the offset"
+eval_v2-h256k8-Q3-11111147,h256k8,Q3,correct,4,4,"all, incl. the wavelength progression and learned-embedding result"
+eval_v2-h256k8-Q4-11111147,h256k8,Q4,correct,6,6,all six base values from AIAYN Table 3 (first run: refused wrongly; fixed by the original-question search and named-table lookup)
+eval_v2-h256k8-Q5-11111147,h256k8,Q5,correct,6,6,three limitations and how Moshi addresses each (first run: withheld by the list-marker gate bug; fixed)
+eval_v2-h256k8-Q6-11111147,h256k8,Q6,wrong,3,5,R2 missing: says the streams are 'processed together' as parallel streams but not that they are combined into one jointly modelled sequence; R4 (Level 2) missing; credits overlap handling partly to the text prefix [variance: the first run's h256k8 answer had R2]
+eval_v2-h256k8-Q7-11111147,h256k8,Q7,wrong,3,4,"R3 missing: describes plain RVQ layering (first level semantic, later acoustic), never the split RVQ that is how Mimi combines them [variance: the first run's h256k8 answer had it]"
+eval_v2-h256k8-Q8-11111147,h256k8,Q8,correct,4,4,time-aligned text stream as the prefix sub-sequence; scaffolding; delay -> ASR/TTS
+eval_v2-h256k8-Q9-11111147,h256k8,Q9,correct,6,6,all six from MOSHI Table 1 (first run: retrieval missed the table; fixed by named-table lookup)
+eval_v2-h256k8-Q10-11111147,h256k8,Q10,correct,5,5,"every stage's role, cited to HNET 1 and Figure 1, which state them"
+eval_v2-h256k8-Q11-11111147,h256k8,Q11,correct,3,4,"routing (cosine, threshold), downsampler keeps b=1 and discards b=0; R4 is Level 2"
+eval_v2-h256k8-Q12-11111147,h256k8,Q12,wrong,2,3,"both scales and both differences right (2.2 and 2.7) and 3.1's 2.2/2.6 attributed, but the explicitly asked 'is there any discrepancy?' is not answered: that sentence was withheld for having no citation [gate catch] and its reasoning was off ('absolute vs percentage-point')"
+eval_v2-h256k8-Q13-11111147,h256k8,Q13,correct,3,3,"both purposes and the fixed/position vs learned/content contrast, each cited to its paper"
+eval_v2-h256k8-Q14-11111147,h256k8,Q14,wrong,1,4,"acoustic delay described as holding back frames for limited context, not the semantic-to-acoustic offset; text-audio delay calls text tokens 'semantic (text) tokens' [wrong-fact] and misses ASR/TTS [variance: the first run's h256k8 answer was correct]"
+eval_v2-h256k8-Q15-11111147,h256k8,Q15,wrong,3,6,"Moshi's problem without streaming (R2), the decoder credited with restoring resolution (R4), H-Net's problem without replacing tokenization (R5); R1, R3 and the axis contrast (R6) right"
+eval_v2-h256k8-Q16-11111147,h256k8,Q16,refused_correctly,,,refused; no value given
+eval_v2-h256k8-Q17-11111147,h256k8,Q17,refused_correctly,,,refused; no value given
+eval_v2-h256k8-Q18-11111147,h256k8,Q18,refused_correctly,,,refused; no value given
+eval_v2-h256k8-Q19-11111147,h256k8,Q19,refused_correctly,,,refused; no value given
+eval_v2-h256k8-Q20-11111147,h256k8,Q20,refused_correctly,,,refused; no value given
