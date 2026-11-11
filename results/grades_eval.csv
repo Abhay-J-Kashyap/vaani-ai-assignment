@@ -1,0 +1,61 @@
+request_id,setting,qid,answer_grade,points_covered,points_required,notes
+eval-h512k4-Q1-11110706,h512k4,Q1,correct,3,3,"all points, cited 3.2.1"
+eval-h256k8-Q1-11110706,h256k8,Q1,correct,3,3,"all points, cited 3.2.1"
+eval-h512k4rr-Q1-11110706,h512k4rr,Q1,correct,3,3,"all points, cited 3.2.1"
+eval-h512k4-Q2-11110706,h512k4,Q2,correct,4,4,all points; 'offset by one' detail omitted (subordinate)
+eval-h256k8-Q2-11110706,h256k8,Q2,correct,4,4,all points; 'offset by one' detail omitted (subordinate)
+eval-h512k4rr-Q2-11110706,h512k4rr,Q2,correct,4,4,all points; 'offset by one' detail omitted (subordinate)
+eval-h512k4-Q3-11110706,h512k4,Q3,correct,4,4,all points incl. formula and wavelength progression
+eval-h256k8-Q3-11110706,h256k8,Q3,wrong,3,4,"R2 missing wavelength geometric progression [borderline: not asked by Q3]; R3 cited 6.2, which supports it"
+eval-h512k4rr-Q3-11110706,h512k4rr,Q3,wrong,3,4,R2 formula given but wavelength progression missing [borderline: not asked by Q3]
+eval-h512k4-Q4-11110706,h512k4,Q4,refused_wrongly,0,6,said the papers don't give the values [retrieval: AIAYN Table 3 not retrieved for the router's query]
+eval-h256k8-Q4-11110706,h256k8,Q4,refused_wrongly,0,6,"same refusal [retrieval: got HNET Table 1 x5 instead of AIAYN Table 3, the 'Table N in every paper' trap]"
+eval-h512k4rr-Q4-11110706,h512k4rr,Q4,wrong,5,6,"R6 100K steps withheld: model wrote '100 K', gate read 100 [gate-FP]"
+eval-h512k4-Q5-11110706,h512k4,Q5,wrong,3,6,R1-R3 (the three limitations) withheld: list markers (1)(2)(3) read as numbers [gate-FP]
+eval-h256k8-Q5-11110706,h256k8,Q5,wrong,3,6,"R1-R3 withheld, same list-marker cause [gate-FP]"
+eval-h512k4rr-Q5-11110706,h512k4rr,Q5,wrong,2,6,R1-R3 withheld [gate-FP]; R5 160/200 ms latency missing
+eval-h512k4-Q6-11110706,h512k4,Q6,wrong,3,5,R2 delay+concatenation and R4 inference stream replacement missing; calls the multi-stream model 'a Depth Transformer' [wrong-fact]
+eval-h256k8-Q6-11110706,h256k8,Q6,wrong,4,5,"R4 (user stream replaced by real audio at inference) missing; a second summary sentence withheld for '2' [gate-FP, no grade effect]"
+eval-h512k4rr-Q6-11110706,h512k4rr,Q6,wrong,3,5,R2 and R4 missing; 'processed jointly by a Depth-Transformer architecture' [wrong-fact]
+eval-h512k4-Q7-11110706,h512k4,Q7,wrong,1,4,"R1 lacks Q=8/2048 [borderline]; R2 says WavLM distilled 'into the causal encoder', not the first quantizer level; R3 split RVQ named but described as a plain RVQ [wrong-fact]"
+eval-h256k8-Q7-11110706,h256k8,Q7,wrong,3,4,"R2-R4 right incl. split RVQ; R1 lacks 24 kHz->12.5 Hz, Q=8, 2048 [borderline: Q7 does not ask for these numbers]"
+eval-h512k4rr-Q7-11110706,h512k4rr,Q7,wrong,3,4,R2-R4 right; R1 lacks the codec numbers [borderline]
+eval-h512k4-Q8-11110706,h512k4,Q8,wrong,3,4,"R2 alignment (Whisper timestamps, PAD/EPAD) missing"
+eval-h256k8-Q8-11110706,h256k8,Q8,wrong,3,4,R2 alignment missing
+eval-h512k4rr-Q8-11110706,h512k4rr,Q8,wrong,3,4,"R2 partly: padding tokens mentioned, Whisper word timestamps missing"
+eval-h512k4-Q9-11110706,h512k4,Q9,correct,6,6,"all six from MOSHI Table 1, no Temporal values"
+eval-h256k8-Q9-11110706,h256k8,Q9,wrong,3,6,"dim/heads/layers right; says the papers don't give MLP dim, cardinality, frame rate [retrieval: MOSHI Table 1 not retrieved]"
+eval-h512k4rr-Q9-11110706,h512k4rr,Q9,correct,6,6,all six from MOSHI Table 1
+eval-h512k4-Q10-11110706,h512k4,Q10,wrong,3,5,R2 chunking sentence withheld: '0' from the superscript in p^0 read as a number [gate-FP]; R3 recursion missing [borderline]
+eval-h256k8-Q10-11110706,h256k8,Q10,wrong,3,5,R3 recursion missing [borderline]; R4 omits the encoder residual Linear(x); cites HNET 1 (intro) throughout
+eval-h512k4rr-Q10-11110706,h512k4rr,Q10,wrong,3,5,R3 recursion missing [borderline]; says the decoder upsamples to byte resolution (dechunking does) [wrong-fact]
+eval-h512k4-Q11-11110706,h512k4,Q11,wrong,3,4,R1-R3 right with formula and 0.5 threshold; R4 (probabilities passed to dechunking) missing [borderline: not asked by Q11]
+eval-h256k8-Q11-11110706,h256k8,Q11,wrong,3,4,R1-R3 right with formula and 0.5 threshold; R4 (probabilities passed to dechunking) missing [borderline: not asked by Q11]
+eval-h512k4rr-Q11-11110706,h512k4rr,Q11,wrong,3,4,R1-R3 right with formula and 0.5 threshold; R4 (probabilities passed to dechunking) missing [borderline: not asked by Q11]
+eval-h512k4-Q12-11110706,h512k4,Q12,wrong,0,3,only the 3.1 prose figures sent; table sentences withheld and were wrong (58.2 placed at Large) [retrieval: table split into row parts]
+eval-h256k8-Q12-11110706,h256k8,Q12,wrong,0,3,"H-Net averages and 3.1 figures sent, no baselines or differences; withheld sentences wrong (53.3 at both scales)"
+eval-h512k4rr-Q12-11110706,h512k4rr,Q12,wrong,0,3,3.1 figures sent; table reading confused by row-part chunks; withheld sentences wrong (gain 0%)
+eval-h512k4-Q13-11110706,h512k4,Q13,wrong,2,3,"R3 contrast lacks the sequence-length difference; contrast sentence about sinusoids cited only HNET 1, which doesn't support that half"
+eval-h256k8-Q13-11110706,h256k8,Q13,wrong,2,3,R3 contrast lacks the sequence-length difference [borderline]
+eval-h512k4rr-Q13-11110706,h512k4rr,Q13,wrong,2,3,both contrast sentences withheld for missing citations (genuine gate catch)
+eval-h512k4-Q14-11110706,h512k4,Q14,wrong,1,4,'tau = 2 corresponds to a 2-second audio delay' [wrong-fact: 2 steps = 160 ms]; R3 lacks ASR/TTS; R4 missing
+eval-h256k8-Q14-11110706,h256k8,Q14,correct,4,4,causal mask; acoustic delay and Temporal Transformer; text-audio delay -> TTS/ASR; autoregressive
+eval-h512k4rr-Q14-11110706,h512k4rr,Q14,wrong,1,4,acoustic delay described as latency only; text-audio delay lacks ASR/TTS; R4 missing
+eval-h512k4-Q15-11110706,h512k4,Q15,wrong,2,6,"R2 flattening cost/streaming, R5 compute allocation, R6 explicit contrast missing; R3 lacks nesting"
+eval-h256k8-Q15-11110706,h256k8,Q15,wrong,1,6,"R2, R4 residual combination, R5, R6 missing; R3 lacks nesting"
+eval-h512k4rr-Q15-11110706,h512k4rr,Q15,wrong,2,6,"R2 only partly (S vs K*S steps, no streaming); R4 says the decoder restores resolution [wrong-fact]; R5, R6 missing"
+eval-h512k4-Q16-11110706,h512k4,Q16,refused_correctly,,,refused; no value given
+eval-h256k8-Q16-11110706,h256k8,Q16,refused_correctly,,,refused; no value given
+eval-h512k4rr-Q16-11110706,h512k4rr,Q16,refused_correctly,,,"refused at the decide branch (re-rank score below threshold), no drafter call"
+eval-h512k4-Q17-11110706,h512k4,Q17,refused_correctly,,,refused; no value given
+eval-h256k8-Q17-11110706,h256k8,Q17,refused_correctly,,,refused; no value given
+eval-h512k4rr-Q17-11110706,h512k4rr,Q17,refused_correctly,,,refused; no value given
+eval-h512k4-Q18-11110706,h512k4,Q18,refused_correctly,,,refused; no value given
+eval-h256k8-Q18-11110706,h256k8,Q18,refused_correctly,,,refused; no value given
+eval-h512k4rr-Q18-11110706,h512k4rr,Q18,refused_correctly,,,"refused at the decide branch, no drafter call"
+eval-h512k4-Q19-11110706,h512k4,Q19,refused_correctly,,,refused; no value given
+eval-h256k8-Q19-11110706,h256k8,Q19,refused_correctly,,,refused; no value given
+eval-h512k4rr-Q19-11110706,h512k4rr,Q19,refused_correctly,,,refused; no value given
+eval-h512k4-Q20-11110706,h512k4,Q20,refused_correctly,,,refused; no value given
+eval-h256k8-Q20-11110706,h256k8,Q20,refused_correctly,,,refused; no value given
+eval-h512k4rr-Q20-11110706,h512k4rr,Q20,refused_correctly,,,"refused at the decide branch, no drafter call"
