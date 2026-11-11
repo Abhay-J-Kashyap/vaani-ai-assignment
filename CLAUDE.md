@@ -57,7 +57,14 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
   - The daily budget charges **tokens actually used**, not `max_tokens`. `max_tokens` costs only TPM.
   - Daily budgets are **per model**.
   - New failure mode: **503 "over capacity" after ~30 s** (2 of ~80 calls).
-- **TPD is the binding daily limit: about 55 full answers per day on the drafter**, against an RPD of 1,000. Day 1 probing used ~82K of the 120b budget and ~70K of the 20b budget. Plan real calls per day before any eval or load run.
+- **TPD is the binding daily limit: about 65–75 full answers per day on the drafter**, against an RPD of 1,000. The real eval measured 2.6–3.1K tokens per full answer (router + drafter); the Day 1 estimate of 3.6K and 55 answers was too pessimistic. Plan real calls per day before any eval or load run.
+- **Groq caches prompt prefixes automatically** on gpt-oss: cached tokens cost 50% less and don't count toward limits. The real eval had 6.5% of drafter prompt tokens cached. The ledger doesn't charge them to TPD.
+
+## State of the work (2026-11-11; deadline 2026-11-13)
+
+- **Chosen retrieval setting: h256k8** (author). Grading uses the two-level rubric frozen in `eval/answer_key.json`. Do not change it.
+- **Done:** probes and Table 1; stand-in; pipeline; Table 3 (first eval: 3 settings; eval_v2: h256k8 on the shipped pipeline); stand-in Table 2 rows (overload, tpm_half, daily_exhausted); retry experiment (heading 6); naive-retriever evidence; the 3pm reply; README; WRITEUP.md draft.
+- **Left:** on Nov 12 evening, real `steady`, `burst`, then `drain` (the real daily_exhausted row) via `python -m load.run_load <scenario> --source real` (dry-run first); one `headers` probe per model versus the console capture; heading 4 from the slowest real request; the author's sections of the write-up (Vaani feedback, How I worked with the assistant, heading 8 wording); the exported conversation history.
 - **Budget plan and product budget manager:** see the "Budget plan" section of the ADR. It covers the 20% drafter reserve (released evenly until 18:00 local time), the answer tiers (Full on 120b, Lean on 20b, Extractive, Cached), and the answer cache.
 - **`results.csv` is derived:** `tools/build_results_csv.py` rebuilds it from `results/probe_raw.jsonl` plus `results/pipeline_rows*.csv`. Probe rows use `scenario=probe_*` and leave `answer_grade` empty. Table 1 numbers must come from the CSV where it can supply them. For example, recovery is measured start-to-start: 2,051 ms (RPM) and 4,068 ms (TPM).
 
@@ -88,6 +95,11 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
 .\.venv\Scripts\python.exe -m eval.run_eval --dry-run                  # gold set on real Groq per setting (then --confirm-real)
 .\.venv\Scripts\python.exe -m tools.tables --table 3                   # Table 3 from results.csv alone
 .\.venv\Scripts\python.exe -m eval.c_vs_b                              # Option C vs B from the eval run (0 tokens)
+.\.venv\Scripts\python.exe -m tools.tables --table 1|2|3 [--scenario eval_v2]   # every write-up table from results.csv
+.\.venv\Scripts\python.exe -m load.run_load <scenario> [--source real --dry-run|--confirm-real] [--dev]   # Table 2 scenarios; drain = real daily_exhausted
+.\.venv\Scripts\python.exe -m eval.retry_compare                       # heading 6: naive retries vs policy
+.\.venv\Scripts\python.exe -m eval.naive_retriever                     # naive BM25/dense on the misleading cases
+.\.venv\Scripts\python.exe -m eval.show_3pm                            # heading 7: the exact reply with the daily budget gone
 .\.venv\Scripts\python.exe -m relay.pipeline "question" --source real --dry-run           # route + retrieve locally, print the token cost; no Groq
 .\.venv\Scripts\python.exe -m tests.test_gate                          # citation gate + streaming sentence splitter
 .\.venv\Scripts\python.exe -m tests.smoke_pipeline                     # every pipeline path on its own stand-in (burst, TPM halved, daily gone, give-up)
