@@ -128,11 +128,12 @@ class Relay:
 
     # ------------------------------------------------------------------ public entry point
     async def ask(self, question: str, *, request_id: str | None = None, patience_s: float | None = None,
-                  on_event=None, use_cache: bool = True) -> dict:
+                  on_event=None, use_cache: bool = True, scenario: str | None = None) -> dict:
         """use_cache=False models a person whose wording differs from every earlier asker: the exact-match cache
-        can't serve them (the load generator uses it to set a stated repeat rate)."""
-        r = Req(request_id or uuid.uuid4().hex[:12], question, self.scenario, patience_s or S.DEFAULT_PATIENCE_S,
-                on_event=on_event, use_cache=use_cache)
+        can't serve them (the load generator uses it to set a stated repeat rate). `scenario` labels this one
+        request (the drain run switches from 'drain' to 'daily_exhausted' when the drafter's budget is gone)."""
+        r = Req(request_id or uuid.uuid4().hex[:12], question, scenario or self.scenario,
+                patience_s or S.DEFAULT_PATIENCE_S, on_event=on_event, use_cache=use_cache)
         self.retry.note_request()
         self.trace(r, "queued", patience_s=r.patience_s)
         try:

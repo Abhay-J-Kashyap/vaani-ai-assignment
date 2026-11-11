@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import math
 import random
 import subprocess
 import sys
@@ -51,6 +52,10 @@ class Scenario:
     fault_503: float | None = None
     retry_mode: str = "policy"
     stand_in_only: bool = False
+    drain: bool = False          # real only: run until the drafter's daily budget is gone, then label 'daily_exhausted'
+    exhausted_n: int = 20        # requests sent after the budget is gone
+    exhausted_rate: float = 4.0  # per minute, after the budget is gone
+    max_drain_s: float = 2400    # safety stop for the draining phase
     notes: list[str] = field(default_factory=list)
 
 
@@ -79,6 +84,9 @@ SCENARIOS = {
                             stand_in_only=True),
     "retry_policy": Scenario("retry_policy", rate_per_min=3.0, duration_s=300, fault_503=0.25, retry_mode="policy",
                              stand_in_only=True),
+    # real, last evening (author's decision 2026-11-09): keep a steady 3/min (just above what the drafter's TPM
+    # serves) until the drafter's daily budget is gone; requests from then on are the real 'daily_exhausted' row
+    "drain": Scenario("drain", rate_per_min=3.0, duration_s=0, drain=True),
 }
 
 
@@ -109,10 +117,12 @@ def start_standin(port: int, sc: Scenario, seed: int) -> subprocess.Popen:
     return proc
 
 
-async def person(relay: Relay, q: str, patience: float, delay: float, cache_ok: bool, out: list) -> None:
+async def person(relay: Relay, q: str, patience: float, delay: float, cache_ok: bool, out: list,
+                 scenario: str | None = None) -> None:
     await asyncio.sleep(delay)
     try:
-        res = await asyncio.wait_for(relay.ask(q, patience_s=patience, use_cache=cache_ok), timeout=patience)
+        res = await asyncio.wait_for(relay.ask(q, patience_s=patience, use_cache=cache_ok, scenario=scenario),
+                                     timeout=patience)
         out.append(res)
     except asyncio.TimeoutError:
         out.append({"status": "gave_up"})
@@ -120,12 +130,65 @@ async def person(relay: Relay, q: str, patience: float, delay: float, cache_ok: 
         out.append({"status": "exception", "error": f"{type(e).__name__}: {e}"[:200]})
 
 
+async def run_drain(sc: Scenario, source: str, seed: int, port: int, dev: bool) -> None:
+    """Steady arrivals until the ledger says the drafter's daily budget can't pay for one Full answer (a daily 429
+    corrects the ledger if it is optimistic), then `exhausted_n` more arrivals labelled 'daily_exhausted'.
+    On the stand-in (rehearsal only, --dev) the drafter starts with 10K of daily budget, so it drains in minutes."""
+    rng = random.Random(seed)
+    qs = list(load_questions().values())
+    rows, trace = log_paths(source, "dev" if dev else sc.name)
+    proc, base = None, None
+    if source == "stand-in":
+        proc = start_standin(port, sc, seed)
+        ledger = Ledger("drain_rehearsal", persist=False)
+        ledger.acct(DRAFTER).tpd.set_level(10_000)
+        httpx.post(f"http://127.0.0.1:{port}/admin/config", json={"tpd_level": {DRAFTER: 10_000}}, timeout=5)
+        base = f"http://127.0.0.1:{port}/v1"
+    else:
+        ledger = Ledger("real")
+    relay = Relay(source, S.DEFAULT_SETTING, sc.name, ledger=ledger, base_url=base, use_cache=True,
+                  rows_path=rows, trace_path=trace)
+    out, tasks, t0 = [], [], time.perf_counter()
+
+    def launch(label: str) -> None:
+        q = rng.choice(qs)
+        p = min(120.0, rng.lognormvariate(math.log(PATIENCE_MEDIAN_S), PATIENCE_SIGMA))
+        tasks.append(asyncio.create_task(person(relay, q, p, 0.0, rng.random() < REPEAT_SHARE, out, label)))
+
+    try:
+        print(f"drain: {sc.rate_per_min}/min until the drafter's daily budget is gone "
+              f"(level now ~{relay.ledger.acct(DRAFTER).tpd.level():,.0f})", flush=True)
+        while not relay.daily_gone() and time.perf_counter() - t0 < sc.max_drain_s:
+            launch("drain")
+            await asyncio.sleep(rng.expovariate(sc.rate_per_min / 60))
+        gone_at = time.perf_counter() - t0
+        print(f"drafter budget gone after {gone_at:.0f} s and {len(tasks)} requests "
+              f"(level ~{relay.ledger.acct(DRAFTER).tpd.level():,.0f}); sending {sc.exhausted_n} more", flush=True)
+        for _ in range(sc.exhausted_n):
+            launch("daily_exhausted")
+            await asyncio.sleep(rng.expovariate(sc.exhausted_rate / 60))
+        await asyncio.gather(*tasks)
+    finally:
+        await relay.close()
+        if proc:
+            proc.terminate()
+    by = {}
+    for o in out:
+        k = o["status"] if o.get("status") in ("gave_up", "exception") else f"{o['status']}/{o['tier']}"
+        by[k] = by.get(k, 0) + 1
+    print(f"done in {time.perf_counter() - t0:.0f} s: {dict(sorted(by.items()))}\nrows -> {rows.relative_to(ROOT)}")
+
+
 async def run(sc: Scenario, source: str, seed: int, port: int, dev: bool) -> None:
+    if sc.drain:
+        if source == "stand-in" and not dev:
+            sys.exit("drain on the stand-in is a rehearsal only: add --dev (its rows must not enter results.csv)")
+        return await run_drain(sc, source, seed, port, dev)
     rng = random.Random(seed)
     qs = list(load_questions().values())
     times = arrivals(sc, rng)
     picks = [rng.choice(qs) for _ in times]
-    patience = [min(120.0, rng.lognormvariate(__import__("math").log(PATIENCE_MEDIAN_S), PATIENCE_SIGMA))
+    patience = [min(120.0, rng.lognormvariate(math.log(PATIENCE_MEDIAN_S), PATIENCE_SIGMA))
                 for _ in times]
     cache_ok = [rng.random() < REPEAT_SHARE for _ in times]
     print(f"{sc.name}: {len(times)} requests over {sc.duration_s:.0f} s (burst {sc.burst}), source={source}, "
@@ -181,10 +244,17 @@ def main() -> None:
     if a.source == "real":
         if sc.stand_in_only:
             sys.exit(f"{sc.name} runs on the stand-in only (author's decision, 2026-11-09)")
-        n = len(arrivals(sc, random.Random(a.seed)))
         led = Ledger("real")
-        print(f"{sc.name} on real Groq: ~{n} requests; worst case ~{n * 3000:,} drafter tokens if all Full "
-              f"(the ledger downgrades or sheds beyond the budget). Drafter level now ~{led.acct(DRAFTER).tpd.level():,.0f}.")
+        lvl = led.acct(DRAFTER).tpd.level()
+        if sc.drain:
+            print(f"drain on real Groq: spends the drafter's whole remaining daily budget (~{lvl:,.0f} tokens, "
+                  f"~{lvl / 3000:.0f} Full answers at ~3K) at {sc.rate_per_min}/min, then {sc.exhausted_n} requests "
+                  f"labelled daily_exhausted (Lean on the 20b, then quoted passages). 20b level "
+                  f"~{led.acct(ROUTER).tpd.level():,.0f}.")
+        else:
+            n = len(arrivals(sc, random.Random(a.seed)))
+            print(f"{sc.name} on real Groq: ~{n} requests; worst case ~{n * 3000:,} drafter tokens if all Full "
+                  f"(the ledger downgrades or sheds beyond the budget). Drafter level now ~{lvl:,.0f}.")
         if a.dry_run or not a.confirm_real:
             sys.exit(0 if a.dry_run else "spends real budget: --dry-run first, then --confirm-real")
     asyncio.run(run(sc, a.source, a.seed, a.port, a.dev))
