@@ -18,6 +18,9 @@ data/index/
 data/state/
 data/dev/
 
+# Personal notes, not part of the submission
+DEMO.md
+
 # Editor / OS
 .vscode/
 .idea/
