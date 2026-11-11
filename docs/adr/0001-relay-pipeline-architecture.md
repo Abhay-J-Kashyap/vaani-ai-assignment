@@ -361,6 +361,31 @@ Under overload, most people are moved to quoted passages within ~70 ms rather th
 
 Naive retries more than doubled the median wait and reserved 81% more per-minute budget, colliding with other people's first attempts (10 rate-limit rejections), for one extra full answer. The policy's 3 extra `timeout` rows are its early give-up on a stalled call (to quoted passages), not lost people. A first attempt at this experiment (a burst, `burst_retry_*`, kept) showed no difference, because admission shed most of the burst before any model call: only 13 drafter calls, 2 retries.
 
+**Spot-check and the two-level rubric (author, 2026-11-11).**
+- *Spot-check:* the author reviewed 10 of the assistant's grades (`eval/spot_check_2026-11-11.md`), agreed with 8, and marked 2 as partially correct (Q13 h512k4: right content, wrong citation; Q6 h256k8: a point missing). The brief's grade set has no "partial", which led to the rubric below.
+- *Rubric (author's design; assistant drafted the per-point tags from the question wording alone; author approved with two edits; frozen in `eval/answer_key.json` → `rubric`, commit c64ccf8, before any eval_v2 answer was graded).*
+  - **Level 1 (must pass)** decides correct/wrong. The answer must:
+    - answer the central question;
+    - cover the main idea of every explicitly requested component;
+    - contain no material factual error;
+    - cite passages that support its claims;
+    - invent nothing.
+  - **Level 2 (partial credit, diagnostic only)** covers exact numbers, extra architecture, equations, secondary observations and appendix context.
+  - A *material* error is one about something the question asks for, or one that changes the meaning.
+  - **Level 2 never rescues a material error**, and omitting Level 2 names never fails a correct core.
+  - Four whole points are Level 2: Q3 (learned embeddings, a premise of the question), Q6 (inference-time stream replacement), Q11 (probabilities to dechunking), Q14 (Moshi stays autoregressive).
+  - The author's edits: Q8's alignment details (Whisper, PAD/EPAD, 12.5 Hz) moved to Level 2; Q15's adaptive compute allocation moved into Level 1.
+  - Q12's wording was checked first: the eval asked the verified question, which includes "Is there any discrepancy?".
+- *Regrade of the first eval run with the frozen rubric:* three grades changed (Q6 h256k8, Q8 h512k4, Q8 h256k8 → correct); Q13 h512k4 stays wrong (unsupported citation is Level 1).
+
+  | Setting | Correct and cited % | Wrong % | Correctly refused % |
+  |---|---|---|---|
+  | h512k4 | 30.0% | 45.0% | 25.0% |
+  | h256k8 | 50.0% | 25.0% | 25.0% |
+  | h512k4rr | 35.0% | 40.0% | 25.0% |
+
+  Of answerable questions: h512k4 6/15, h256k8 10/15, h512k4rr 7/15. The choice of h256k8 holds. The grading history (strict → less strict → frozen rubric) stays visible in each changed answer's note.
+
 **Decisions on the pipeline (author, 2026-11-10):** all three accepted as recommended below.
 
 1. **`status` for a downgraded answer (author: accepted).** Recommended: `rate_limited` whenever a limit (a 429, or the ledger predicting one) gave the person a weaker answer than Full, including Lean and quoted passages; `ok` only when nothing forced a downgrade. Otherwise Table 2b would show 100% `ok` in the daily-exhausted row and hide the event.

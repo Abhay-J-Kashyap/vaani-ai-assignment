@@ -15,13 +15,13 @@ eval-h512k4-Q5-11110706,h512k4,Q5,wrong,3,6,R1-R3 (the three limitations) withhe
 eval-h256k8-Q5-11110706,h256k8,Q5,wrong,3,6,"R1-R3 withheld, same list-marker cause [gate-FP]"
 eval-h512k4rr-Q5-11110706,h512k4rr,Q5,wrong,2,6,R1-R3 withheld [gate-FP]; R5 160/200 ms latency missing
 eval-h512k4-Q6-11110706,h512k4,Q6,wrong,3,5,R2 delay+concatenation and R4 inference stream replacement missing; calls the multi-stream model 'a Depth Transformer' [wrong-fact]
-eval-h256k8-Q6-11110706,h256k8,Q6,wrong,4,5,"R4 (user stream replaced by real audio at inference) missing; a second summary sentence withheld for '2' [gate-FP, no grade effect]"
+eval-h256k8-Q6-11110706,h256k8,Q6,correct,4,5,"all Level 1 points: both streams, concatenated with the acoustic delay into one jointly modelled sequence, full duplex, overlap; R4 (inference replacement) is Level 2 and missing (before the rubric: wrong; author marked it partial)"
 eval-h512k4rr-Q6-11110706,h512k4rr,Q6,wrong,3,5,R2 and R4 missing; 'processed jointly by a Depth-Transformer architecture' [wrong-fact]
 eval-h512k4-Q7-11110706,h512k4,Q7,wrong,1,4,"R1 lacks Q=8/2048 [borderline]; R2 says WavLM distilled 'into the causal encoder', not the first quantizer level; R3 split RVQ named but described as a plain RVQ [wrong-fact]"
 eval-h256k8-Q7-11110706,h256k8,Q7,correct,4,4,all main ideas incl. split RVQ; codec numbers not given (not asked by Q7; strict: wrong)
 eval-h512k4rr-Q7-11110706,h512k4rr,Q7,correct,4,4,all main ideas; codec numbers not given (not asked; strict: wrong)
-eval-h512k4-Q8-11110706,h512k4,Q8,wrong,3,4,"R2 alignment (Whisper timestamps, PAD/EPAD) missing"
-eval-h256k8-Q8-11110706,h256k8,Q8,wrong,3,4,R2 alignment missing
+eval-h512k4-Q8-11110706,h512k4,Q8,correct,4,4,R2 Level 1 present: 'time-aligned text tokens ... as a per-timestep prefix to the semantic audio token'; Whisper/PAD are Level 2 (before the rubric: wrong)
+eval-h256k8-Q8-11110706,h256k8,Q8,correct,4,4,"R2 Level 1 present: text predicted 'in a per-frame, time-aligned manner' as the first sub-sequence; Whisper/PAD are Level 2 (before the rubric: wrong)"
 eval-h512k4rr-Q8-11110706,h512k4rr,Q8,correct,4,4,R2 main idea present (text aligned to the frame rate with padding tokens); Whisper not named (strict: wrong)
 eval-h512k4-Q9-11110706,h512k4,Q9,correct,6,6,"all six from MOSHI Table 1, no Temporal values"
 eval-h256k8-Q9-11110706,h256k8,Q9,wrong,3,6,"dim/heads/layers right; says the papers don't give MLP dim, cardinality, frame rate [retrieval: MOSHI Table 1 not retrieved]"
@@ -35,7 +35,7 @@ eval-h512k4rr-Q11-11110706,h512k4rr,Q11,correct,4,4,"routing (cosine, 0.5 thresh
 eval-h512k4-Q12-11110706,h512k4,Q12,wrong,0,3,only the 3.1 prose figures sent; table sentences withheld and were wrong (58.2 placed at Large) [retrieval: table split into row parts]
 eval-h256k8-Q12-11110706,h256k8,Q12,wrong,0,3,"H-Net averages and 3.1 figures sent, no baselines or differences; withheld sentences wrong (53.3 at both scales)"
 eval-h512k4rr-Q12-11110706,h512k4rr,Q12,wrong,0,3,3.1 figures sent; table reading confused by row-part chunks; withheld sentences wrong (gain 0%)
-eval-h512k4-Q13-11110706,h512k4,Q13,wrong,3,3,"the contrast sentence's claims about sinusoids are cited only to HNET 1, which doesn't support that half (unsupported citation)"
+eval-h512k4-Q13-11110706,h512k4,Q13,wrong,3,3,"the contrast sentence's claims about sinusoids are cited only to HNET 1, which doesn't support that half (unsupported citation: a Level 1 failure; author marked it partial, content right but citation wrong)"
 eval-h256k8-Q13-11110706,h256k8,Q13,correct,3,3,"both purposes and the fixed/position vs learned/content contrast, each cited to its paper; length difference not stated (strict: wrong)"
 eval-h512k4rr-Q13-11110706,h512k4rr,Q13,wrong,2,3,both contrast sentences withheld for missing citations (genuine gate catch)
 eval-h512k4-Q14-11110706,h512k4,Q14,wrong,1,4,'tau = 2 corresponds to a 2-second audio delay' [wrong-fact: 2 steps = 160 ms]; R3 lacks ASR/TTS; R4 missing

@@ -7828,3 +7828,6 @@
 {"rid": "56a58333ca66", "t_ms": 677.2, "ev": "call_end", "model": "openai/gpt-oss-20b", "status": "ok", "http": 200, "ms": 659.5, "first_byte_ms": 528.5, "usage": {"queue_time": 0.3309, "prompt_tokens": 1494, "completion_tokens": 130, "total_tokens": 1624, "completion_time": 0.1453, "prompt_time": 0.092, "completion_tokens_details": {"reasoning_tokens": 6}}, "queue_time": 0.3309, "finish": "stop"}
 {"rid": "56a58333ca66", "t_ms": 677.3, "ev": "gate_pass", "kind": "answer", "reason": "", "cites": ["AIAYN §6.2"], "text": "In row (E) we replace our sinusoidal positional encoding with learned positional embeddings , and observe nearly identical results to the base model [AIAYN §6.2]."}
 {"rid": "56a58333ca66", "t_ms": 677.3, "ev": "done", "status": "rate_limited", "tier": "lean", "branch": "answer", "sentences": 3, "withheld": 0, "drafter_calls": 1, "retries": 0}
+{"rid": "eval-h512k4-Q8-11110706", "ev": "grade", "grade": "correct", "points_covered": 4, "points_required": 4, "regrade": true}
+{"rid": "eval-h256k8-Q8-11110706", "ev": "grade", "grade": "correct", "points_covered": 4, "points_required": 4, "regrade": true}
+{"rid": "eval-h256k8-Q6-11110706", "ev": "grade", "grade": "correct", "points_covered": 4, "points_required": 5, "regrade": true}
