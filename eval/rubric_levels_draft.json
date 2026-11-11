@@ -1,0 +1,100 @@
+{
+  "about": "DRAFT by the assistant, 2026-11-11, pending the author's approval. Two-level rubric (author's design, 2026-11-11). Level 1 (must pass) decides correct/wrong: answers the central question, covers every explicitly requested component, no material factual error, citations support the claims, nothing invented. Level 2 (partial credit, diagnostic only, never changes the grade): exact numbers, extra architectural detail, equations, secondary observations, appendix context. Each required point of eval/answer_key.json is tagged from the QUESTION'S WORDING ONLY, before any eval_v2 answer is read. A Level 1 point counts when its main idea is stated correctly; the parts listed under 'level2_parts' inside a Level 1 point are Level 2. A material factual error is one about something the question asks for, or one that changes the meaning.",
+  "unanswerable": "Q16-Q20, Level 1: says the papers do not establish the asked information and gives no value for it; adjacent facts only if cited and framed as not answering.",
+  "levels": {
+    "Q1": [
+      {"point": 1, "level": 1, "why": "asks 'why are the ... dot products divided' - growth with d_k is the why"},
+      {"point": 2, "level": 1, "why": "asks 'What problem does this scaling prevent?'"},
+      {"point": 3, "level": 1, "why": "the scaling itself is the subject of the question", "level2_parts": "the footnote's variance argument"}
+    ],
+    "Q2": [
+      {"point": 1, "level": 1, "why": "asks to 'explain ... encoder self-attention'"},
+      {"point": 2, "level": 1, "why": "asks to explain 'masked decoder self-attention'", "level2_parts": "setting to -inf"},
+      {"point": 3, "level": 1, "why": "asks to explain 'encoder-decoder attention'"},
+      {"point": 4, "level": 1, "why": "asks 'Why is masking necessary in the decoder?'", "level2_parts": "output embeddings offset by one"}
+    ],
+    "Q3": [
+      {"point": 1, "level": 1, "why": "asks 'How does it incorporate positional information'"},
+      {"point": 2, "level": 1, "why": "the sinusoidal functions are how; the question names them", "level2_parts": "the PE formula; wavelengths in a geometric progression from 2pi to 10000*2pi"},
+      {"point": 3, "level": 2, "why": "'despite observing nearly identical results' is given in the question as a premise, not asked"},
+      {"point": 4, "level": 1, "why": "asks 'Why did the authors choose sinusoidal'"}
+    ],
+    "Q4": [
+      {"point": 1, "level": 1, "why": "listed: 'Number of encoder and decoder layers'"},
+      {"point": 2, "level": 1, "why": "listed: 'Model dimension (d_model)'"},
+      {"point": 3, "level": 1, "why": "listed: 'Feed-forward dimension (d_ff)'"},
+      {"point": 4, "level": 1, "why": "listed: 'Number of attention heads'"},
+      {"point": 5, "level": 1, "why": "listed: 'Key and value dimensions'"},
+      {"point": 6, "level": 1, "why": "listed: 'Number of training steps'"}
+    ],
+    "Q5": [
+      {"point": 1, "level": 1, "why": "asks 'What are these three limitations' (latency)", "level2_parts": "'a few hundred ms in natural conversation'"},
+      {"point": 2, "level": 1, "why": "the three limitations (text bottleneck)", "level2_parts": "the examples emotion, accent, non-speech audio"},
+      {"point": 3, "level": 1, "why": "the three limitations (turn-based)", "level2_parts": "backchanneling"},
+      {"point": 4, "level": 1, "why": "asks 'how does Moshi's speech-to-speech approach attempt to address them' (text bottleneck)", "level2_parts": "the name Helium"},
+      {"point": 5, "level": 1, "why": "how Moshi addresses latency: streaming, low latency", "level2_parts": "160 ms theoretical / 200 ms practical"},
+      {"point": 6, "level": 1, "why": "how Moshi addresses turn-taking: multi-stream, no speaker turns"}
+    ],
+    "Q6": [
+      {"point": 1, "level": 1, "why": "asks 'What are the two audio streams - whose speech is represented in each'"},
+      {"point": 2, "level": 1, "why": "asks 'how are these distinct streams jointly modelled': both concatenated into one jointly modelled sequence", "level2_parts": "the acoustic delay applied to both"},
+      {"point": 3, "level": 1, "why": "asks how they 'support simultaneous listening and speaking'"},
+      {"point": 4, "level": 2, "why": "inference-time replacement of the user stream by real audio is not asked"},
+      {"point": 5, "level": 1, "why": "asks how they support 'overlapping speech and interruptions'"}
+    ],
+    "Q7": [
+      {"point": 1, "level": 1, "why": "asks 'What role do residual vector quantization ... play': an autoencoder with an RVQ bottleneck", "level2_parts": "SeaNet; 24 kHz -> 12.5 Hz; Q = 8; codebook size 2048"},
+      {"point": 2, "level": 1, "why": "asks the role of 'knowledge distillation': WavLM distilled into the first quantizer level", "level2_parts": "cosine distance"},
+      {"point": 3, "level": 1, "why": "asks 'how Mimi combines semantic and acoustic information': split RVQ, semantic VQ + acoustic RVQ", "level2_parts": "7 levels; outputs summed; why a single RVQ hurt quality"},
+      {"point": 4, "level": 1, "why": "asks 'why is Mimi's causal design important for real-time speech generation'", "level2_parts": "80 ms frames"}
+    ],
+    "Q8": [
+      {"point": 1, "level": 1, "why": "asks 'What is the Inner Monologue technique' and how text tokens are incorporated (time-aligned prefix to semantic tokens)"},
+      {"point": 2, "level": 1, "why": "asks 'how time-aligned text tokens are incorporated': aligned to audio frames, padding between words", "level2_parts": "Whisper word-level timestamps; the names PAD/EPAD; 12.5 Hz"},
+      {"point": 3, "level": 1, "why": "asks 'why this improves linguistic quality'"},
+      {"point": 4, "level": 1, "why": "asks how 'changing the delay ... allows ... streaming ASR and TTS'"}
+    ],
+    "Q9": [
+      {"point": 1, "level": 1, "why": "listed"}, {"point": 2, "level": 1, "why": "listed"},
+      {"point": 3, "level": 1, "why": "listed"}, {"point": 4, "level": 1, "why": "listed"},
+      {"point": 5, "level": 1, "why": "listed"}, {"point": 6, "level": 1, "why": "listed"}
+    ],
+    "Q10": [
+      {"point": 1, "level": 1, "why": "asks 'What does each stage do?' (encoder)"},
+      {"point": 2, "level": 1, "why": "each stage (dynamic chunking)", "level2_parts": "the names routing module and downsampler"},
+      {"point": 3, "level": 1, "why": "each stage (main network)", "level2_parts": "it can itself be an H-Net (recursion)"},
+      {"point": 4, "level": 1, "why": "each stage (dechunking)", "level2_parts": "smoothing module; the residual Linear(x)"},
+      {"point": 5, "level": 1, "why": "each stage (decoder)"}
+    ],
+    "Q11": [
+      {"point": 1, "level": 1, "why": "asks 'How does the routing module identify potential chunk boundaries using adjacent representations'", "level2_parts": "the q/k projections and p_t formula; p_1 = 1"},
+      {"point": 2, "level": 1, "why": "same: low similarity -> boundary", "level2_parts": "the 0.5 threshold"},
+      {"point": 3, "level": 1, "why": "asks 'which vectors does it retain and which does it discard'", "level2_parts": "alternatives considered (pooling, cross-attention)"},
+      {"point": 4, "level": 2, "why": "probabilities passed to dechunking is not asked"}
+    ],
+    "Q12": [
+      {"point": 1, "level": 1, "why": "asks to compare at 'Large (760M)'"},
+      {"point": 2, "level": 1, "why": "asks to compare at 'XL (1.3B)'"},
+      {"point": 3, "level": 1, "why": "asks 'Is there any discrepancy? Attribute each figure to its source.'"}
+    ],
+    "Q13": [
+      {"point": 1, "level": 1, "why": "asks 'What problem does each mechanism solve?' (positional encoding)"},
+      {"point": 2, "level": 1, "why": "same (dynamic chunking)"},
+      {"point": 3, "level": 1, "why": "asks 'How do they differ in terms of injecting sequence structure versus learning content-dependent segmentation?'", "level2_parts": "that only chunking changes sequence length"}
+    ],
+    "Q14": [
+      {"point": 1, "level": 1, "why": "asks 'What dependency does causal masking enforce'"},
+      {"point": 2, "level": 1, "why": "asks 'what purpose do the delay patterns serve' and to distinguish the acoustic delay", "level2_parts": "the values 1 or 2 steps"},
+      {"point": 3, "level": 1, "why": "asks to 'Distinguish ... the text-audio delay used by Inner Monologue'"},
+      {"point": 4, "level": 2, "why": "that Moshi stays autoregressive over time steps is not explicitly asked"}
+    ],
+    "Q15": [
+      {"point": 1, "level": 1, "why": "asks to compare 'Moshi's Temporal Transformer and Depth Transformer'", "level2_parts": "the context vector z_s"},
+      {"point": 2, "level": 1, "why": "asks 'what computational or modelling problem is each hierarchy intended to address' (Moshi)", "level2_parts": "~100 steps per second; 30,000 for 5 minutes"},
+      {"point": 3, "level": 1, "why": "asks to compare 'H-Net's encoder, dynamic chunking, main network, dechunking'", "level2_parts": "stages can nest"},
+      {"point": 4, "level": 1, "why": "the question names the decoder; its role on the restored sequence", "level2_parts": "combining coarse output with encoder residuals"},
+      {"point": 5, "level": 1, "why": "the problem each hierarchy addresses (H-Net: learned segmentation in place of fixed tokenization)", "level2_parts": "allocating compute by compressing low-information regions"},
+      {"point": 6, "level": 1, "why": "asks 'What dimensions or structures are being decomposed in each'"}
+    ]
+  }
+}
