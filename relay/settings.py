@@ -21,7 +21,9 @@ LEAN_MAX_TOKENS = 600
 ROUTER_MAX_TOKENS = 300
 CHAT_OVERHEAD = 78           # chat-template tokens Groq bills on top of the message text (measured)
 TOOLS_TOKENS = 260            # the two tool schemas, as billed (estimate; corrected by usage on every call)
-MAX_PASSAGE_TOKENS = 2600     # cap on retrieved text in one drafter prompt (decompose merges several queries)
+TABLE_EXPAND_MAX = 1200      # give the drafter a whole table when any part is retrieved, up to this size
+RETRIEVAL_TIMEOUT_S = 2.0     # the retrieval tool's deadline (warm h256k8: ~66 ms p50); re-rank settings get 12 s
+MAX_PASSAGE_TOKENS = 2600    # cap on retrieved text in one drafter prompt (decompose merges several queries)
 
 # --- deadlines (ADR "fast" targets: first-token p95 <= 4,000 ms, total p95 <= 8,000 ms)
 FIRST_TOKEN_TIMEOUT_S = 4.0   # per call: no answer token by then -> timeout (measured p99 ~2.4 s; a 503 hangs ~30 s)

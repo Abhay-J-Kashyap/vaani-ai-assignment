@@ -63,7 +63,8 @@ async def scan_one(relay: Relay, qid: str, question: str, key: dict) -> dict:
         hits = await relay.decompose(r, parts, hits, s.k, s.rerank)
     else:
         branch = "answer"
-    hits = relay.cap_passages(hits)
+    hits, _ = relay.named_tables(question, papers, hits)
+    hits = relay.cap_passages(relay.expand_tables(hits))
     ms = (time.perf_counter() - t0) * 1000
     cites = [h.chunk["cite"] for h in hits]
     prompt = S.CHAT_OVERHEAD + sum(ntok(m["content"]) for m in relay.draft_messages(question, hits))
@@ -75,7 +76,7 @@ async def scan_one(relay: Relay, qid: str, question: str, key: dict) -> dict:
             "prompt_tokens": prompt, "retrieval_ms": round(ms, 1), "cites": " | ".join(cites)}
 
 
-async def main_async(settings: list[str]) -> None:
+async def main_async(settings: list[str], out_name: str) -> None:
     qs = load_questions()
     key = {q["id"]: q for q in json.loads((ROOT / "eval" / "answer_key.json").read_text(encoding="utf-8"))["questions"]}
     rows = []
@@ -87,7 +88,9 @@ async def main_async(settings: list[str]) -> None:
         await relay.close()
         print(f"  scanned {name}", flush=True)
 
-    out = ROOT / "results" / "retrieval_scan.csv"
+    out = ROOT / "results" / out_name
+    if out.exists():
+        raise SystemExit(f"{out.name} exists; raw results are never overwritten - pass a new --out name")
     with out.open("w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0]))
         w.writeheader()
@@ -112,7 +115,9 @@ async def main_async(settings: list[str]) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--settings", nargs="+", default=DEFAULT)
-    asyncio.run(main_async(ap.parse_args().settings))
+    ap.add_argument("--out", required=True, help="new file name under results/, e.g. retrieval_scan_<date>.csv")
+    a = ap.parse_args()
+    asyncio.run(main_async(a.settings, a.out))
 
 
 if __name__ == "__main__":

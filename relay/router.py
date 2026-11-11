@@ -40,7 +40,8 @@ SYSTEM = ("You route engineers' questions about three research papers. Call exac
           "per paper.")
 
 VOCAB = {
-    "AIAYN": r"attention is all you need|original transformer|transformer base|transformer big|base model|"
+    # whole words: "transformer base" once matched "BPE Transformer baseline" in an H-Net question (Q12)
+    "AIAYN": r"attention is all you need|original transformer|transformer base\b|transformer big\b|base model\b|"
              r"scaled dot.product|multi.head|positional encoding|sinusoid|encoder.decoder attention|\bbleu\b|\bwmt\b|"
              r"label smoothing|\bd_?model\b|\bd_?ff\b|\bd_k\b|vaswani|machine translation|constituency",
     "MOSHI": r"\bmoshi\b|\bmimi\b|inner monologue|full.duplex|depth transformer|temporal transformer|\bhelium\b|"

@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import math
+import re
 import sys
 import time
 import uuid
@@ -39,7 +40,7 @@ from relay.gate import SentenceSplitter, check_citations
 from relay.ledger import Ledger
 from relay.limits import fmt_wait
 from relay.llm import LLM, CallResult
-from relay.retrieval import get_index
+from relay.retrieval import Hit, full_tables, get_index
 from relay.router import TOOLS, Route, detect_papers, heuristic_route, parse_tool_call, router_messages
 from relay.runtime import AnswerCache, Recorder, RetryBudget
 
@@ -47,11 +48,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 DRAFT_SYSTEM = """You answer engineers' questions using ONLY the passages provided. Rules:
 1. End every sentence, including any summary, with at least one citation in square brackets, copying a passage label exactly, e.g. [AIAYN §3.2.1].
-2. Use only facts and numbers stated in the passage you cite. If you compute a number (e.g. a difference), write the two source numbers in the same sentence, e.g. "2.7 points (58.2 vs 55.5)".
-3. If the passages do not contain the answer, reply with one sentence: "The papers do not say ..." naming what is missing. Never guess or use outside knowledge.
-4. If the passages answer only part of the question, answer that part and say which part the papers do not cover.
-5. If two passages disagree (e.g. prose versus a table), report both and attribute each.
-6. Plain sentences only: no headings, no tables, no bullet symbols. At most 10 sentences."""
+2. Use only facts and numbers stated in the passage you cite, written exactly as the passage writes them. If you compute a number (e.g. a difference), write the two source numbers in the same sentence, e.g. "2.7 points (58.2 vs 55.5)". When reading a table, take each value from its own row and column.
+3. Answer every part of the question. If it asks for a list of items, give each item, each with its citation.
+4. If the passages do not contain the answer, reply with one sentence: "The papers do not say ..." naming what is missing. Never guess or use outside knowledge.
+5. If the passages answer only part of the question, answer that part and say which part the papers do not cover.
+6. If two passages disagree (e.g. prose versus a table), report both and attribute each.
+7. Plain sentences only: no headings, no tables, no bullet symbols. At most 12 sentences."""
 
 REGEN_NOTE = ("Your previous answer was rejected because its sentences lacked valid citations or used numbers not in "
               "the cited passage. Every sentence must end with one of these labels: {labels}.")
@@ -194,7 +196,10 @@ class Relay:
         if r.branch == "refuse":
             self.emit(r, "sentence", NOT_COVERED)
             return
-        hits = self.cap_passages(hits)
+        hits, named = self.named_tables(r.question, papers, hits)
+        if named:
+            self.trace(r, "named_tables", added=named)
+        hits = self.cap_passages(self.expand_tables(hits))
 
         # [4]+[5] draft through the gate, by tier
         if r.tier == "extractive":
@@ -231,11 +236,22 @@ class Relay:
         return route or heuristic_route(r.question)
 
     # ------------------------------------------------------------------ [2] retrieve
-    async def search(self, query: str, k: int, rerank: bool, papers: list[str] | None = None):
+    async def search(self, query: str, k: int, rerank: bool, papers: list[str] | None = None, r: Req | None = None):
+        """The retrieval tool, with a deadline (the brief: "tools time out"). On timeout it degrades to BM25 alone,
+        which needs no embedding model; its confidence is NaN, which the decide branch treats as 'unknown' (it
+        neither refuses nor loops on it)."""
         idx = get_index(self.setting.size)
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(self.cpu, lambda: idx.search(query, k, rerank, pool=30, papers=papers,
-                                                                        dense=self.setting.dense))
+        fut = loop.run_in_executor(self.cpu, lambda: idx.search(query, k, rerank, pool=30, papers=papers,
+                                                                 dense=self.setting.dense))
+        limit = S.RETRIEVAL_TIMEOUT_S * (6 if rerank else 1)
+        try:
+            return await asyncio.wait_for(fut, timeout=limit)
+        except asyncio.TimeoutError:
+            if r:
+                self.trace(r, "retrieval_timeout", limit_s=limit, query=query[:200])
+            hits = idx.bm25_only(query, k, papers)
+            return hits, {"retrieve_ms": limit * 1000, "fuse_rerank_ms": 0.0, "top_dense_cos": float("nan")}
 
     @staticmethod
     def confidence(hits, timing, rerank: bool) -> float:
@@ -243,19 +259,36 @@ class Relay:
             return hits[0].rerank
         return timing["top_dense_cos"]
 
+    @staticmethod
+    def merge(lists: list) -> list:
+        """Round-robin merge of ranked hit lists, dropping repeats, so every list's best hits are kept."""
+        merged, seen = [], set()
+        for i in range(max((len(x) for x in lists), default=0)):
+            for lst in lists:
+                if i < len(lst) and lst[i].chunk["id"] not in seen:
+                    seen.add(lst[i].chunk["id"])
+                    merged.append(lst[i])
+        return merged
+
     async def retrieve_loop(self, r: Req, route: Route, papers: list[str], k: int, rerank: bool):
         tau = S.TAU["rerank" if rerank else "cos"]["loop"]
         names = {"AIAYN": "Transformer attention", "MOSHI": "Moshi Mimi speech", "HNET": "H-Net dynamic chunking"}
-        queries = [route.query]
-        if route.query.strip() != r.question.strip():
-            queries.append(r.question)
+        # The person's own question is always searched alongside the router's rewrite and the two are merged
+        # (real eval, 2026-11-11: the rewrite alone missed AIAYN Table 3 for Q4, and both h512k4 and h256k8 then
+        # refused a question the papers answer; its confidence was high, so the loop never searched again).
+        first = [route.query] + ([r.question] if route.query.strip() != r.question.strip() else [])
+        queries = [first]
         if papers:
-            queries.append(f"{r.question} {' '.join(names[p] for p in papers)}")
+            queries.append([f"{r.question} {' '.join(names[p] for p in papers)}"])
         best = None
-        for i, q in enumerate(queries[:1 + S.MAX_REFORMULATIONS]):
-            self.trace(r, "retrieve_start", iteration=i, query=q[:200])
-            hits, timing = await self.search(q, k, rerank)
-            conf = self.confidence(hits, timing, rerank)
+        for i, qs in enumerate(queries[:1 + S.MAX_REFORMULATIONS]):
+            self.trace(r, "retrieve_start", iteration=i, query=" || ".join(q[:200] for q in qs))
+            results = [await self.search(q, k, rerank, r=r) for q in qs]
+            hits = self.merge([h for h, _ in results])[:k]
+            confs = [self.confidence(h, t, rerank) for h, t in results]
+            conf = max(confs) if all(c == c for c in confs) else tau        # NaN (timed out) -> unknown
+            timing = {"retrieve_ms": sum(t["retrieve_ms"] for _, t in results),
+                      "fuse_rerank_ms": sum(t["fuse_rerank_ms"] for _, t in results)}
             self.trace(r, "retrieve_end", iteration=i, confidence=round(conf, 3), ms=timing["retrieve_ms"],
                        rerank_ms=timing["fuse_rerank_ms"], cites=[h.chunk["cite"] for h in hits])
             if best is None or conf > best[1]:
@@ -290,17 +323,50 @@ class Relay:
         for p in parts:
             q, _, paper = p.partition(" ||")
             self.trace(r, "retrieve_start", part=p[:200])
-            h, timing = await self.search(q, per, rerank, papers=[paper] if paper else None)
+            h, timing = await self.search(q, per, rerank, papers=[paper] if paper else None, r=r)
             self.trace(r, "retrieve_end", part=p[:200], ms=timing["retrieve_ms"], rerank_ms=timing["fuse_rerank_ms"],
                        cites=[x.chunk["cite"] for x in h])
             lists.append(h)
-        merged, seen = [], set()
-        for i in range(max(len(x) for x in lists)):
-            for lst in lists[1:] + lists[:1]:
-                if i < len(lst) and lst[i].chunk["id"] not in seen:
-                    seen.add(lst[i].chunk["id"])
-                    merged.append(lst[i])
-        return merged
+        return self.merge(lists[1:] + lists[:1])
+
+    def named_tables(self, question: str, papers: list[str], hits):
+        """A question that names a table ("According to Table 1") gets that table looked up directly, in the paper
+        the question is about. Every paper has a Table 1-3, so retrieval alone fetched the wrong paper's table
+        (real eval, 2026-11-11: Q9 at h256k8 never got MOSHI Table 1; Q4 got HNET Table 1 for AIAYN Table 3).
+        With no identifiable paper, nothing is added: guessing the paper would recreate the same trap."""
+        nums = sorted(set(re.findall(r"\bTable\s+(\d+)\b", question)))
+        if not nums or not papers:
+            return hits, []
+        idx = get_index(self.setting.size)
+        have = {h.chunk["cite"] for h in hits}
+        added = []
+        for p in papers:
+            for n in nums:
+                label = f"{p} Table {n}"
+                if label in have:
+                    continue
+                part = next((c for c in idx.chunks if c["cite"] == label), None)
+                if part:
+                    added.append(Hit(part, float("inf"), None, None, float("nan")))
+        return added + hits, [h.chunk["cite"] for h in added]
+
+    @staticmethod
+    def expand_tables(hits):
+        """Replace a retrieved table part with the whole table (once), when the table fits TABLE_EXPAND_MAX."""
+        from dataclasses import replace
+        tables, out, seen = full_tables(), [], set()
+        for h in hits:
+            c = h.chunk
+            if c["kind"] == "table" and c["cite"] in tables:
+                if c["cite"] in seen:
+                    continue
+                seen.add(c["cite"])
+                text = tables[c["cite"]]
+                n = ntok(text)
+                if n <= S.TABLE_EXPAND_MAX:
+                    h = replace(h, chunk=c | {"text": text, "tokens": n, "expanded": True})
+            out.append(h)
+        return out
 
     @staticmethod
     def cap_passages(hits):

@@ -323,6 +323,16 @@ Modules: `relay/pipeline.py` (stages 0–6, CLI), `relay/gate.py` (sentence spli
 
    Against the pre-registered triggers: gate-fail stays under 25% everywhere. C's first-token p50 is 22–24% below a *judge-free* B, short of the 30% bar; but any runtime judge call adds to B's first token, and the bar is met once that call takes ≥ 143 ms at h512k4 (1,318 ≤ 0.7 × (1,740 + 143)). No Groq call measured on Day 1 or since returned that fast. The misread trigger (> 10%) fires at h512k4 (28.6%) and not at h256k8 (0%): this is the gate's blind spot, which only a meaning check (a judge) would catch, at a token cost the author ruled out.
 
+**Quality fixes after the brief review (author: "fix all the weak points which hamper the retrieval quality and the general quality", 2026-11-11).** Each comes from a failure seen in the graded eval:
+- **The person's own question is always searched alongside the router's rewrite, and the results merged.** The rewrite alone missed AIAYN Table 3 for Q4 (two wrong refusals), and its confidence was high enough that the loop never searched again.
+- **Named tables are looked up directly.** "According to Table 1" plus an identifiable paper fetches that paper's table. Every paper has a Table 1–3, so retrieval alone fetched the wrong one (Q9 at h256k8; HNET Table 1 for Q4). With no identifiable paper nothing is added, rather than guessing.
+- **The drafter gets a whole table**, up to 1,200 tokens, when any row group is retrieved. Separate row-part pieces were misread ("the first version of Table 2 (part 2/3)…", Q12, every setting). Retrieval still matches row groups.
+- **Paper detection uses whole words.** "transformer base" matched "BPE Transformer baseline", so Q12 was treated as an AIAYN question, which added AIAYN's Table 2 and sent it down the decompose branch.
+- **The retrieval tool has a deadline** (2 s; 12 s with re-rank). On timeout it degrades to BM25 alone, with no embedding model, and treats confidence as unknown, so it neither refuses nor loops on it. This answers the brief's "tools time out".
+- **Drafter prompt:** answer every part, and every listed item; write numbers exactly as the passage does; take table values from their own row and column.
+- **Local check (no Groq; `results/retrieval_scan_after_fixes_2026-11-11.csv`):** h256k8 reachable points 86.6% → 88.1%, all points reachable 10 → 11 of 15. No regression for bm256k8 or h512k4.
+- **Caveat for the write-up:** these fixes were motivated by failures on the same 20 questions they will be re-measured on, so the rerun overstates how well they generalise. A few fresh questions written by the author would measure that honestly.
+
 **Decisions on the pipeline (author, 2026-11-10):** all three accepted as recommended below.
 
 1. **`status` for a downgraded answer (author: accepted).** Recommended: `rate_limited` whenever a limit (a 429, or the ledger predicting one) gave the person a weaker answer than Full, including Lean and quoted passages; `ok` only when nothing forced a downgrade. Otherwise Table 2b would show 100% `ok` in the daily-exhausted row and hide the event.

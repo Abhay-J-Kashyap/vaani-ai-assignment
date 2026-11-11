@@ -120,9 +120,31 @@ class Index:
         return hits[:k], timing
 
 
+    def bm25_only(self, query: str, k: int, papers: list[str] | None = None) -> list[Hit]:
+        """Degraded search for when the full search times out: BM25 alone, no embedding model, no re-rank."""
+        bm = self.bm25.get_scores(tokens(query))
+        if papers:
+            bm = np.where(np.array([c["paper"] in papers for c in self.chunks]), bm, -np.inf)
+        order = [int(i) for i in np.argsort(-bm)[:k] if bm[i] > 0]
+        return [Hit(self.chunks[i], float(bm[i]), r, None, float("nan")) for r, i in enumerate(order)]
+
+
 @lru_cache(maxsize=4)
 def get_index(size: int) -> Index:
     return Index(size)
+
+
+@lru_cache(maxsize=1)
+def full_tables() -> dict[str, str]:
+    """cite label -> the whole table (caption, header and every row), from the parsed blocks. Retrieval matches
+    row groups; the drafter is given the whole table, because separate row-part pieces were misread in the eval
+    (2026-11-11, Q12: "the first version of Table 2 (part 2/3) reports...")."""
+    out = {}
+    for line in (CORPUS / "blocks.jsonl").read_text(encoding="utf-8").splitlines():
+        b = json.loads(line)
+        if b["kind"] == "table":
+            out[f"{b['paper']} {b['float_num']}"] = f"{b['float_num']}: {b['caption']}\n{b['text']}"
+    return out
 
 
 def main() -> None:
