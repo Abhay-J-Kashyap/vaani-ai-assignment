@@ -1,0 +1,64 @@
+﻿60 answers to run (0 already answered ok), settings=['h512k4', 'h256k8', 'h512k4rr']
+  openai/gpt-oss-120b: projected ~150,061 tokens; ledger level ~200,000; room after 15% slack ~170,000
+  openai/gpt-oss-20b: projected ~28,800 tokens; ledger level ~200,000; room after 15% slack ~170,000
+[ 1/60      1s pre-wait  0.0s] h512k4    Q1   ok           answer    ft=1318.0 total=1318.5 tok=1456/198 withheld=0 calls=1
+[ 2/60      3s pre-wait  0.0s] h256k8    Q1   ok           answer    ft=1193.2 total=1193.5 tok=1946/180 withheld=0 calls=1
+[ 3/60      7s pre-wait  0.0s] h512k4rr  Q1   ok           answer    ft=4633.2 total=4634.4 tok=1679/202 withheld=0 calls=1
+[ 4/60      9s pre-wait  0.0s] h512k4    Q2   ok           answer    ft=1325.6 total=1724.1 tok=1723/333 withheld=0 calls=1
+[ 5/60     11s pre-wait  0.5s] h256k8    Q2   ok           answer    ft=1329.3 total=1762.8 tok=2347/363 withheld=0 calls=1
+[ 6/60     26s pre-wait  9.1s] h512k4rr  Q2   ok           answer    ft=5635.2 total=6045.9 tok=1723/367 withheld=0 calls=1
+[ 7/60     35s pre-wait  6.7s] h512k4    Q3   ok           answer    ft=1851.1 total=1983.5 tok=1819/315 withheld=0 calls=1
+[ 8/60     54s pre-wait 17.1s] h256k8    Q3   ok           answer    ft=1329.0 total=1927.5 tok=2191/311 withheld=0 calls=1
+[ 9/60     68s pre-wait 10.2s] h512k4rr  Q3   ok           answer    ft=3919.3 total=4041.2 tok=2275/256 withheld=0 calls=1
+[10/60     81s pre-wait 11.2s] h512k4    Q4   ok           answer    ft=1149.8 total=1150.4 tok=1968/162 withheld=0 calls=1
+[11/60     98s pre-wait 14.7s] h256k8    Q4   ok           answer    ft=2101.3 total=2101.6 tok=2694/158 withheld=0 calls=1
+[12/60    118s pre-wait 14.9s] h512k4rr  Q4   ok           answer    ft=5583.4 total=5865.4 tok=2445/321 withheld=1 calls=1
+[13/60    128s pre-wait  8.1s] h512k4    Q5   ok           answer    ft=1890.4 total=1890.9 tok=2218/387 withheld=1 calls=1
+[14/60    145s pre-wait 14.8s] h256k8    Q5   ok           answer    ft=1839.5 total=1840.0 tok=2406/382 withheld=1 calls=1
+[15/60    163s pre-wait 13.1s] h512k4rr  Q5   ok           answer    ft=4396.1 total=4396.6 tok=2430/270 withheld=1 calls=1
+[16/60    175s pre-wait 11.4s] h512k4    Q6   ok           answer    ft=967.6 total=1143.0 tok=2268/238 withheld=0 calls=1
+[17/60    203s pre-wait 15.5s] h256k8    Q6   ok           answer    ft=12383.6 total=12577.6 tok=4248/450 withheld=1 calls=2
+[18/60    225s pre-wait 17.7s] h512k4rr  Q6   ok           answer    ft=4223.7 total=4345.8 tok=2279/196 withheld=0 calls=1
+[19/60    237s pre-wait  9.8s] h512k4    Q7   ok           answer    ft=1274.7 total=1796.1 tok=2091/459 withheld=0 calls=1
+[20/60    251s pre-wait 11.3s] h256k8    Q7   ok           answer    ft=1897.9 total=2363.4 tok=2272/364 withheld=0 calls=1
+[21/60    268s pre-wait 12.7s] h512k4rr  Q7   ok           answer    ft=4166.5 total=4613.0 tok=1700/393 withheld=0 calls=1
+[22/60    278s pre-wait  8.5s] h512k4    Q8   ok           answer    ft=1289.6 total=1625.8 tok=2188/319 withheld=0 calls=1
+[23/60    294s pre-wait 12.2s] h256k8    Q8   ok           answer    ft=1299.1 total=3447.5 tok=2418/414 withheld=0 calls=1
+[24/60    312s pre-wait 14.0s] h512k4rr  Q8   ok           answer    ft=3721.3 total=4284.0 tok=2188/411 withheld=0 calls=1
+[25/60    321s pre-wait  7.0s] h512k4    Q9   ok           answer    ft=2268.1 total=2349.3 tok=2010/229 withheld=0 calls=1
+[26/60    336s pre-wait 14.2s] h256k8    Q9   ok           answer    ft=1040.9 total=1095.3 tok=2256/191 withheld=0 calls=1
+[27/60    358s pre-wait 11.5s] h512k4rr  Q9   ok           decompose ft=9715.0 total=9715.3 tok=3337/200 withheld=0 calls=1
+[28/60    373s pre-wait 14.0s] h512k4    Q10  ok           answer    ft=1141.5 total=1740.8 tok=1936/426 withheld=1 calls=1
+[29/60    387s pre-wait 11.0s] h256k8    Q10  ok           answer    ft=2541.6 total=3078.9 tok=2140/398 withheld=0 calls=1
+[30/60    405s pre-wait 12.6s] h512k4rr  Q10  ok           answer    ft=3623.0 total=4479.1 tok=2258/367 withheld=0 calls=1
+[31/60    414s pre-wait  8.0s] h512k4    Q11  ok           answer    ft=1693.9 total=1854.9 tok=1965/318 withheld=0 calls=1
+[32/60    427s pre-wait 11.0s] h256k8    Q11  ok           answer    ft=1582.2 total=1751.1 tok=2239/362 withheld=0 calls=1
+[33/60    442s pre-wait 10.7s] h512k4rr  Q11  ok           answer    ft=4342.1 total=4496.9 tok=2120/314 withheld=0 calls=1
+[34/60    463s pre-wait 18.3s] h512k4    Q12  ok           decompose ft=2547.9 total=2702.6 tok=3376/506 withheld=3 calls=1
+[35/60    488s pre-wait 22.4s] h256k8    Q12  ok           decompose ft=2114.7 total=2519.3 tok=3458/704 withheld=3 calls=1
+[36/60    521s pre-wait 20.9s] h512k4rr  Q12  ok           decompose ft=11517.8 total=11992.5 tok=3302/652 withheld=4 calls=1
+[37/60    532s pre-wait  9.0s] h512k4    Q13  ok           decompose ft=1494.4 total=1789.2 tok=2827/436 withheld=0 calls=1
+[38/60    557s pre-wait 23.5s] h256k8    Q13  ok           decompose ft=1388.5 total=1779.5 tok=3129/439 withheld=0 calls=1
+[39/60    590s pre-wait 17.6s] h512k4rr  Q13  ok           decompose ft=14883.4 total=15228.9 tok=2741/394 withheld=2 calls=1
+[40/60    593s pre-wait  0.0s] h512k4    Q14  ok           decompose ft=1927.3 total=2568.9 tok=3291/578 withheld=0 calls=1
+[41/60    621s pre-wait 26.8s] h256k8    Q14  ok           decompose ft=1376.3 total=1787.8 tok=3491/376 withheld=0 calls=1
+[42/60    661s pre-wait 22.4s] h512k4rr  Q14  ok           decompose ft=16514.0 total=16934.6 tok=3408/475 withheld=0 calls=1
+[43/60    667s pre-wait  4.7s] h512k4    Q15  ok           decompose ft=1488.3 total=2147.5 tok=2896/557 withheld=0 calls=1
+[44/60    688s pre-wait 18.3s] h256k8    Q15  ok           decompose ft=1515.5 total=1989.0 tok=3118/556 withheld=1 calls=1
+[45/60    714s pre-wait 13.9s] h512k4rr  Q15  ok           decompose ft=11929.2 total=12249.7 tok=3387/545 withheld=0 calls=1
+[46/60    726s pre-wait 11.1s] h512k4    Q16  ok           answer    ft=1114.2 total=1114.6 tok=2235/114 withheld=0 calls=1
+[47/60    740s pre-wait 11.5s] h256k8    Q16  ok           answer    ft=1997.0 total=1997.3 tok=2208/114 withheld=0 calls=1
+[48/60    758s pre-wait 10.0s] h512k4rr  Q16  ok           refuse    ft=8727.4 total=8728.4 tok=378/67 withheld=0 calls=0
+[49/60    759s pre-wait  0.0s] h512k4    Q17  ok           answer    ft=810.0 total=810.6 tok=2313/126 withheld=0 calls=1
+[50/60    764s pre-wait  3.4s] h256k8    Q17  ok           answer    ft=1236.4 total=1236.7 tok=2528/127 withheld=0 calls=1
+[51/60    785s pre-wait 17.9s] h512k4rr  Q17  ok           answer    ft=3519.9 total=3520.3 tok=2091/124 withheld=0 calls=1
+[52/60    795s pre-wait  8.2s] h512k4    Q18  ok           answer    ft=1086.8 total=1087.3 tok=1758/129 withheld=0 calls=1
+[53/60    805s pre-wait  9.3s] h256k8    Q18  ok           answer    ft=1320.0 total=1320.3 tok=2533/124 withheld=0 calls=1
+[54/60    825s pre-wait 10.8s] h512k4rr  Q18  ok           refuse    ft=8560.8 total=8561.9 tok=386/64 withheld=0 calls=0
+[55/60    827s pre-wait  0.0s] h512k4    Q19  ok           answer    ft=2010.5 total=2010.9 tok=2413/141 withheld=0 calls=1
+[56/60    837s pre-wait  8.9s] h256k8    Q19  ok           answer    ft=1744.6 total=1744.9 tok=2487/213 withheld=0 calls=1
+[57/60    861s pre-wait 11.9s] h512k4rr  Q19  ok           answer    ft=11644.2 total=11644.5 tok=2264/137 withheld=0 calls=1
+[58/60    868s pre-wait  5.3s] h512k4    Q20  ok           decompose ft=1300.3 total=1300.9 tok=3189/122 withheld=0 calls=1
+[59/60    888s pre-wait 19.7s] h256k8    Q20  ok           decompose ft=1233.7 total=1234.1 tok=3301/120 withheld=0 calls=1
+[60/60    909s pre-wait 11.5s] h512k4rr  Q20  ok           refuse    ft=9261.5 total=9262.4 tok=377/90 withheld=0 calls=0
+ledger now: {'openai/gpt-oss-120b': 70382, 'openai/gpt-oss-20b': 173421}
