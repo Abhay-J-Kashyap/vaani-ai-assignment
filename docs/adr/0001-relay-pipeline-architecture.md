@@ -333,6 +333,34 @@ Modules: `relay/pipeline.py` (stages 0–6, CLI), `relay/gate.py` (sentence spli
 - **Local check (no Groq; `results/retrieval_scan_after_fixes_2026-11-11.csv`):** h256k8 reachable points 86.6% → 88.1%, all points reachable 10 → 11 of 15. No regression for bm256k8 or h512k4.
 - **Caveat for the write-up:** these fixes were motivated by failures on the same 20 questions they will be re-measured on, so the rerun overstates how well they generalise. A few fresh questions written by the author would measure that honestly.
 
+**Table 2 definitions (assistant recommended, author approved, 2026-11-11), computed by `python -m tools.tables --table 2`:**
+- *Peak queue length* = the most requests in the system at once (waiting or being served), from `start_time` and `total_ms` overlaps.
+- *Cost per 1,000 answers* = an upper bound priced by tier: Full rows (router + drafter tokens) at the 120b list price, other tiers at the 20b price, cache and quoted-passage rows at 0. Router tokens on Full rows are overstated by < 3%.
+- *Table 3*: percentages are of questions asked; "Wrong" includes wrong refusals, so the three outcome columns sum to 100%.
+
+**Stand-in load runs (2026-11-11, `load/run_load.py`; log `results/load_standin_2026-11-11.log`).** Simulated people arrive as a Poisson process, ask gold questions, and have a lognormal patience with a 12 s median (an assumption, not a measurement: heading 8). A stated 25% word their question exactly as an earlier person did, so the cache can serve them. The first runs allowed unrestricted repeats: 83% of an overload run repeated an earlier question, and cache hits made overload look easy. Those rows are kept as `*_hirepeat` and excluded from the tables.
+
+| Scenario (stand-in) | Requests | Offered / min | First token p50 / p95 / p99 ms | Succeeded % | Rate-limited % | Timed out or gave up % |
+|---|---|---|---|---|---|---|
+| overload | 113 | 22.8 | 69 / 19,910 / 25,630 | 15.0% | 84.1% | 0.9% |
+| tpm_half | 27 | 5.7 | 582 / 11,344 / 14,242 | 25.9% | 74.1% | 0.0% |
+| daily_exhausted | 19 | 6.6 | 915 / 17,504 / 17,504 | 0.0% | 100.0% | 0.0% |
+
+Under overload, most people are moved to quoted passages within ~70 ms rather than queued, so almost nobody gives up. That is the "nobody turned away" trade made visible: 84% get a weaker answer fast instead of a full one late. With the drafter's daily budget gone, 11 of 19 get Lean answers from the 20b and 8 get quoted passages. That is the two-step L3/L4 behaviour heading 7 must describe.
+
+**Retry experiment (heading 6), `python -m eval.retry_compare`.** Same seed (arrivals, questions, patience), 3 per minute for 5 min, 25% of calls hit the measured 503 "over capacity" fault (which the stand-in charges per-minute tokens for, as admitted calls).
+
+| | Naive (3 immediate attempts) | ADR policy |
+|---|---|---|
+| Retries | 11 | 3 |
+| Drafter attempts | 23 | 13 |
+| Per-minute tokens reserved | 68,556 | 37,892 |
+| 429s caused | 10 | 0 |
+| First token p50 / p95 | 4,711 / 9,518 ms | 2,191 / 11,342 ms |
+| Full answers | 8 | 7 |
+
+Naive retries more than doubled the median wait and reserved 81% more per-minute budget, colliding with other people's first attempts (10 rate-limit rejections), for one extra full answer. The policy's 3 extra `timeout` rows are its early give-up on a stalled call (to quoted passages), not lost people. A first attempt at this experiment (a burst, `burst_retry_*`, kept) showed no difference, because admission shed most of the burst before any model call: only 13 drafter calls, 2 retries.
+
 **Decisions on the pipeline (author, 2026-11-10):** all three accepted as recommended below.
 
 1. **`status` for a downgraded answer (author: accepted).** Recommended: `rate_limited` whenever a limit (a 429, or the ledger predicting one) gave the person a weaker answer than Full, including Lean and quoted passages; `ok` only when nothing forced a downgrade. Otherwise Table 2b would show 100% `ok` in the daily-exhausted row and hide the event.

@@ -6,8 +6,10 @@
 
 Simulated people:
   * arrive as a Poisson process at the scenario's rate (a burst is many arrivals in a few seconds);
-  * ask one of the 20 gold questions, drawn with replacement, so repeats happen as they do after an incident
-    (repeats can hit the answer cache; the repeat rate is printed);
+  * ask one of the 20 gold questions, drawn with replacement. A stated REPEAT_SHARE (25%) word it exactly as an
+    earlier person might, so the exact-match answer cache can serve them; everyone else is treated as differently
+    worded and bypasses the cache. (With 20 questions, unrestricted repeats were 83% of an overload run, and cache
+    hits made overload look easy: first-token p50 48 ms. Those rows are kept as overload_hirepeat.);
   * each has a patience drawn from a lognormal with median 12 s (about 10% give up within 6 s, 10% wait over 26 s).
     The pipeline is told it, and sheds to quoted passages rather than make someone wait past it. If the answer
     still isn't complete when patience runs out, the person gives up: the request is cancelled and its row says
@@ -34,6 +36,7 @@ from relay.pipeline import Relay, log_paths
 
 ROOT = Path(__file__).resolve().parents[1]
 PATIENCE_MEDIAN_S, PATIENCE_SIGMA = 12.0, 0.6
+REPEAT_SHARE = 0.25
 
 
 @dataclass
@@ -63,11 +66,19 @@ SCENARIOS = {
     # the drafter's daily budget already gone (the real version runs on the last evening; this is the fallback)
     "daily_exhausted": Scenario("daily_exhausted", rate_per_min=4.0, duration_s=180, tpd_exhausted=True,
                                 stand_in_only=True),
-    # heading 6: the same burst under over-capacity faults, with naive retries vs the ADR policy
+    # heading 6, first attempt (kept): a burst under 15% faults. Admission shed most of it before any model call,
+    # so only 13 drafter calls ran and retries barely happened (naive 2, policy 0) - no difference to measure.
     "burst_retry_naive": Scenario("burst_retry_naive", rate_per_min=2.0, duration_s=120, burst=24,
                                   fault_503=0.15, retry_mode="naive", stand_in_only=True),
     "burst_retry_policy": Scenario("burst_retry_policy", rate_per_min=2.0, duration_s=120, burst=24,
                                    fault_503=0.15, retry_mode="policy", stand_in_only=True),
+    # heading 6: a load the per-minute budget can mostly serve, with 25% of calls hitting the measured 503
+    # "over capacity" fault. A failed call has already reserved its per-minute tokens, so retries compete with
+    # other people's first attempts. Same seed for both, so both get the same arrivals, questions and patience.
+    "retry_naive": Scenario("retry_naive", rate_per_min=3.0, duration_s=300, fault_503=0.25, retry_mode="naive",
+                            stand_in_only=True),
+    "retry_policy": Scenario("retry_policy", rate_per_min=3.0, duration_s=300, fault_503=0.25, retry_mode="policy",
+                             stand_in_only=True),
 }
 
 
@@ -98,10 +109,10 @@ def start_standin(port: int, sc: Scenario, seed: int) -> subprocess.Popen:
     return proc
 
 
-async def person(relay: Relay, q: str, patience: float, delay: float, out: list) -> None:
+async def person(relay: Relay, q: str, patience: float, delay: float, cache_ok: bool, out: list) -> None:
     await asyncio.sleep(delay)
     try:
-        res = await asyncio.wait_for(relay.ask(q, patience_s=patience), timeout=patience)
+        res = await asyncio.wait_for(relay.ask(q, patience_s=patience, use_cache=cache_ok), timeout=patience)
         out.append(res)
     except asyncio.TimeoutError:
         out.append({"status": "gave_up"})
@@ -116,9 +127,10 @@ async def run(sc: Scenario, source: str, seed: int, port: int, dev: bool) -> Non
     picks = [rng.choice(qs) for _ in times]
     patience = [min(120.0, rng.lognormvariate(__import__("math").log(PATIENCE_MEDIAN_S), PATIENCE_SIGMA))
                 for _ in times]
-    repeats = len(picks) - len(set(picks))
+    cache_ok = [rng.random() < REPEAT_SHARE for _ in times]
     print(f"{sc.name}: {len(times)} requests over {sc.duration_s:.0f} s (burst {sc.burst}), source={source}, "
-          f"repeats={repeats} ({100 * repeats / max(1, len(picks)):.1f}%), retry={sc.retry_mode}", flush=True)
+          f"cache-eligible wording {sum(cache_ok)} ({100 * sum(cache_ok) / max(1, len(times)):.1f}%), "
+          f"retry={sc.retry_mode}", flush=True)
 
     proc = None
     if source == "stand-in":
@@ -141,7 +153,7 @@ async def run(sc: Scenario, source: str, seed: int, port: int, dev: bool) -> Non
     out: list = []
     t0 = time.perf_counter()
     try:
-        await asyncio.gather(*(person(relay, q, p, d, out) for q, p, d in zip(picks, patience, times)))
+        await asyncio.gather(*(person(relay, q, p, d, c, out) for q, p, d, c in zip(picks, patience, times, cache_ok)))
     finally:
         await relay.close()
         if proc:

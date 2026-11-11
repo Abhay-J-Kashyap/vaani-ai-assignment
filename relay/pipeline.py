@@ -85,6 +85,7 @@ class Req:
     drafter_calls: int = 0
     truncated: str = ""               # why the answer was cut short, if it was
     on_event: object = None
+    use_cache: bool = True            # False: this request neither reads nor writes the answer cache
 
     @property
     def deadline(self) -> float:
@@ -126,9 +127,11 @@ class Relay:
 
     # ------------------------------------------------------------------ public entry point
     async def ask(self, question: str, *, request_id: str | None = None, patience_s: float | None = None,
-                  on_event=None) -> dict:
+                  on_event=None, use_cache: bool = True) -> dict:
+        """use_cache=False models a person whose wording differs from every earlier asker: the exact-match cache
+        can't serve them (the load generator uses it to set a stated repeat rate)."""
         r = Req(request_id or uuid.uuid4().hex[:12], question, self.scenario, patience_s or S.DEFAULT_PATIENCE_S,
-                on_event=on_event)
+                on_event=on_event, use_cache=use_cache)
         self.retry.note_request()
         self.trace(r, "queued", patience_s=r.patience_s)
         try:
@@ -149,7 +152,7 @@ class Relay:
     async def _run(self, r: Req) -> None:
         s = self.setting
         # [0] admission: cache, tier, ladder level
-        if self.cache and (hit := self.cache.get(r.question, s.name)):
+        if self.cache and r.use_cache and (hit := self.cache.get(r.question, s.name)):
             r.tier, r.branch = "cached", "cache"
             self.trace(r, "cache_hit")
             for sent in hit["sentences"]:
@@ -422,7 +425,7 @@ class Relay:
                 if r.truncated:
                     self.emit(r, "notice", f"Answer cut short ({r.truncated}); the sentences above are complete "
                                            f"and verified.")
-                if not r.withheld and not r.truncated and self.cache and r.tier == "full":
+                if not r.withheld and not r.truncated and self.cache and r.use_cache and r.tier == "full":
                     self.cache.put(r.question, self.setting.name, {"sentences": r.sentences})
                 return
             if r.truncated and r.cause == "timeout":

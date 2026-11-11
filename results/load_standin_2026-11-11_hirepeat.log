@@ -1,0 +1,21 @@
+﻿=== overload 13:56:39
+overload: 113 requests over 300 s (burst 0), source=stand-in, repeats=94 (83.2%), retry=policy
+done in 299 s: {'gave_up': 1, 'ok/cached': 27, 'ok/full': 15, 'rate_limited/extractive': 51, 'rate_limited/lean': 19}
+rows -> results\pipeline_rows_overload.csv
+=== tpm_half 14:01:40
+tpm_half: 27 requests over 300 s (burst 0), source=stand-in, repeats=12 (44.4%), retry=policy
+done in 288 s: {'ok/cached': 2, 'ok/full': 7, 'rate_limited/extractive': 11, 'rate_limited/lean': 7}
+rows -> results\pipeline_rows_tpm_half.csv
+=== daily_exhausted 14:06:30
+daily_exhausted: 19 requests over 180 s (burst 0), source=stand-in, repeats=8 (42.1%), retry=policy
+done in 184 s: {'rate_limited/extractive': 8, 'rate_limited/lean': 11}
+rows -> results\pipeline_rows_daily_exhausted.csv
+=== burst_retry_naive 14:09:37
+burst_retry_naive: 30 requests over 120 s (burst 24), source=stand-in, repeats=14 (46.7%), retry=naive
+done in 102 s: {'ok/cached': 3, 'ok/full': 5, 'rate_limited/extractive': 17, 'rate_limited/lean': 5}
+rows -> results\pipeline_rows_burst_retry_naive.csv
+=== burst_retry_policy 14:11:22
+burst_retry_policy: 30 requests over 120 s (burst 24), source=stand-in, repeats=14 (46.7%), retry=policy
+done in 102 s: {'ok/cached': 3, 'ok/full': 5, 'rate_limited/extractive': 16, 'rate_limited/lean': 5, 'timeout/extractive': 1}
+rows -> results\pipeline_rows_burst_retry_policy.csv
+=== all done 14:13:07
