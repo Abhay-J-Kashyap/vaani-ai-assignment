@@ -2,7 +2,7 @@
 
 **Status:** Accepted (Option C), with a measured fallback to Option B. See "Decision record".
 **Date:** 2026-11-09
-**Deciders:** Abhay K Kashyap (author, owns every call below)
+**Deciders:** Abhay J Kashyap (author, owns every call below)
 **Source of truth:** `The_Relay_Assignment_Brief.pdf`. Where this ADR and the brief disagree, the brief wins.
 
 ---

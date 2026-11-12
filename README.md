@@ -1,6 +1,6 @@
 # The Relay
 
-A Python pipeline that answers engineers' questions using only three arXiv papers (Attention Is All You Need v7, Moshi v1, Dynamic Chunking / H-Net v2), on Groq's free tier, built to hold up under bursty load. The write-up is [WRITEUP.md](WRITEUP.md); every design decision, with its date and who made it, is in [docs/adr/0001-relay-pipeline-architecture.md](docs/adr/0001-relay-pipeline-architecture.md).
+A Python pipeline that answers engineers' questions using only three arXiv papers (Attention Is All You Need v7, Moshi v1, Dynamic Chunking / H-Net v2), on Groq's free tier, built to hold up under bursty load. The write-up is [WRITEUP.md](WRITEUP.md); every design decision, with its date, is in [docs/adr/0001-relay-pipeline-architecture.md](docs/adr/0001-relay-pipeline-architecture.md).
 
 ## Recompute the tables from the raw file
 
