@@ -3,7 +3,7 @@
 ## 1. What I built and why
 Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-oss-20b **tool call**) → **retrieve** (local BM25 + dense search, with a **loop** that rewrites weak queries) → **decide** (a **branch**: answer, refuse, or decompose per paper) → **draft** (gpt-oss-120b, streamed) → **gate** → **log**.
 
-**The decision that shaped it most** is a deterministic citation gate on every streamed sentence. A sentence is sent only if its citations name retrieved passages and its numbers appear in them. It costs no tokens and keeps streaming. Its blind spot, a real number from the wrong table row, is measured, not hidden. **Second:** budget the *day*. The 200K tokens per model per day bind long before the request limits, so a ledger rations the 120b, then falls back to shorter 20b answers, then to quoted passages. Under load we give up *good* for *fast* and *nobody turned away*, never the reverse.
+**The decision that shaped it most** is a deterministic citation gate on every streamed sentence. A sentence is sent only if its citations name retrieved passages and its numbers appear in them. It costs no tokens and keeps streaming. Its blind spot, a real number from the wrong table row, is measured, not hidden. **Second:** budget the *day*. The 200K tokens per model per day bind long before the request limits, so a ledger rations the 120b, then falls back to shorter 20b answers, then to quoted passages. Under load we give up *good* for *fast* and *nobody turned away*, never the reverse: a cut-off answer never shows its half-sentence.
 
 ## 2. The real service and my stand-in
 **Table 1:** limits found with 341 real probe requests, Groq's 429 bodies and headers, and the console. A final-day recheck matched.
@@ -13,15 +13,15 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 | Requests per minute | 30 | 30 ok in a burst, then a 429 at 13,009 ms; 429 body; console | high |
 | Tokens per minute | 8,000 | ≥5,755 used in the 60 s before a 429 (`max_tokens` reserved up front); console | high |
 | Requests per day | 1,000 | `x-ratelimit-limit-requests` header; console; not driven to the limit | medium |
-| Tokens per day | 200,000 per model | 201,298 tokens in 72 requests before the daily 429; 429 body; console | high |
+| Tokens per day | 200,000 per model | 201,298 tokens in 72 requests before the daily 429; refills continuously at 2.31 tokens/s | high |
 | Requests in flight at once | no limit at 16 | 16 overlapping requests, all ok; RPM 30 blocks a bigger test | low |
-| What it returns at a limit | HTTP 429 in 99 ms (p50) | the message states the exact wait; also 503 "over capacity" after ~30 s | high |
-| Time until it recovers | 2,051 ms (RPM), 4,068 ms (TPM) | next ok after each 429; the daily budget refills continuously | high |
+| What it returns at a limit | HTTP 429 in 99 ms (p50) | `error.type` (requests or tokens); the message states the exact wait; `retry-after`. Also 503 "over capacity" after ~30 s | high |
+| Time until it recovers | 2,051 ms (RPM), 4,068 ms (TPM); daily: continuous | next ok after each 429; the stated wait was exact | high |
 
 **The stand-in** speaks Groq's API, 429 bodies and SSE streaming over continuous token buckets. Its latency is sampled from fits to our probes: queue time with its correlated episodes, token rate, a 4.2% trickle mode, and 503s after 30 s. **Least like Groq:** it quotes instead of writing, so its rows measure the system, not answer quality; and its slowdown above 16 requests in flight is a guess, because RPM 30 stopped us measuring Groq there.
 
 ## 3. Results
-**Table 2a: latency** (nearest-rank percentiles; p99 from fewer than 100 requests in every row)
+**Table 2a: latency** (nearest-rank percentiles; first token over requests that got one; p99 from fewer than 100 requests in every row)
 
 | Scenario | Real or stand-in | Requests sent | Duration (s) | Offered rate (per min) | First token p50 / p95 / p99 (ms) | Total time p50 / p95 / p99 (ms) |
 |---|---|---|---|---|---|---|
@@ -41,19 +41,30 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 | Per-minute limit halved | 25.9% | 74.1% | 0.0% | 0.00 | 2 | 1,228 | $0.201 |
 | Daily budget exhausted | 10.0% | 90.0% | 0.0% | 0.00 | 2 | 2,378 | $0.238 |
 
-**Daily budget exhausted** ran for real: 100 `drain` requests spent the 120b's day in 31 min, then 20 more were sent. Every table is recomputed from `results.csv` by `python -m tools.tables`.
+**Daily budget exhausted** ran for real: 100 `drain` requests spent the 120b's day in 31 min, then 20 more were sent. It started at 17:10, when ~1.9K reserve tokens (under one answer) were still unreleased. Every table is recomputed from `results.csv` by `python -m tools.tables`.
 
-**Answer quality:** 20 questions by the author (5 unanswerable), graded against the author's key with a rubric frozen before the final run. The shipped pipeline: 50.0% correct and cited, 25.0% wrong, 25.0% correctly refused, 3,065 tokens per answer (Table 3).
+**Answer quality:** 20 questions by the author (5 unanswerable), graded by the assistant against the author's key with a two-level rubric frozen before the final run; the author spot-checked 10 grades. The shipped pipeline: 50.0% correct and cited, 25.0% wrong, 25.0% correctly refused (all 5 unanswerable), 3,065 tokens per answer (Table 3).
 
 **The number we couldn't have guessed [AUTHOR picks]:** the slowest real requests spent 91–95% of their time waiting in *our own* queue, not in Groq; the slowest was queued 34.7 s, as estimated to within 0.1 s. *(Alternatives: the same setting scored 10/15 twice, but a different 10; naive retries doubled the median first token.)*
 
 ## 4. Where the time goes
-The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **36,571 ms**. **Waiting: 34,883 ms (95.4%), all before the first token**: 34,724 ms in our admission queue for the 120b's per-minute budget (we estimated 34.7 s and their patience was 38.2 s, so they were queued for a full answer, not downgraded) and 159 ms in Groq's queue. **Working: 1,686 ms**: retrieval and decide 160 ms, prompt processing 925 ms, generation 600 ms, of which 472 ms came after the first token. **Retrying: 0 ms.** **How we know:** per-phase trace timestamps plus Groq's own `usage.queue_time` (`eval/where_time_goes.py`). The slowest burst and steady requests were 90.6% and 94.5% waiting, also in our queue.
+The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **36,571 ms**:
+- **Waiting: 34,883 ms (95.4%), all before the first token.** 34,724 ms in our admission queue for the 120b's per-minute budget (we estimated 34.7 s; their patience was 38.2 s, so they were queued for a full answer, not downgraded) and 159 ms in Groq's queue.
+- **Working: 1,686 ms.** Retrieval and decide 160 ms, prompt processing 925 ms, generation 600 ms (472 ms of it after the first token).
+- **Retrying: 0 ms.**
+
+**How we know:** per-phase trace timestamps plus Groq's own `usage.queue_time` (`eval/where_time_goes.py`). The slowest burst and steady requests were 90.6% and 94.5% waiting, also in our queue.
 
 ## 5. When a limit is hit
-**Per-minute.** Admission is first in, first out against a ledger that mirrors Groq's buckets. *Delayed:* anyone whose estimated wait fits their patience less a 2 s margin (one person waited 34.7 s). *A weaker answer at once:* everyone else, a shorter 20b answer, or quoted passages if the 20b is busy too (14 of 20 in the real burst, in ~50 ms). *Dropped:* nobody is refused, but people can give up: none in the real runs, 1 of 113 (0.9%) under stand-in overload.
+**Per-minute.** Admission is first in, first out against a ledger that mirrors Groq's buckets.
+- *Delayed:* anyone whose estimated wait fits their patience, less a 2 s margin (one person waited 34.7 s).
+- *A weaker answer at once:* everyone else: a shorter 20b answer, or quoted passages if the 20b is busy too (14 of 20 in the real burst, in ~50 ms).
+- *Dropped:* nobody is refused, but people can give up: none in the real runs, 1 of 113 (0.9%) under stand-in overload.
 
-**Per-day.** The 120b's 200K tokens are the scarce resource. *Delayed:* nobody, since a daily wait outlasts anyone's patience. *A weaker answer:* 20% of the day is released evenly until 18:00, so a morning burst cannot spend the evening's full answers; after that, a 20b answer labelled as shorter, with the expected wait; when the 20b's day is gone too, quoted passages with no model call. *Dropped:* nobody (real: 18 shorter and 2 cached of 20).
+**Per-day.** The 120b's 200K tokens are the scarce resource.
+- *Delayed:* nobody, since a daily wait outlasts anyone's patience.
+- *A weaker answer:* 20% of the day is released evenly until 18:00, so a morning burst cannot spend the evening's full answers. After that, a 20b answer labelled as shorter, with the expected wait; when the 20b's day is gone too, quoted passages with no model call.
+- *Dropped:* nobody (real: of the 20 sent after the drain, 18 got shorter answers and 2 cached ones).
 
 **What "weaker" cost** (167 real load answers, graded like Table 3): on answerable questions the 20b was correct as often as the 120b (20/30 against 48/72, 66.7% each), but it failed the H-Net pipeline question 3 times out of 3, which the 120b passed 3 out of 3. Quoted passages answered none of 8 answerable questions. Every unanswerable question was refused.
 
@@ -78,7 +89,7 @@ The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **
 **Policy:** on a per-minute 429, retry only if the stated wait fits the person's patience; on a daily 429, never; on a 5xx, once, with jittered backoff; never after the first token; at most 10% of requests retry per 60 s. **Retrying made things worse** (stand-in, same people, 25% of calls failing with 503): naive retries reserved 81% more per-minute budget, caused 10 rate-limit rejections, and doubled the median first token (2,191 → 4,711 ms), for one extra full answer.
 
 ## 7. What the person sees
-At 3pm with the daily budget gone, while the 20b still has budget: a shorter answer headed *"Shorter answer: today's budget for full answers is used up; the next full answer should be possible in about 21 minutes."* (Real run: 4–8 minutes, as the budget refills continuously.) Once both budgets are gone, in ~30 ms with no model call: *"Full answers are paused… These are the most relevant passages, quoted from the papers:"*, then 2–3 cited quotes, or *"…do not appear to cover this question, so I won't guess."*
+At 3pm with the daily budget gone, while the 20b still has budget: a shorter answer headed *"Shorter answer: today's budget for full answers is used up; the next full answer should be possible in about 21 minutes."* (Real run: 4–8 minutes, as the budget refills continuously.) Once both budgets are gone, in ~30 ms with no model call: *"Full answers are paused… the next full answer should be possible in about 22 minutes. These are the most relevant passages, quoted from the papers:"*, then 2–3 cited quotes, or *"…do not appear to cover this question, so I won't guess."*
 
 ## 8. What I'm unsure about, what I left out, what I learned
 **[AUTHOR]** **Least certain:** patience, assumed 12 s median with no data; if wrong, we downgrade too early or lose more people. **Not built:** HyDE, whose invented answers would pull unanswerable questions toward plausible passages; a runtime LLM judge, on token cost. **Learned:**
