@@ -1,0 +1,24 @@
+﻿Request 789595165023: status=ok tier=full branch=answer retries=0; first answer token at 15557.4 ms, done at 16236.6 ms
+
+kind      what                                             from       to  before 1st token    after
+working   retrieval loop + decide (local)                     1       20                20        0
+waiting   admission queue (gpt-oss-120b)                     21    14572             14551        0
+waiting   Groq queue (drafter call)                       14572    14728               156        0
+working   drafter: prompt processing to first byte        14728    15124               396        0
+working   drafter: generating the answer                  15124    16236               433      678
+
+total                                                                                15556      678   (unattributed: 2 ms)
+  working      1527 ms =   9.4% of the request (849 ms before the first token, 678 ms after)
+  waiting     14707 ms =  90.6% of the request (14707 ms before the first token, 0 ms after)
+Request ba16e74b859b: status=ok tier=full branch=answer retries=0; first answer token at 7352.3 ms, done at 7352.4 ms
+
+kind      what                                             from       to  before 1st token    after
+working   retrieval loop + decide (local)                     1       37                37        0
+waiting   admission queue (gpt-oss-120b)                     38     6627              6589        0
+waiting   Groq queue (drafter call)                        6628     6988               360        0
+working   drafter: prompt processing to first byte         6988     7264               276        0
+working   drafter: generating the answer                   7264     7352                88        0
+
+total                                                                                 7350        0   (unattributed: 2 ms)
+  working       401 ms =   5.5% of the request (401 ms before the first token, 0 ms after)
+  waiting      6949 ms =  94.5% of the request (6949 ms before the first token, 0 ms after)

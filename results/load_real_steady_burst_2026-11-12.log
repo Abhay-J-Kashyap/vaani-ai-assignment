@@ -1,0 +1,15 @@
+﻿=== steady dry run 13:45:12
+steady on real Groq: ~27 requests; worst case ~81,000 drafter tokens if all Full (the ledger downgrades or sheds beyond the budget). Drafter level now ~200,000.
+=== steady start 13:45:13
+steady on real Groq: ~27 requests; worst case ~81,000 drafter tokens if all Full (the ledger downgrades or sheds beyond the budget). Drafter level now ~200,000.
+steady: 27 requests over 600 s (burst 0), source=real, cache-eligible wording 7 (25.9%), retry=policy
+done in 583 s: {'ok/full': 24, 'rate_limited/extractive': 1, 'rate_limited/lean': 2}
+rows -> results\pipeline_rows_steady.csv
+=== burst dry run 13:54:57
+burst on real Groq: ~20 requests; worst case ~60,000 drafter tokens if all Full (the ledger downgrades or sheds beyond the budget). Drafter level now ~141,472.
+=== burst start 13:54:58
+burst on real Groq: ~20 requests; worst case ~60,000 drafter tokens if all Full (the ledger downgrades or sheds beyond the budget). Drafter level now ~141,473.
+burst: 20 requests over 180 s (burst 20), source=real, cache-eligible wording 7 (35.0%), retry=policy
+done in 17 s: {'ok/cached': 5, 'ok/full': 1, 'rate_limited/extractive': 10, 'rate_limited/lean': 4}
+rows -> results\pipeline_rows_burst.csv
+=== done 13:55:16
