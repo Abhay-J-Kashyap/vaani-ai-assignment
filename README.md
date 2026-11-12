@@ -28,6 +28,7 @@ Definitions used by `tools/tables.py`:
 
 | Path | What it holds |
 |---|---|
+| `conversation/` | The full conversation history with the assistant (Claude Code): the raw session logs (`*.jsonl`, unedited except e-mail addresses replaced by [redacted]) and `transcript.md`, a readable rendering generated from them by `python -m tools.export_conversation` |
 | `results.csv` | The raw file the brief asks for. Derived: rebuilt from the files below, never edited by hand |
 | `results/probe_raw.jsonl` | Every real probe request to Groq, with headers and bodies (Table 1 evidence) |
 | `results/pipeline_rows_*.csv` | Every pipeline request, one file per scenario; real and stand-in, told apart by `source` |
