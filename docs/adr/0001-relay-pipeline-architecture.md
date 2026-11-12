@@ -400,6 +400,10 @@ Naive retries more than doubled the median wait and reserved 81% more per-minute
 - **Q12's remaining miss is a genuine gate catch.** The sentence answering "is there any discrepancy?" had no citation and was withheld, so the question's explicit part went unanswered.
 - **For the write-up:** both runs belong in Table 3, labelled. The variance finding is itself a measured result: one run of 15 questions cannot rank settings within ~3 questions of each other.
 
+**Final-day limit recheck (gap 8), 2026-11-12 13:34:** one `headers` request per pipeline model (run 20261112T080417Z, 232 tokens). Both report RPD 1,000 and TPM 8,000, with reset intervals of 86.4 s (requests) and under 1 s (tokens). This matches the 2026-11-09 console capture: the limits did not change during the work.
+
+**Drain timing (2026-11-12):** the real "daily budget exhausted" run starts after 18:00, when the 20% reserve is fully released, so the drafter can truly run dry. It switches to `daily_exhausted` when the ledger stops granting Full answers, not on a raw token count. Before 18:00 that point is the paced reserve floor, which would never reach empty.
+
 **Four strategies the author proposed, reviewed against sources and our measurements (2026-11-11):**
 - **Prefix caching (adopted, small).** Groq caches prompt prefixes automatically on gpt-oss only. Cached tokens cost 50% less and don't count toward rate limits. In the real eval, 7,680 of 117,962 drafter prompt tokens were cached (6.5%). Our prompt is already static-first; the only fully repeated prompts are identical questions, which the answer cache serves without a call. Change: the trace records cached tokens per request (router included), and the ledger no longer charges them to TPD.
 - **CQRS (not applicable).** Ingestion (fetch → parse → chunk → index) is already an offline batch; the query path only reads a fixed index.

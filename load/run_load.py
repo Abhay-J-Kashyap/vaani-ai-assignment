@@ -158,7 +158,12 @@ async def run_drain(sc: Scenario, source: str, seed: int, port: int, dev: bool) 
     try:
         print(f"drain: {sc.rate_per_min}/min until the drafter's daily budget is gone "
               f"(level now ~{relay.ledger.acct(DRAFTER).tpd.level():,.0f})", flush=True)
-        while not relay.daily_gone() and time.perf_counter() - t0 < sc.max_drain_s:
+        # "Exhausted" = the ledger no longer gives Full answers: the drafter's level, net of the paced reserve, can't
+        # pay for one (after 18:00 the reserve is 0, so this is the level itself). A daily 429 from Groq corrects
+        # the ledger if it was optimistic, which also ends this phase.
+        full_cost = relay.est_prompt("", relay.setting.k) + S.FULL_MAX_TOKENS
+        lean_cost = relay.est_prompt("", max(2, relay.setting.k - 2)) + S.LEAN_MAX_TOKENS
+        while relay.ledger.tier(full_cost, lean_cost) == "full" and time.perf_counter() - t0 < sc.max_drain_s:
             launch("drain")
             await asyncio.sleep(rng.expovariate(sc.rate_per_min / 60))
         gone_at = time.perf_counter() - t0
