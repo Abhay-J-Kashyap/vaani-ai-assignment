@@ -1,6 +1,6 @@
 # The Relay: write-up
 
-> **DRAFT, 2026-11-12.** Every table is recomputed from `results.csv` by `python -m tools.tables --table 1|2|3`. **TBD** = tonight's drain run. **[AUTHOR]** = the author's own words. Detail behind each claim: `docs/adr/0001-relay-pipeline-architecture.md`.
+> **DRAFT, 2026-11-12.** Every table is recomputed from `results.csv` by `python -m tools.tables --table 1|2|3`. **[AUTHOR]** = the author's own words. Detail behind each claim: `docs/adr/0001-relay-pipeline-architecture.md`.
 
 ## 1. What I built and why
 Seven steps:
@@ -46,7 +46,7 @@ Seven steps:
 | Burst | real | 20 | 16 | 264.8 | 48 / 7,710 / 15,557 | 49 / 7,852 / 16,237 |
 | Sustained overload | stand-in | 113 | 301 | 22.8 | 69 / 19,910 / 25,630 | 69 / 20,943 / 26,927 |
 | Per-minute limit halved | stand-in | 27 | 282 | 5.7 | 582 / 11,344 / 14,242 | 695 / 11,474 / 14,534 |
-| Daily budget exhausted | real | TBD | TBD | TBD | TBD | TBD |
+| Daily budget exhausted | real | 20 | 328 | 3.7 | 1,637 / 3,374 / 5,713 | 1,808 / 3,487 / 5,995 |
 
 **Table 2b: outcomes** ("rate-limited" = a limit forced a weaker answer; peak queue = most requests in the system at once; cost = upper bound at Groq list prices, the free tier bills $0)
 
@@ -56,7 +56,9 @@ Seven steps:
 | Burst | 30.0% | 70.0% | 0.0% | 0.00 | 6 | 492 | $0.065 |
 | Sustained overload | 15.0% | 84.1% | 0.9% | 0.00 | 4 | 670 | $0.103 |
 | Per-minute limit halved | 25.9% | 74.1% | 0.0% | 0.00 | 2 | 1,228 | $0.201 |
-| Daily budget exhausted | TBD | TBD | TBD | TBD | TBD | TBD | TBD |
+| Daily budget exhausted | 10.0% | 90.0% | 0.0% | 0.00 | 2 | 2,378 | $0.238 |
+
+**Daily budget exhausted, for real:** 100 requests (`drain`) spent the 120b's day in 31 min, then 20 were sent with it gone: 18 shorter 20b answers, 2 from the cache. It ran at 17:10, when ~1.9K reserve tokens (under one answer) were still unreleased.
 
 **Answer quality:** 20 questions written by the author, 5 of them unanswerable from the papers. The assistant graded them against the author's key with a two-level rubric frozen before the final run, and the author spot-checked 10 grades. In **Table 3** below, the ceiling for "correct" is 75%, and all 15 refusals were correct.
 
@@ -109,7 +111,7 @@ The slowest real request (burst, `789595165023`) took **16,237 ms**.
 
 ## 7. What the person sees
 At 3pm with the daily budget gone:
-- **While the 20b has budget:** a shorter answer, headed *"Shorter answer: today's budget for full answers is used up; the next full answer should be possible in about 21 minutes."*
+- **While the 20b has budget:** a shorter answer, headed *"Shorter answer: today's budget for full answers is used up; the next full answer should be possible in about 21 minutes."* In the real run the stated wait was 4–8 minutes, because the budget refills continuously and had only just run out.
 - **Once both budgets are gone:** in ~30 ms with no model call, *"Full answers are paused… the next full answer should be possible in about 22 minutes. These are the most relevant passages, quoted from the papers:"*, followed by 2–3 cited quotes or *"…do not appear to cover this question, so I won't guess."*
 
 ## 8. What I'm unsure about, what I left out, what I learned

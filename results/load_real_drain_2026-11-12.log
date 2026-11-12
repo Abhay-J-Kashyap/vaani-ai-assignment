@@ -1,0 +1,9 @@
+﻿=== drain dry run 2026-11-12 17:10:22
+drain on real Groq: spends the drafter's whole remaining daily budget (~166,512 tokens, ~56 Full answers at ~3K) at 3.0/min, then 20 requests labelled daily_exhausted (Lean on the 20b, then quoted passages). 20b level ~200,000.
+=== drain start 17:10:22
+drain on real Groq: spends the drafter's whole remaining daily budget (~166,513 tokens, ~56 Full answers at ~3K) at 3.0/min, then 20 requests labelled daily_exhausted (Lean on the 20b, then quoted passages). 20b level ~200,000.
+drain: 3.0/min until the drafter's daily budget is gone (level now ~166,516)
+drafter budget gone after 1888 s and 100 requests (level ~1,905); sending 20 more
+done in 2225 s: {'ok/cached': 16, 'ok/full': 73, 'rate_limited/lean': 31}
+rows -> results\pipeline_rows_drain.csv
+=== done 17:47:29
