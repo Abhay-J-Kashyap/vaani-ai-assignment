@@ -8,15 +8,17 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 ## 2. The real service and my stand-in
 **Table 1:** limits found with 341 real probe requests, Groq's 429 bodies and headers, and the console. A final-day recheck matched.
 
-| Limit | Value found | How found | Confidence |
+| Limit | Value found: observed (*Groq states*) | How found | Confidence |
 |---|---|---|---|
-| Requests per minute | 30 | 30 ok in a burst, then a 429 at 13,009 ms; 429 body; console | high |
-| Tokens per minute | 8,000 | ≥5,755 used in the 60 s before a 429 (`max_tokens` reserved up front); console | high |
-| Requests per day | 1,000 | 1,000 ok in 38.3 min on a spare model, then a daily 429; console | high |
-| Tokens per day | 200,000 per model | 201,298 tokens in 72 requests before the daily 429; refills continuously at 2.31 tokens/s | high |
+| Requests per minute | 30 (*Groq states 30*) | 30 ok in a burst, then a 429 at 13,009 ms | high |
+| Tokens per minute | ≥5,755 (*Groq states 8,000*) | used in the 60 s before a 429; a lower bound, as `max_tokens` is reserved | high |
+| Requests per day | 1,000 (*Groq states 1,000*) | 1,000 ok in 38.3 min on a spare model, then a daily 429 | high |
+| Tokens per day | 201,298 (*Groq states 200,000*) | used on a spare model before its daily 429; refill 2.31 tokens/s while idle | high |
 | Requests in flight at once | no limit at 16 | 16 overlapping requests, all ok; RPM 30 blocks a bigger test | low |
-| What it returns at a limit | HTTP 429 in 99 ms (p50) | `error.type` (requests or tokens); the message states the exact wait; `retry-after`. Also 503 "over capacity" after ~30 s | high |
+| What it returns at a limit | HTTP 429 in 99 ms (p50) | `error.type`; message gives the exact wait; `retry-after`; 503s after ~30 s | high |
 | Time until it recovers | 2,051 ms (RPM), 4,068 ms (TPM), 90 s (RPD) | next ok after each 429; the stated wait was exact | high |
+
+**Evidence sources:** *observed* = computed from `results.csv`, like every table here (`python -m tools.tables`); *Groq states* = Groq's 429 bodies, headers (`results/probe_raw.jsonl`) and console. **Key finding:** at one request per ~2.2 s, no request was credited back during the 38-minute RPD run (a steady one-per-86.4 s refill would have allowed ~26 more), yet one was accepted after a 90 s idle gap. Our inference, not an established rule: the request budget refills only in gaps of about 86.4 s or more.
 
 **The stand-in** speaks Groq's API, 429 bodies and SSE streaming over continuous token buckets. Its latency is sampled from fits to our probes: queue time with its correlated episodes, token rate, a 4.2% trickle mode, and 503s after 30 s. **Least like Groq:** it quotes instead of writing, so its rows measure the system, not answer quality; and its slowdown above 16 requests in flight is a guess, because RPM 30 stopped us measuring Groq there.
 
@@ -41,7 +43,7 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 | Per-minute limit halved | 25.9% | 74.1% | 0.0% | 0.00 | 2 | 1,228 | $0.201 |
 | Daily budget exhausted | 10.0% | 90.0% | 0.0% | 0.00 | 2 | 2,378 | $0.238 |
 
-**Daily budget exhausted** ran for real: 100 `drain` requests spent the 120b's day in 31 min, then 20 more were sent. It started at 17:10, when ~1.9K reserve tokens (under one answer) were still unreleased. Every table is recomputed from `results.csv` by `python -m tools.tables`.
+**Daily budget exhausted** ran for real: 100 `drain` requests spent the 120b's day in 31 min, then 20 more were sent. It started at 17:10, when ~1.9K reserve tokens (under one answer) were still unreleased.
 
 **Answer quality:** 20 questions by the author (5 unanswerable). The assistant graded against the author's key with a rubric frozen before the final run; the author re-graded 10 answers independently and cross-checked many more by hand. Shipped pipeline: 50.0% correct and cited, 25.0% wrong, 25.0% correctly refused, 3,065 tokens per answer (Table 3).
 
@@ -50,7 +52,7 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 ## 4. Where the time goes
 The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **36,571 ms**:
 - **Waiting: 34,883 ms (95.4%), all before the first token.** 34,724 ms in our admission queue for the 120b's per-minute budget (we estimated 34.7 s; their patience was 38.2 s, so they were queued for a full answer, not downgraded) and 159 ms in Groq's queue.
-- **Working: 1,686 ms.** Retrieval and decide 160 ms, prompt processing 925 ms, generation 600 ms (472 ms of it after the first token).
+- **Working: 1,686 ms.** Retrieval and decide 160 ms, prompt processing 925 ms, generation 600 ms (472 ms after the first token).
 - **Retrying: 0 ms.**
 
 **How we know:** per-phase trace timestamps plus Groq's own `usage.queue_time` (`eval/where_time_goes.py`). The slowest burst and steady requests were 90.6% and 94.5% waiting, also in our queue.
@@ -58,7 +60,7 @@ The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **
 ## 5. When a limit is hit
 **Per-minute.** Admission is first in, first out against a ledger that mirrors Groq's buckets.
 - *Delayed:* anyone whose estimated wait fits their patience, less a 2 s margin (one person waited 34.7 s).
-- *A weaker answer at once:* everyone else: a shorter 20b answer, or quoted passages if the 20b is busy too (14 of 20 in the real burst, in ~50 ms).
+- *A weaker answer at once:* everyone else: a shorter 20b answer, or quoted passages if the 20b is busy (14 of 20 in the real burst, ~50 ms).
 - *Dropped:* nobody is refused, but people can give up: none in the real runs, 1 of 113 (0.9%) under stand-in overload.
 
 **Per-day.** The 120b's 200K tokens are the scarce resource.

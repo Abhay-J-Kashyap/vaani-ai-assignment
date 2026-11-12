@@ -168,7 +168,7 @@ def table1(rs: list[dict]) -> None:
     # have allowed ~26 more over the run; there were none: Groq's reset header grew exactly 86.4 s per request, so the
     # budget did not refill while requests kept coming (probe_raw). It did refill after an idle gap (next row).
     rpd = sorted((r for r in rs if r["scenario"] == "probe_rpd"), key=t)
-    rpd_row = ("Requests per day | 1,000 (header) | x-ratelimit-limit-requests header on every response (probe_raw); "
+    rpd_row = ("Requests per day | Groq states 1,000 | x-ratelimit-limit-requests header on every response (probe_raw); "
                "console; not driven to the limit | medium")
     if rpd and rpd[-1]["status"] == "rate_limited":
         n_ok = sum(1 for r in rpd if r["status"] == "ok")
@@ -176,22 +176,25 @@ def table1(rs: list[dict]) -> None:
         rpd_rec = sorted((r for r in rs if r["scenario"] == "probe_rpd_recovery"), key=t)
         back = next((r for r in rpd_rec if r["status"] == "ok"), None)
         back_s = f"; one ok again {t(back) - t(rpd[-1]):,.0f} s after it" if back else ""
-        rpd_row = (f"Requests per day | 1,000 | driven to the limit on qwen (probe_rpd): {n_ok:,} ok in {span / 60:.1f} min, "
-                   f"then a daily 429 'Limit 1000'{back_s}; no refill while requests kept coming; header; console "
-                   f"| high")
+        rpd_row = (f"Requests per day | observed {n_ok:,}; Groq states 1,000 | driven to the limit on qwen (probe_rpd): "
+                   f"{n_ok:,} ok in {span / 60:.1f} min, then a daily 429{back_s}; no request credited back while "
+                   f"requests kept coming (observation) | high")
     print("Table 1 - limits found in the real service (gpt-oss-120b / gpt-oss-20b; daily budget measured on "
-          "qwen/qwen3.8-27b, same console limits)\n")
+          "qwen/qwen3.8-27b, same console limits)")
+    print("'observed' = computed from results.csv below; 'Groq states' = Groq's 429 bodies and x-ratelimit-* headers "
+          "(results/probe_raw.jsonl) and the console capture (results/groq_console_limits_2026-11-09.md)\n")
     print("Limit | Value found | How found | Confidence")
-    print(f"Requests per minute | 30 | {len(rpm_ok)} ok in a back-to-back burst, then rate_limited "
-          f"{(t(rl) - t(rpm[0])) * 1000:,.0f} ms in (probe_rpm); 429 body 'Limit 30'; console | high")
-    print(f"Tokens per minute | 8,000 | {tpm_used:,} tokens used in the 60 s before the first token 429 (a lower bound, "
-          f"since max_tokens is reserved up front); 429 body 'Limit 8000'; console | high")
+    print(f"Requests per minute | observed {len(rpm_ok)}; Groq states 30 | {len(rpm_ok)} ok in a back-to-back burst, "
+          f"then rate_limited {(t(rl) - t(rpm[0])) * 1000:,.0f} ms in (probe_rpm) | high")
+    print(f"Tokens per minute | observed >={tpm_used:,}; Groq states 8,000 | {tpm_used:,} tokens used in the 60 s before "
+          f"the first token 429 (a lower bound, since max_tokens is reserved up front) | high")
     print(rpd_row)
-    print(f"Tokens per day | 200,000 per model | {len(daily)} ok requests used {daily_tok:,} tokens before the first "
-          f"daily 429 (probe_daily); 429 body 'Limit 200000'; refill fitted at 2.31 tokens/s; console | high")
-    print(f"Requests in flight at once | no limit hit at {in_flight} | {in_flight} requests overlapped, all ok "
+    print(f"Tokens per day | observed {daily_tok:,}; Groq states 200,000 per model | {len(daily)} ok requests used "
+          f"{daily_tok:,} tokens before the first daily 429 (probe_daily); refill fitted at 2.31 tokens/s from the "
+          f"429s' 'Used' readings while idle (probe_raw) | high")
+    print(f"Requests in flight at once | observed: no limit hit at {in_flight} | {in_flight} requests overlapped, all ok "
           f"(probe_concurrency); RPM 30 stops a larger test | low")
-    print(f"What it returns when a limit is hit | HTTP 429 in {pct(rl_ms, 50):,.0f} ms (p50, n={len(rl_ms)}) | "
+    print(f"What it returns when a limit is hit | observed: HTTP 429 in {pct(rl_ms, 50):,.0f} ms (p50, n={len(rl_ms)}) | "
           f"error.type 'requests' or 'tokens'; message states limit, used, requested and the exact wait; retry-after "
           f"header; separately, 503 'over capacity' after ~30 s ({len(slow_503)} of {len(probes):,} probe calls) | high")
     rpd_back = ""
@@ -199,7 +202,7 @@ def table1(rs: list[dict]) -> None:
         b = next((r for r in sorted((r for r in rs if r["scenario"] == "probe_rpd_recovery"), key=t)
                   if r["status"] == "ok"), None)
         rpd_back = f", requests per day: one more {t(b) - t(rpd[-1]):,.0f} s after its 429" if b else ""
-    print(f"Time until it recovers | RPM {(t(rpm_rec) - t(rl)) * 1000:,.0f} ms, TPM {(t(tpm_rec) - t(tl)) * 1000:,.0f} ms "
+    print(f"Time until it recovers | observed: RPM {(t(rpm_rec) - t(rl)) * 1000:,.0f} ms, TPM {(t(tpm_rec) - t(tl)) * 1000:,.0f} ms "
           f"(start to start){rpd_back}; tokens per day: {daily_rec} | next ok request after each 429 "
           f"(probe_*_recovery); the daily 429's stated wait was exact | high")
 
