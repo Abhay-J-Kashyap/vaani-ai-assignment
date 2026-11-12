@@ -3,7 +3,7 @@
 ## 1. What I built and why
 Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-oss-20b **tool call**) → **retrieve** (local BM25 + dense search, with a **loop** that rewrites weak queries) → **decide** (a **branch**: answer, refuse, or decompose per paper) → **draft** (gpt-oss-120b, streamed) → **gate** → **log**.
 
-**The decision that shaped it most** is a deterministic citation gate on every streamed sentence. A sentence is sent only if its citations name retrieved passages and its numbers appear in them. It costs no tokens and keeps streaming. Its blind spot, a real number from the wrong table row, is measured, not hidden. **Second:** budget the *day*. The 200K tokens per model per day bind long before the request limits, so a ledger rations the 120b, then falls back to shorter 20b answers, then to quoted passages. Under load we give up *good* for *fast* and *nobody turned away*, never the reverse: a cut-off answer never shows its half-sentence.
+**The key choice** was a deterministic citation gate on each streamed sentence: send it only when citations point to retrieved passages and its numbers appear there. It costs no tokens and preserves streaming; it can still miss a correct number from the wrong table row, which we measure. A daily ledger rations the 200K tokens/model: 120B first, then shorter 20B answers, then quoted passages. Under load, we trade answer quality for speed and availability, never by sending a cut-off sentence.
 
 ## 2. The real service and my stand-in
 **Table 1:** limits found with 341 real probe requests, Groq's 429 bodies and headers, and the console. A final-day recheck matched.
@@ -18,7 +18,7 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 | What it returns at a limit | HTTP 429 in 99 ms (p50) | `error.type`; message gives the exact wait; `retry-after`; 503s after ~30 s | high |
 | Time until it recovers | 2,051 ms (RPM), 4,068 ms (TPM), 90 s (RPD) | next ok after each 429; the stated wait was exact | high |
 
-**Evidence sources:** *observed* = computed from `results.csv`, like every table here (`python -m tools.tables`); *Groq states* = Groq's 429 bodies, headers (`results/probe_raw.jsonl`) and console. **Key finding:** at one request per ~2.2 s, no request was credited back during the 38-minute RPD run (a steady one-per-86.4 s refill would have allowed ~26 more), yet one was accepted after a 90 s idle gap. Our inference, not an established rule: the request budget refills only in gaps of about 86.4 s or more.
+**Evidence sources:** Observed values are recomputed from `results.csv`; "Groq states" values come from 429 bodies, `x-ratelimit-*` headers (`results/probe_raw.jsonl`) and console. In the 38-min RPD run (one request every ~2.2 s), no request credit returned; continuous refill would predict ~26. One request succeeded after a 90-s idle gap. We infer—but cannot establish—that credits return only after idle gaps of ~86.4 s.
 
 **The stand-in** speaks Groq's API, 429 bodies and SSE streaming over continuous token buckets. Its latency is sampled from fits to our probes: queue time with its correlated episodes, token rate, a 4.2% trickle mode, and 503s after 30 s. **Least like Groq:** it quotes instead of writing, so its rows measure the system, not answer quality; and its slowdown above 16 requests in flight is a guess, because RPM 30 stopped us measuring Groq there.
 
@@ -47,7 +47,7 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 
 **Answer quality:** 20 questions by the author (5 unanswerable). The assistant graded against the author's key with a rubric frozen before the final run; the author re-graded 10 answers independently and cross-checked many more by hand. Shipped pipeline: 50.0% correct and cited, 25.0% wrong, 25.0% correctly refused, 3,065 tokens per answer (Table 3).
 
-**The number we couldn't have guessed [AUTHOR picks]:** the slowest real requests spent 91–95% of their time waiting in *our own* queue, not in Groq; the slowest was queued 34.7 s, as estimated to within 0.1 s. *(Alternatives: the same setting scored 10/15 twice, but a different 10; naive retries doubled the median first token.)*
+**The number we couldn't have guessed:** The surprising number: 95.4% of the slowest real request's 36,571 ms was waiting, almost entirely in our admission queue; our 34.7-s estimate was within 0.1 s.
 
 ## 4. Where the time goes
 The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **36,571 ms**:
@@ -94,10 +94,18 @@ The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **
 At 3pm with the daily budget gone, while the 20b still has budget: a shorter answer headed *"Shorter answer: today's budget for full answers is used up; the next full answer should be possible in about 21 minutes."* (Real run: 4–8 minutes, as the budget refills continuously.) Once both budgets are gone, in ~30 ms with no model call: *"Full answers are paused… the next full answer should be possible in about 22 minutes. These are the most relevant passages, quoted from the papers:"*, then 2–3 cited quotes, or *"…do not appear to cover this question, so I won't guess."*
 
 ## 8. What I'm unsure about, what I left out, what I learned
-**[AUTHOR]** **Least certain:** patience, assumed 12 s median with no data; if wrong, we downgrade too early or lose more people. **Not built:** HyDE, whose invented answers would pull unanswerable questions toward plausible passages; a runtime LLM judge, on token cost. **Learned:**
+ **Least certain:** patience, assumed 12 s median with no data as it wasn't measured using actual user behaviour; if wrong, we downgrade too early or lose more people. **Not built:** HyDE, because hypothetical generated answers could pull retrieval towards unsupported passages, and a runtime LLM judge on every request because of its additional token and latency cost. **Learned:** I learned that a daily request quota cannot always be modelled as a continuously replenishing bucket. During our 38.3-minute Qwen experiment, no requests were credited back under steady traffic, but one succeeded after a 90-second idle gap. This was an observed behaviour, not proof of Groq's internal algorithm.
 
 ## Your feedback on Vaani
-**[AUTHOR]**
+Vaani stood out for its end to end voice agent approach, especially interruptions, language switching and workflow integrations. I couldn't distinguish core features from newer launches. I'd clarify feature availability and publish language benchmarks and real-world latency.
+
 
 ## How I worked with the assistant
-**[AUTHOR]** Conversation history: `[file]`. Cover, in half a page: the 3 prompts that mattered most and why, one thing the assistant got wrong that you caught and how, one decision where you overruled it, and what is distinctly yours. *Candidates from the ADR:* overrules (keeping Q1–Q3; not recording the stopped first eval; no Groq judge; the two-level rubric; starting the drain early); yours (the 20 questions and key, the spot-check, the reserve, option C, grading the load answers).
+Conversation history: Attached in repo. 
+Three prompts had the biggest impact on the project. First, I asked it to recheck the entire assignment brief against the implementation and identify anything remaining. This exposed gaps in per day degradation handling, report requirements and submission readiness. Second, I asked, "Right now, you're grading it, but what can be used as grading in production?" This shifted the discussion beyond offline evaluation towards practical monitoring signals such as citation-gate failures, refusal rates and user feedback. Third, I asked it to grade the 172 real load answers and investigate Groq's daily request limit using Qwen. This helped measure the quality trade-off between models under actual load and revealed unexpected quota behaviour.
+
+One mistake I caught was that 172 real user-facing load requests had been left without an answer_grade in results.csv, even though they could be evaluated against our question set. I noticed the empty fields, questioned the omission and had the responses extracted from traces and graded against the answer key.
+
+I overruled the assistant's initial approach of running an LLM-based judge on every request. Instead, I chose the deterministic sentence level citation gate to avoid additional model calls and token consumption while preserving streaming. Its semantic limitations were documented and measured separately.
+
+What was distinctly mine was the system's engineering trade offs: the 20% daily reserve, fallback priorities, Option C verification strategy, evaluation rubric and manual validation. I directed the implementation, reviewed the questions against the papers and made the final decisions based on experimental evidence.
