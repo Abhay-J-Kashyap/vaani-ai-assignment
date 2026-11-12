@@ -12,11 +12,11 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 |---|---|---|---|
 | Requests per minute | 30 | 30 ok in a burst, then a 429 at 13,009 ms; 429 body; console | high |
 | Tokens per minute | 8,000 | ≥5,755 used in the 60 s before a 429 (`max_tokens` reserved up front); console | high |
-| Requests per day | 1,000 | `x-ratelimit-limit-requests` header; console; not driven to the limit | medium |
+| Requests per day | 1,000 | 1,000 ok in 38.3 min on a spare model, then a daily 429; console | high |
 | Tokens per day | 200,000 per model | 201,298 tokens in 72 requests before the daily 429; refills continuously at 2.31 tokens/s | high |
 | Requests in flight at once | no limit at 16 | 16 overlapping requests, all ok; RPM 30 blocks a bigger test | low |
 | What it returns at a limit | HTTP 429 in 99 ms (p50) | `error.type` (requests or tokens); the message states the exact wait; `retry-after`. Also 503 "over capacity" after ~30 s | high |
-| Time until it recovers | 2,051 ms (RPM), 4,068 ms (TPM); daily: continuous | next ok after each 429; the stated wait was exact | high |
+| Time until it recovers | 2,051 ms (RPM), 4,068 ms (TPM), 90 s (RPD) | next ok after each 429; the stated wait was exact | high |
 
 **The stand-in** speaks Groq's API, 429 bodies and SSE streaming over continuous token buckets. Its latency is sampled from fits to our probes: queue time with its correlated episodes, token rate, a 4.2% trickle mode, and 503s after 30 s. **Least like Groq:** it quotes instead of writing, so its rows measure the system, not answer quality; and its slowdown above 16 requests in flight is a guess, because RPM 30 stopped us measuring Groq there.
 

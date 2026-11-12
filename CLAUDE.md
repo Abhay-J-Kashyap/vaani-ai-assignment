@@ -46,7 +46,10 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
 ## Measured facts (Day 1, 2026-11-09; full table in the ADR; raw data in `results/probe_raw.jsonl`)
 
 - **Models on this account:** `openai/gpt-oss-20b` is the router and `openai/gpt-oss-120b` the drafter. Each has RPD 1,000, TPM 8,000 and RPM 30. Llama models aren't available (404). The sacrificial model is `qwen/qwen3.8-27b`, with the same limits.
-- **Refill:** both the daily and the per-minute budgets refill **continuously**. Daily: one request per 86.4 s. Per-minute: 133 tokens per second.
+- **Refill:** the per-minute budgets refill continuously (133 tokens per second), as does tokens-per-day (measured in idle gaps).
+  - **Requests per day is measured: 1,000** (2026-11-12, qwen run 20261112T132827Z: exactly 1,000 ok in 38.3 min, then the daily 429).
+  - It did **not** refill while requests arrived every ~2.2 s: the reset header grew 86.4 s per request, with no decay.
+  - It credited one request after a 90 s idle gap. So it refills only during idle gaps of 86.4 s or more.
 - **`max_tokens` is charged against TPM up front**, and it includes reasoning tokens. Keep it tight. If it's too small, gpt-oss returns an empty answer.
 - **A 429** returns in ~55 ms. The body's `error.type` is `requests` or `tokens`, and the message gives the exact wait. Rejected calls aren't counted.
 - **Latency:** first answer token p50 ~0.5–0.7 s. Groq's `usage.queue_time` is often half or more of it, and it spikes in correlated episodes. On the 120b, 5 of 120 responses (4.2%) trickled after the first token at ~70 tokens/s, all in the afternoon window. In the evening window the tail came from queue delays *before* the first token instead.
@@ -74,7 +77,8 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
   - the naive-retriever evidence;
   - the 3pm reply;
   - the 172 real load answers graded (`eval/grades_load_2026-11-12.py`; quality by tier: `python -m eval.load_quality`).
-- **In progress (Nov 12 evening):** the RPD measurement on qwen (`results/probe_rpd_qwen_2026-11-12.log`), so Table 1's RPD is measured rather than read from a header. Then make the rest of Table 1 computable from `results.csv`.
+- **RPD measured** on qwen (Nov 12, `results/probe_rpd_qwen_2026-11-12.log`).
+- **Open author decision:** how Table 1 shows TPM 8,000 and TPD 200,000. The CSV proves only "≥5,755 tokens per minute" and "201,298 tokens before the daily 429"; the exact values come from Groq's 429 bodies and the console.
 - **Left:**
   - the author's sections (Vaani feedback, How I worked with the assistant, heading 8 "learned", the number nobody could guess);
   - the 2-page check (render to PDF, then trim);
