@@ -3,7 +3,7 @@ request_id,setting,qid,answer_grade,points_covered,points_required,notes
 0992b0c8c8c9,full,Q15,wrong,2,6,Moshi side only; decoder said to use the smoothing module; the contrast was withheld
 f43b62aa11f9,full,Q16,refused_correctly,,,states the papers do not say; no value given
 236d753ccc91,full,Q1,correct,3,3,all three
-261de3570169,full,Q15,wrong,2,6,H-Net order wrong (DC before the encoder) [wrong-fact]; no contrast
+261de3570169,full,Q15,wrong,3,6,H-Net order wrong (DC before the encoder) [wrong-fact]; no contrast (R6); R5 roughly present via §1's 'replacing handcrafted heuristics' (spot-check 2026-11-12: points 2 -> 3)
 3a1526c55198,full,Q6,correct,4,5,"streams, acoustic delay + concatenation into one sequence, no turns, overlap; R4 (L2) missing"
 bb71ee733f04,full,Q4,correct,6,6,all six base values from AIAYN Table 3
 f163b2d991af,full,Q19,refused_correctly,,,states the papers do not say; no value given
@@ -33,7 +33,7 @@ da143e4237d5,full,Q3,correct,4,4,all four
 ba16e74b859b,full,Q19,refused_correctly,,,states the papers do not say; no value given
 d1994817e6ba,lean,Q2,correct,4,4,all four
 040169da9f92,lean,Q18,refused_correctly,,,states the papers do not say; no value given
-789595165023,full,Q5,correct,6,6,"all six; credits paralinguistic retention partly to Inner Monologue (it is the audio domain), not material"
+789595165023,full,Q5,correct,6,6,"all six; the Inner Monologue link is §3.1's own ('jointly model text and audio tokens ... while remaining a speech-to-speech system'), quoted with slightly changed wording (spot-check 2026-11-12: note corrected)"
 cf53f524ee0e,lean,Q10,wrong,3,5,encoder said to compress into a lower-resolution representation [wrong-fact]; dechunking conflated with the decoder
 89da196abf42,extractive,Q14,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
 c60c039fd4f0,lean,Q5,correct,6,6,all six
@@ -53,7 +53,7 @@ bae6d62636bb,extractive,Q7,refused_wrongly,,,quoted passages only (no claim): co
 d61fe9296f44,cached,Q3,correct,4,4,cache hit: replay of da143e4237d5
 dbd134f3af5a,full,Q11,correct,3,4,as above
 fa711bf25d7c,full,Q4,correct,6,6,all six
-31c7829e76c0,full,Q14,wrong,2,4,"acoustic delay right (semantic before acoustic), but text-before-audio is said to give both TTS and ASR [wrong-fact]"
+31c7829e76c0,full,Q14,wrong,1,4,"R3 missing: paraphrases MOSHI §2 (a delay allows TTS and ASR) without saying which direction gives which; its acoustic-delay sentence cites §2, which does not mention the acoustic delay, so R2 does not count (spot-check 2026-11-12: points 2 -> 1, note corrected)"
 b1e4675e50f0,lean,Q19,refused_correctly,,,states the papers do not say; no value given
 e5fdd086d374,cached,Q19,refused_correctly,,,cache hit: replay of ba16e74b859b
 cf6863ca16f2,full,Q5,correct,6,6,all six
@@ -62,12 +62,12 @@ cf6863ca16f2,full,Q5,correct,6,6,all six
 e2acddf73914,full,Q11,correct,3,4,as above
 e6c3574929c3,full,Q6,wrong,3,5,"R2 missing: 'processed together ... separate autoregressive sequences', never combined into one jointly modelled sequence (eval_v2 precedent); R4 missing"
 f7174b0a7504,full,Q11,correct,3,4,as above
-a390f57a6be0,lean,Q14,wrong,1,4,acoustic delay given as 2 s relative to text [wrong-fact]; text-audio delay described as the pre-training randomisation
+a390f57a6be0,lean,Q14,wrong,1,4,conflates Figure 9's TTS-mode setting ('audio delayed by 2 seconds' and 'acoustic token delay tau=2') into 'acoustic delay tau = 2 s' relative to text [wrong-fact]; text-audio delay described as the pre-training randomisation (§4.4) (spot-check 2026-11-12: note sharpened)
 ae1e7bf1d7a6,full,Q3,correct,4,4,all four
 20d3e54b05c3,lean,Q12,wrong,2,3,as above; discrepancy sentences withheld
 230ba5b0d882,full,Q9,correct,6,6,all six from MOSHI Table 1
 9cf032bb1f08,full,Q19,refused_correctly,,,states the papers do not say; no value given
-d61740852d04,full,Q15,wrong,3,6,R5 and R6 missing
+d61740852d04,full,Q15,wrong,3,6,R6 missing; R5 only half there: cites HNET §2.2's 'compressing low-information regions' but not replacing tokenization (spot-check 2026-11-12: note corrected)
 f33d5dbaa555,full,Q10,correct,5,5,every stage; 'encoder first compresses the input vectors' is loose but claims no change of resolution
 b52c1f2b0fdc,full,Q3,correct,4,4,all four
 c2a6c5729ede,full,Q14,wrong,1,4,acoustic delay vague; text 'provided later than acoustic tokens' yet conditions acoustic generation [wrong-fact]; no ASR/TTS
@@ -109,7 +109,7 @@ df0c4b586087,full,Q17,refused_correctly,,,states the papers do not say; no value
 301fc011a7c6,full,Q14,wrong,1,4,same pattern as c2a6c5729ede
 eaa15a801e02,full,Q5,correct,6,6,all six
 adf1ed7816b4,full,Q8,correct,4,4,"all four, directions right"
-1b2fdc7987d4,full,Q7,wrong,3,4,R3 missing: states the plain-RVQ reading outright
+1b2fdc7987d4,full,Q7,wrong,3,4,"R3 missing: follows MOSHI §1's own summary ('distilling semantic information into the first level of acoustic tokens') and never mentions the split RVQ of §3.3.2 / Figure 2; incomplete, not contrary to the paper (spot-check 2026-11-12: note corrected)"
 0c49d461abba,full,Q15,wrong,2,6,every H-Net sentence withheld (no citation): the person saw only Moshi
 1f4861f5eb80,full,Q17,refused_correctly,,,states the papers do not say; no value given
 df785cfad4bd,lean,Q9,correct,6,6,all six
@@ -130,7 +130,7 @@ fd7fbdcbc76c,full,Q13,correct,3,3,"both purposes and the contrast, each cited to
 37a4c8433f95,lean,Q2,correct,4,4,all four
 74e4cfec28b5,lean,Q13,correct,3,3,both purposes and the contrast
 ecfc8291e123,lean,Q1,correct,3,3,"all three, plus the footnote's variance argument"
-d28b19f00ce8,lean,Q8,correct,4,4,"all four, directions right"
+d28b19f00ce8,lean,Q8,correct,4,4,"all four, directions right; 'factuality' is from MOSHI §1 but cited to §3.4.4, which supports only the linguistic-quality half (minor; spot-check 2026-11-12)"
 cb275af5e555,full,Q20,refused_correctly,,,states the papers do not say; no value given
 f48596daf8d9,lean,Q20,refused_correctly,,,states the papers do not say; no value given
 f5aae1bd9485,full,Q14,wrong,1,4,same pattern as c2a6c5729ede
@@ -153,7 +153,7 @@ b95d97229956,full,Q17,refused_correctly,,,states the papers do not say; no value
 34bc3276b058,full,Q11,correct,3,4,formula + 0.5 threshold state R1-R2; direct selection; R4 (L2) missing
 83a520c29985,lean,Q10,wrong,4,5,'the dechunking (or decoder) network': two distinct stages conflated [wrong-fact]
 db5586b69ddc,lean,Q3,correct,3,4,R3 (Level 2) withheld by the gate (cite to a table row not retrieved)
-8e0ab0a00271,lean,Q4,wrong,3,6,"d_ff, d_k/d_v and steps withheld: cited §3.1 does not hold them [gate catch, retrieval]; the person saw only N, d_model, h"
+8e0ab0a00271,lean,Q4,wrong,2,6,"d_ff, d_k/d_v and steps withheld: cited §3.1 does not hold them [gate catch, retrieval]; the person saw only N, d_model, h, and 'eight heads' cites §3.1, which does not state it (spot-check 2026-11-12: points 3 -> 2)"
 c01cf83ca08d,lean,Q11,correct,3,4,"R1-R3 (formula drops the norms in the denominator, a typesetting slip); R4 missing"
 bfac6217ced9,lean,Q13,correct,3,3,both purposes and the contrast
 41b524b3d8a8,lean,Q15,wrong,3,6,R5 not stated as replacing tokenization; R6 missing
@@ -166,7 +166,7 @@ a078a2bfb3b1,lean,Q3,correct,4,4,all four
 d723ef794854,lean,Q1,correct,3,3,all three
 f0b0d030de22,lean,Q13,correct,3,3,"purposes in sentences 1-2, contrast framed by 'In contrast' (two summary sentences withheld)"
 b5c88870075b,lean,Q12,correct,3,3,"states 2.7 from the table 'whereas §3.1 states 2.6', each attributed; Large matches"
-48ff2584fc41,lean,Q7,wrong,3,4,R3 missing (no split RVQ)
+48ff2584fc41,lean,Q7,wrong,3,4,"R3 missing (no split RVQ); the 'transposed causal convolutions' sentence cites §3.3, which does not state it (spot-check 2026-11-12)"
 22a9500f6a34,lean,Q1,correct,3,3,all three; 'variance becomes 1' follows from the cited footnote
 892b93b358a6,lean,Q19,refused_correctly,,,states the papers do not say; no value given
 1ccfc25f989c,cached,Q17,refused_correctly,,,cache hit: replay of b95d97229956

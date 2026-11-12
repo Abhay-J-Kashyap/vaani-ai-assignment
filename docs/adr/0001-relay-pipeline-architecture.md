@@ -413,6 +413,13 @@ Naive retries more than doubled the median wait and reserved 81% more per-minute
 - **Reading:** this fits a limiter that credits refill only in whole requests and drops the fraction on each request, so it refills only during gaps of at least 86.4 s. The Nov 9 token test saw continuous refill, but only in idle watch periods, so the two are consistent.
 - **Consequence:** under steady use, RPD behaves as a hard 1,000 per day. It still does not bind for us, because TPD allows only ~70 full answers per day.
 
+**Spot-check of the load grades (author's request, 2026-11-12):**
+- **What was checked:** all 36 non-cached `wrong` grades, all 54 refusals, and a random 12 of the 70 non-cached `correct` answers (seed 12; this covered cross-paper and numerical questions in both tiers). Every citation was checked against the cited passage text (`eval/spot_check_load.py`).
+- **Result:** no grade changed. 9 notes and 3 diagnostic point counts were corrected, as listed in `eval/spot_check_load_2026-11-12.md`. Tables 2 and 3 were regenerated and are unchanged.
+- **Finding:** two shown sentences cite a passage that does not support their specific claim, though the names and numbers match. That is the gate's documented blind spot, now seen in real answers.
+
+**Table 1 presentation (author, 2026-11-12, option A):** each value is shown as observed, i.e. computed from `results.csv`, with Groq's own figure marked "*Groq states*" from 429 bodies, headers and the console. An evidence-source note sits under the table. The RPD no-refill-while-busy observation is stated as an inference, not an established rule.
+
 **How the grades were checked (author, stated 2026-11-12):** the author re-graded 10 answers independently (`eval/spot_check_2026-11-11.md`), and also cross-checked many more of the assistant's eval grades against the answer key by hand. That wider check is not written down per answer.
 
 **Real load answers graded (author, 2026-11-12):** the 172 real answers from steady, burst, drain, daily_exhausted and real_smoke were graded by the assistant against the frozen rubric. They are in `results/grades_load.csv`, written by `eval/grades_load_2026-11-12.py` from `results/load_answers.jsonl`.

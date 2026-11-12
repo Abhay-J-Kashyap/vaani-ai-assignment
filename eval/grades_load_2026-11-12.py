@@ -59,12 +59,14 @@ G = {
     "2ef48469e2ea": (C, 6, 6, "all six"),
     "8400206fc2ab": (C, 6, 6, "all six"),
     "5d2bd5b277c6": (C, 6, 6, "all six"),
-    "8e0ab0a00271": (W, 3, 6, "d_ff, d_k/d_v and steps withheld: cited §3.1 does not hold them [gate catch, retrieval]; "
-                              "the person saw only N, d_model, h"),
+    "8e0ab0a00271": (W, 2, 6, "d_ff, d_k/d_v and steps withheld: cited §3.1 does not hold them [gate catch, retrieval]; "
+                              "the person saw only N, d_model, h, and 'eight heads' cites §3.1, which does not state it "
+                              "(spot-check 2026-11-12: points 3 -> 2)"),
     "6bced2bfe080": (C, 6, 6, "all six (a first, uncited copy was withheld; the cited copy passed)"),
     # Q5 (6)
-    "789595165023": (C, 6, 6, "all six; credits paralinguistic retention partly to Inner Monologue (it is the audio domain), "
-                              "not material"),
+    "789595165023": (C, 6, 6, "all six; the Inner Monologue link is §3.1's own ('jointly model text and audio tokens ... "
+                              "while remaining a speech-to-speech system'), quoted with slightly changed wording "
+                              "(spot-check 2026-11-12: note corrected)"),
     "c60c039fd4f0": (C, 6, 6, "all six"),
     "cf6863ca16f2": (C, 6, 6, "all six"),
     "b48eb42cd0b2": (C, 6, 6, "all six"),
@@ -85,16 +87,20 @@ G = {
     "48e3fa205432": (W, 3, 4, "R3 missing (no split RVQ)"),
     "5a793cc7e134": (W, 3, 4, "R3 missing (no split RVQ)"),
     "ca5a40680ad7": (W, 3, 4, "R3 missing (no split RVQ)"),
-    "1b2fdc7987d4": (W, 3, 4, "R3 missing: states the plain-RVQ reading outright"),
+    "1b2fdc7987d4": (W, 3, 4, "R3 missing: follows MOSHI §1's own summary ('distilling semantic information into the "
+                              "first level of acoustic tokens') and never mentions the split RVQ of §3.3.2 / Figure 2; "
+                              "incomplete, not contrary to the paper (spot-check 2026-11-12: note corrected)"),
     "770782502d85": (W, 3, 4, "R3 missing (no split RVQ)"),
-    "48ff2584fc41": (W, 3, 4, "R3 missing (no split RVQ)"),
+    "48ff2584fc41": (W, 3, 4, "R3 missing (no split RVQ); the 'transposed causal convolutions' sentence cites §3.3, "
+                              "which does not state it (spot-check 2026-11-12)"),
     # Q8 (4)
     "d00f10eecfc4": (C, 4, 4, "prefix text stream, per-timestep alignment, scaffolding, delay -> TTS/ASR in the right direction"),
     "a624032cdbf7": (W, 3, 4, "R4 reversed in one sentence: 'delaying audio tokens (audio ahead of text) ... streaming ASR'; "
                               "a later sentence gives the right direction, so the answer contradicts itself [wrong-fact]"),
     "d6405e39771a": (C, 4, 4, "all four, directions right"),
     "adf1ed7816b4": (C, 4, 4, "all four, directions right"),
-    "d28b19f00ce8": (C, 4, 4, "all four, directions right"),
+    "d28b19f00ce8": (C, 4, 4, "all four, directions right; 'factuality' is from MOSHI §1 but cited to §3.4.4, which "
+                              "supports only the linguistic-quality half (minor; spot-check 2026-11-12)"),
     "8c9de9f1ec50": (C, 4, 4, "direction sentence withheld [gate catch], but the TTS = audio-delayed / ASR = text-delayed "
                               "configuration states it"),
     # Q9 (6)
@@ -142,10 +148,12 @@ G = {
     # Q14 (4; R4 Level 2)
     "9c09ead8007f": (W, 1, 4, "acoustic delay as frames held back for look-ahead, not the semantic-to-acoustic offset; "
                               "text-audio delay direction muddled, no ASR/TTS (eval_v2 precedent)"),
-    "31c7829e76c0": (W, 2, 4, "acoustic delay right (semantic before acoustic), but text-before-audio is said to give both "
-                              "TTS and ASR [wrong-fact]"),
-    "a390f57a6be0": (W, 1, 4, "acoustic delay given as 2 s relative to text [wrong-fact]; text-audio delay described as the "
-                              "pre-training randomisation"),
+    "31c7829e76c0": (W, 1, 4, "R3 missing: paraphrases MOSHI §2 (a delay allows TTS and ASR) without saying which "
+                              "direction gives which; its acoustic-delay sentence cites §2, which does not mention the "
+                              "acoustic delay, so R2 does not count (spot-check 2026-11-12: points 2 -> 1, note corrected)"),
+    "a390f57a6be0": (W, 1, 4, "conflates Figure 9's TTS-mode setting ('audio delayed by 2 seconds' and 'acoustic token "
+                              "delay tau=2') into 'acoustic delay tau = 2 s' relative to text [wrong-fact]; text-audio delay "
+                              "described as the pre-training randomisation (§4.4) (spot-check 2026-11-12: note sharpened)"),
     "c2a6c5729ede": (W, 1, 4, "acoustic delay vague; text 'provided later than acoustic tokens' yet conditions acoustic "
                               "generation [wrong-fact]; no ASR/TTS"),
     "301fc011a7c6": (W, 1, 4, "same pattern as c2a6c5729ede"),
@@ -153,11 +161,13 @@ G = {
     "bc29f68ed587": (W, 1, 4, "acoustic delay as audio frame pacing [wrong-fact]; no ASR/TTS"),
     # Q15 (6)
     "0992b0c8c8c9": (W, 2, 6, "Moshi side only; decoder said to use the smoothing module; the contrast was withheld"),
-    "261de3570169": (W, 2, 6, "H-Net order wrong (DC before the encoder) [wrong-fact]; no contrast"),
+    "261de3570169": (W, 3, 6, "H-Net order wrong (DC before the encoder) [wrong-fact]; no contrast (R6); R5 roughly "
+                              "present via §1's 'replacing handcrafted heuristics' (spot-check 2026-11-12: points 2 -> 3)"),
     "b619594abc73": (W, 3, 6, "R5 given as compute on long sequences, not replacing tokenization; DC sentence withheld; "
                               "no axis contrast (R6)"),
     "5019f4142497": (W, 4, 6, "R5 and R6 missing (eval_v2 precedent)"),
-    "d61740852d04": (W, 3, 6, "R5 and R6 missing"),
+    "d61740852d04": (W, 3, 6, "R6 missing; R5 only half there: cites HNET §2.2's 'compressing low-information regions' "
+                              "but not replacing tokenization (spot-check 2026-11-12: note corrected)"),
     "1306035b1856": (W, 4, 6, "R5 withheld, R6 missing"),
     "0c49d461abba": (W, 2, 6, "every H-Net sentence withheld (no citation): the person saw only Moshi"),
     "db6e2fe1c9b6": (W, 4, 6, "R5 and R6 missing"),
