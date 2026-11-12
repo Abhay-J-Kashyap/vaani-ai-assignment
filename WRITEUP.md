@@ -43,7 +43,7 @@ Seven steps: **admit** (answer cache, daily budget ledger) → **route** (a gpt-
 
 **Daily budget exhausted** ran for real: 100 `drain` requests spent the 120b's day in 31 min, then 20 more were sent. It started at 17:10, when ~1.9K reserve tokens (under one answer) were still unreleased. Every table is recomputed from `results.csv` by `python -m tools.tables`.
 
-**Answer quality:** 20 questions by the author (5 unanswerable), graded by the assistant against the author's key with a two-level rubric frozen before the final run; the author spot-checked 10 grades. The shipped pipeline: 50.0% correct and cited, 25.0% wrong, 25.0% correctly refused (all 5 unanswerable), 3,065 tokens per answer (Table 3).
+**Answer quality:** 20 questions by the author (5 unanswerable). The assistant graded against the author's key with a rubric frozen before the final run; the author re-graded 10 answers independently and cross-checked many more by hand. Shipped pipeline: 50.0% correct and cited, 25.0% wrong, 25.0% correctly refused, 3,065 tokens per answer (Table 3).
 
 **The number we couldn't have guessed [AUTHOR picks]:** the slowest real requests spent 91–95% of their time waiting in *our own* queue, not in Groq; the slowest was queued 34.7 s, as estimated to within 0.1 s. *(Alternatives: the same setting scored 10/15 twice, but a different 10; naive retries doubled the median first token.)*
 

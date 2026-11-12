@@ -406,6 +406,8 @@ Naive retries more than doubled the median wait and reserved 81% more per-minute
 
 **Drain started early (author, 2026-11-12 17:10):** the author asked to start it at 17:10 instead of 18:05. At that time the unreleased reserve was ~1.9K tokens (40K x 50/1,080 min), less than one Full answer (~2.8K), falling to ~1K by the switch. The switch therefore came within one answer of a truly empty budget. Result: 100 `drain` requests (73 Full, 14 cached, 13 Lean under per-minute pressure) spent the 120b's day in 1,888 s. The ledger level was then ~1,905. 20 `daily_exhausted` requests followed: 18 Lean on the 20b and 2 cached, with no quoted-passage fallbacks, since the 20b's day was untouched. The notices stated a wait of 4-8 min for the next Full answer, not the ~21 min shown from an empty budget, because the daily budget refills continuously. Log: `results/load_real_drain_2026-11-12.log`.
 
+**How the grades were checked (author, stated 2026-11-12):** the author re-graded 10 answers independently (`eval/spot_check_2026-11-11.md`), and also cross-checked many more of the assistant's eval grades against the answer key by hand. That wider check is not written down per answer.
+
 **Real load answers graded (author, 2026-11-12):** the 172 real answers from steady, burst, drain, daily_exhausted and real_smoke were graded by the assistant against the frozen rubric. They are in `results/grades_load.csv`, written by `eval/grades_load_2026-11-12.py` from `results/load_answers.jsonl`.
 - **Rule set by the author:** a quoted-passages answer makes no claim, so it counts as a refusal: `refused_correctly` if the question is unanswerable, `refused_wrongly` if it is answerable.
 - **Cache hits** inherit the grade of the answer they replay.
