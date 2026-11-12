@@ -1,9 +1,12 @@
 """Continuous token buckets and Groq's rate-limit wire format, shared by the budget ledger and the stand-in.
 
-Measured on Groq (ADR, probe findings): every limit refills continuously, with no fixed windows.
+Measured on Groq (ADR, probe findings): every limit refills continuously, with no fixed windows. Exception
+found later (RPD run, 2026-11-12): the request budget was not credited back under steady traffic, only after
+an idle gap. The buckets here still refill RPD continuously; RPD never binds in our scenarios (ADR, code review).
   RPM 30 -> 0.5 req/s; TPM 8,000 -> 133 tok/s; RPD 1,000 -> 1 req / 86.4 s; TPD 200,000 -> 2.31 tok/s.
 TPM and TPD admission both check prompt + max_tokens ("Requested 2821" = prompt 2757 + max_tokens 64 on the
-daily 429). TPM is charged that reservation; TPD is charged the tokens actually used.
+daily 429). TPM is charged that reservation; TPD is charged the tokens actually used (the ledger holds the
+reservation against TPD while the call is in flight, then swaps it for the actual usage).
 """
 from __future__ import annotations
 

@@ -155,10 +155,13 @@ class LLM:
             if not task.done():
                 task.cancel()
             res.total_ms = round((time.perf_counter() - t0) * 1000, 1)
+            # Every call was reserved (here or by the caller's admission) as prompt_tokens + max_tokens against TPD;
+            # hand that reservation back so the ledger keeps only what Groq actually charged.
+            reserved = prompt_tokens + max_tokens
             if res.status == "rate_limited":
-                res.limit = self.ledger.on_429(model, res.error)
+                res.limit = self.ledger.on_429(model, res.error, reserved=reserved)
             else:
-                self.ledger.finish(model, res.usage if res.status == "ok" else None, res.headers)
+                self.ledger.finish(model, res.usage if res.status == "ok" else None, res.headers, reserved=reserved)
         yield ("done", res)
 
     async def chat(self, **kw) -> CallResult:

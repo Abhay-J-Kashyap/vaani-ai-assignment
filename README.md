@@ -53,6 +53,7 @@ python -m standin.server --port 8088                                         # t
 python -m relay.pipeline "Why are dot products scaled by sqrt(d_k)?"           # one request on the stand-in
 python -m relay.pipeline "..." --source real --dry-run                        # token cost of a real request, no call
 python -m tests.test_gate && python -m tests.smoke_pipeline                    # tests, no Groq
+python -m tests.test_budget                                                   # daily-token reservation and archive-path checks (code review, 2026-11-13)
 python -m load.run_load overload                                              # a stand-in load scenario
 powershell -File tools\render_writeup.ps1                                     # WRITEUP.md -> WRITEUP.pdf, prints the page count
 ```

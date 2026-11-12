@@ -2,12 +2,16 @@
 
 Accounts track RPM, TPM, RPD and TPD as continuous buckets (relay.limits.Bucket).
   * RPD and TPM are re-synced from every response's x-ratelimit-* headers (Groq reports those two).
-  * TPD is not in Groq's headers: the ledger charges actual usage and corrects itself from a daily 429's "Used N".
+  * TPD is not in Groq's headers. Each call reserves prompt + max_tokens against TPD when it starts (so calls in
+    flight count against the daily budget), then finish() swaps the reservation for the actual usage; a call
+    that fails or is rejected gets it all back. The ledger also corrects itself from a daily 429's "Used N".
+    (Before 2026-11-13, TPD was charged only at finish(); see the ADR. Every measured run used that version.)
   * A 429's stated wait is exact (measured), so it sets the bucket so that the wait matches.
 State persists to data/state/ledger_<name>.json with wall-clock times, so the daily budget carries across runs.
 
 Tier policy:
-  Full (gpt-oss-120b) while its TPD level minus the answer cost stays above the reserve floor.
+  Full (gpt-oss-120b) while its TPD level, minus the Full answers already promised but not yet reserved
+    (`committed`), minus this answer's cost, stays above the reserve floor.
     Reserve = 20% of TPD, released evenly from 00:00 to 18:00 local: floor(t) = R * (1 - t/18h), 0 after 18:00.
   Lean (gpt-oss-20b draft) when Full can't, as long as the 20b stays above 25% (routing has priority there).
   Extractive (no Groq call) otherwise. Cached answers are decided before the ledger is consulted.
@@ -90,20 +94,30 @@ class Ledger:
         which = max(waits, key=waits.get)
         return waits[which], which
 
-    def start(self, model: str, prompt_tokens: int, max_tokens: int, now: float | None = None) -> None:
+    def start(self, model: str, prompt_tokens: int, max_tokens: int, now: float | None = None) -> int:
+        """Reserve one call: RPM, RPD, and prompt + max_tokens against both TPM and TPD. Returns the TPD
+        reservation, which finish() or on_429() must get back as `reserved`."""
         a = self.acct(model)
+        need = prompt_tokens + max_tokens
         a.rpm.take(1, now)
         a.rpd.take(1, now)
-        a.tpm.take(prompt_tokens + max_tokens, now)
+        a.tpm.take(need, now)
+        a.tpd.take(need, now)
+        return need
 
-    def finish(self, model: str, usage: dict | None, headers: dict | None, now: float | None = None) -> None:
-        """Charge actual tokens to TPD; re-sync RPD and TPM from Groq's headers when present."""
+    def finish(self, model: str, usage: dict | None, headers: dict | None, now: float | None = None,
+               reserved: int = 0) -> None:
+        """Swap the call's TPD reservation for its actual usage (all of it back if no usage was reported);
+        re-sync RPD and TPM from Groq's headers when present."""
         a = self.acct(model)
+        used = 0
         if usage:
             total = usage.get("total_tokens") or (usage.get("prompt_tokens", 0) + usage.get("completion_tokens", 0))
             # Groq: cached prompt tokens (automatic prefix caching on gpt-oss) don't count toward rate limits
             cached = (usage.get("prompt_tokens_details") or {}).get("cached_tokens") or 0
-            a.tpd.take(max(0, total - cached), now)
+            used = max(0, total - cached)
+        if used or reserved:
+            a.tpd.take(used - reserved, now)
         h = {k.lower(): v for k, v in (headers or {}).items()}
         if h.get("x-ratelimit-remaining-requests") is not None:
             a.rpd.set_level(float(h["x-ratelimit-remaining-requests"]), now)
@@ -111,8 +125,11 @@ class Ledger:
             a.tpm.set_level(float(h["x-ratelimit-remaining-tokens"]), now)
         self.save()
 
-    def on_429(self, model: str, body, now: float | None = None) -> dict:
-        """Set the named bucket so its wait equals the 429's stated wait (measured to be exact)."""
+    def on_429(self, model: str, body, now: float | None = None, reserved: int = 0) -> dict:
+        """Give back the call's TPD reservation (rejected calls aren't counted, measured), then set the named
+        bucket so its wait equals the 429's stated wait (measured to be exact)."""
+        if reserved:
+            self.acct(model).tpd.take(-reserved, now)
         info = parse_429(body)
         which = info.get("which")
         if which:
@@ -134,9 +151,12 @@ class Ledger:
         frac = min(1.0, (when.hour + when.minute / 60 + when.second / 3600) / RESERVE_UNTIL_HOUR)
         return RESERVE_SHARE * self.acct(DRAFTER).tpd.capacity * (1 - frac)
 
-    def tier(self, full_cost: int, lean_cost: int, now: float | None = None, when: datetime | None = None) -> str:
+    def tier(self, full_cost: int, lean_cost: int, now: float | None = None, when: datetime | None = None,
+             committed: float = 0.0) -> str:
+        """`committed`: TPD already promised to Full requests that haven't reserved their draft call yet (still
+        routing, retrieving or queued). Calls in flight are already reserved in the TPD level itself."""
         d, r = self.acct(DRAFTER).tpd, self.acct(ROUTER).tpd
-        if d.level(now) - full_cost >= self.reserve_floor(when):
+        if d.level(now) - committed - full_cost >= self.reserve_floor(when):
             return "full"
         if r.level(now) - lean_cost >= ROUTER_FLOOR_SHARE * r.capacity:
             return "lean"

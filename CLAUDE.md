@@ -124,6 +124,7 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
 .\.venv\Scripts\python.exe -m relay.pipeline "question" --source real --dry-run           # route + retrieve locally, print the token cost; no Groq
 .\.venv\Scripts\python.exe -m tests.test_gate                          # citation gate + streaming sentence splitter
 .\.venv\Scripts\python.exe -m tests.smoke_pipeline                     # every pipeline path on its own stand-in (burst, TPM halved, daily gone, give-up)
+.\.venv\Scripts\python.exe -m tests.test_budget                        # TPD reserved at admission (two concurrent near the floor -> one Full) + safe_extract path check
 # Night daily test (spends qwen's whole daily budget; exhaust ~26 min, then watches recovery up to 6 h):
 .\.venv\Scripts\python.exe -m probe.groq_probe --safety 0.95 daily --model qwen/qwen3.8-27b --target tokens --max-minutes 180 --confirm-exhaust --check-model openai/gpt-oss-20b
 ```

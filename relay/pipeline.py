@@ -81,6 +81,7 @@ class Req:
     sentences: list[str] = field(default_factory=list)
     notices: list[str] = field(default_factory=list)
     withheld: int = 0
+    full_hold: float = 0              # daily tokens promised to this request's Full draft, until it reserves them
     drafter_calls: int = 0
     truncated: str = ""               # why the answer was cut short, if it was
     on_event: object = None
@@ -115,6 +116,10 @@ class Relay:
         self.locks: dict[str, asyncio.Lock] = defaultdict(asyncio.Lock)
         self.queued: dict[str, list[int]] = defaultdict(list)     # per model: token needs of admitted-but-waiting
         self.pending_full = 0     # requests past admission that will want a Full draft but haven't reserved it yet
+        # Daily tokens promised to Full requests between the tier decision and their draft call's reservation in
+        # the ledger. The tier decision subtracts them, so two requests near the reserve floor can't both be
+        # promised the last Full answer (code review, 2026-11-13).
+        self.full_held = 0.0
         # Warm up before the first request: index, embedding model (and re-ranker), tokenizer. Cold, the first
         # search took ~1.1 s instead of ~0.05 s, which would land on whichever request came first.
         get_index(self.setting.size).search("warm up", 1, self.setting.rerank, late=self.setting.late)
@@ -162,7 +167,11 @@ class Relay:
         k, rerank = s.k, s.rerank
         full_cost = self.est_prompt(r.question, k) + S.FULL_MAX_TOKENS
         lean_cost = self.est_prompt(r.question, max(2, k - 2)) + S.LEAN_MAX_TOKENS
-        r.tier = self.ledger.tier(full_cost, lean_cost) if self.allow_downgrade else "full"
+        r.tier = (self.ledger.tier(full_cost, lean_cost, committed=self.full_held)
+                  if self.allow_downgrade else "full")
+        if r.tier == "full":
+            r.full_hold = full_cost
+            self.full_held += full_cost
         if r.tier != "full":
             r.cause = "rate_limited"
         l1 = self.l1(full_cost)
@@ -454,6 +463,8 @@ class Relay:
                                     naive=self.retry.mode == "naive" and attempt > 0):
                 r.cause = r.cause or "rate_limited"
                 return "downgrade"
+            if model == S.FULL_MODEL:
+                self.release_hold(r)           # the ledger now holds this draft's TPD reservation
             r.drafter_calls += 1
             self.trace(r, "call_start", model=model, attempt=attempt, prompt_est=prompt, max_tokens=max_tokens)
             splitter, emitted_before = SentenceSplitter(), len(r.sentences)
@@ -636,7 +647,12 @@ class Relay:
     def trace(self, r: Req, ev: str, **kw) -> None:
         self.rec.trace({"rid": r.id, "t_ms": r.ms(), "ev": ev, **{k: v for k, v in kw.items() if v is not None}})
 
+    def release_hold(self, r: Req) -> None:
+        self.full_held = max(0.0, self.full_held - r.full_hold)
+        r.full_hold = 0
+
     def _finish(self, r: Req) -> None:
+        self.release_hold(r)                   # refused, cached, downgraded or failed before its Full draft
         status = r.cause or "ok"
         self.trace(r, "done", status=status, tier=r.tier, branch=r.branch, sentences=len(r.sentences),
                    withheld=r.withheld, drafter_calls=r.drafter_calls, retries=r.retries,

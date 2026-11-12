@@ -43,7 +43,8 @@ def safe_extract(blob: bytes, dest: Path) -> list[str]:
     with tf:
         for m in tf.getmembers():
             target = (dest / m.name).resolve()
-            if not str(target).startswith(str(root)) or not (m.isfile() or m.isdir()):
+            # Path containment, not a string prefix: ".../src_evil/x" starts with ".../src" but is outside it.
+            if not target.is_relative_to(root) or not (m.isfile() or m.isdir()):
                 print(f"   skipped unsafe member: {m.name!r}")
                 continue
             if m.isdir():
