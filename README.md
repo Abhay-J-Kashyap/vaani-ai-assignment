@@ -9,7 +9,7 @@ Every figure in the write-up's tables comes from `results.csv` (one row per requ
 ```
 python -m tools.build_results_csv --check   # rebuild results.csv from the raw logs; recompute Table 1 figures
 python -m tools.tables --table 1            # Table 1: limits
-python -m tools.tables --table 2            # Tables 2a and 2b: latency and outcomes per load scenario
+python -m tools.tables --table 2            # Tables 2a and 2b: the write-up's 5 rows, then (apart) the stand-in fallback run of daily_exhausted, superseded by the real run
 python -m tools.tables --table 3            # Table 3: retrieval settings (first eval run)
 python -m tools.tables --table 3 --scenario eval_v2   # the chosen setting on the shipped pipeline
 python -m eval.load_quality                 # answer quality of the real load answers, by tier (120b / 20b / cached / quoted)

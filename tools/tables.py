@@ -96,12 +96,30 @@ def cost_usd(r: dict) -> float:
     return (int(r["tokens_in"] or 0) * pin + int(r["tokens_out"] or 0) * pout) / 1e6
 
 
+# Stand-in runs kept as a fallback for a row the write-up reports from a real run (ADR, evening of 2026-11-09:
+# "The stand-in version is kept as a fallback in case the real run fails"). The real run worked, so these rows stay
+# in results.csv (raw results are kept) but are printed apart from Tables 2a/2b, which match the write-up.
+FALLBACK = {("daily_exhausted", "stand-in")}
+
+
 def table2(rs: list[dict]) -> None:
     by = defaultdict(list)
     for r in rs:
         if r["scenario"] in LOAD_SCENARIOS:
             by[(r["scenario"], r["source"])].append(r)
     keys = sorted(by, key=lambda k: (LOAD_SCENARIOS.index(k[0]), k[1]))
+    real = {k[0] for k in keys if k[1] == "real"}
+    fallback = [k for k in keys if k in FALLBACK and k[0] in real]
+    main = [k for k in keys if k not in fallback]
+    print("Tables 2a and 2b as in the write-up: one row per load scenario.\n")
+    print_table2(by, main)
+    if fallback:
+        print("\n\nNot in the write-up: stand-in fallback runs for rows the write-up reports from a real run "
+              "(kept in results.csv; superseded because the real run succeeded).\n")
+        print_table2(by, fallback)
+
+
+def print_table2(by: dict, keys: list) -> None:
     print("Table 2a - latency (nearest-rank percentiles; first token over requests that got one, total over all)\n")
     print("Scenario | Real or stand-in | Requests sent | Duration (s) | Offered rate (per min) | "
           "First token p50 / p95 / p99 (ms) | Total time p50 / p95 / p99 (ms)")
