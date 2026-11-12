@@ -78,11 +78,14 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
   - the 3pm reply;
   - the 172 real load answers graded (`eval/grades_load_2026-11-12.py`; quality by tier: `python -m eval.load_quality`).
 - **RPD measured** on qwen (Nov 12, `results/probe_rpd_qwen_2026-11-12.log`).
-- **Open author decision:** how Table 1 shows TPM 8,000 and TPD 200,000. The CSV proves only "≥5,755 tokens per minute" and "201,298 tokens before the daily 429"; the exact values come from Groq's 429 bodies and the console.
-- **Left:**
-  - the author's sections (Vaani feedback, How I worked with the assistant, heading 8 "learned", the number nobody could guess);
-  - the 2-page check (render to PDF, then trim);
-  - the conversation export (the author, by hand).
+- **Table 1 (author, option A):** values are *observed* (from `results.csv`), with Groq's own figures marked "Groq states".
+- **Load grades spot-checked** (`eval/spot_check_load_2026-11-12.md`): no grade changes.
+- **Left (all the author's):**
+  - the author's sections: Vaani feedback; How I worked with the assistant; heading 8 "learned"; the number nobody could guess, then delete its "Alternatives" note;
+  - the conversation export, with `[file]` in the write-up replaced by its path;
+  - remove the `[AUTHOR]` markers;
+  - re-run `tools\render_writeup.ps1`: it must still print 2 pages. The author's sections have ~300 words between them.
+  - Then commit `WRITEUP.pdf`.
 - **Budget plan and product budget manager:** see the "Budget plan" section of the ADR. It covers the 20% drafter reserve (released evenly until 18:00 local time), the answer tiers (Full on 120b, Lean on 20b, Extractive, Cached), and the answer cache.
 - **`results.csv` is derived:** `tools/build_results_csv.py` rebuilds it from `results/probe_raw.jsonl` plus `results/pipeline_rows*.csv`. Probe rows use `scenario=probe_*` and leave `answer_grade` empty. Table 1 numbers must come from the CSV where it can supply them. For example, recovery is measured start-to-start: 2,051 ms (RPM) and 4,068 ms (TPM).
 

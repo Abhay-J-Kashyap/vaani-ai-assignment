@@ -12,6 +12,7 @@ python -m tools.tables --table 1            # Table 1: limits
 python -m tools.tables --table 2            # Tables 2a and 2b: latency and outcomes per load scenario
 python -m tools.tables --table 3            # Table 3: retrieval settings (first eval run)
 python -m tools.tables --table 3 --scenario eval_v2   # the chosen setting on the shipped pipeline
+python -m eval.load_quality                 # answer quality of the real load answers, by tier (120b / 20b / cached / quoted)
 ```
 
 Definitions used by `tools/tables.py`:
@@ -20,6 +21,8 @@ Definitions used by `tools/tables.py`:
 - Peak queue length is the most requests in the system at once, from `start_time` and `total_ms` overlaps.
 - Cost per 1,000 answers is an upper bound at Groq list prices: Full rows at the 120b price, other tiers at the 20b price.
 - In Table 3, "Wrong" includes wrong refusals, so the three outcome columns sum to 100%.
+- In Table 1, a plain value is *observed* (computed from `results.csv`). A value marked "Groq states" is Groq's own figure, from its 429 bodies and headers in `results/probe_raw.jsonl` and its console.
+- `answer_grade` is filled for every real answer to a question: the eval runs and all real load runs. It is empty only for probe rows (there is no answer) and stand-in rows (the stand-in quotes passages, so a grade would measure the fake).
 
 ## What is where
 
@@ -30,6 +33,9 @@ Definitions used by `tools/tables.py`:
 | `results/pipeline_rows_*.csv` | Every pipeline request, one file per scenario; real and stand-in, told apart by `source` |
 | `results/trace.jsonl` | Per-phase events for every pipeline request: waits, calls, gate decisions, notices (heading 4) |
 | `results/eval_answers.jsonl`, `results/grades_eval*.csv` | The gold-set answers as sent (plus what the gate withheld) and their grades with notes |
+| `results/load_answers.jsonl`, `results/grades_load.csv` | The 172 real load answers rebuilt from the trace, and their grades (`eval/grades_load_2026-11-12.py`) |
+| `eval/spot_check_*.md`, `results/spot_check_load_evidence_2026-11-12.txt` | Grade spot-checks: the author's re-grade of 10 eval answers, and the check of the load grades against the cited passages |
+| `results/*.log` | Console logs of every real run: probes, the RPD run, eval, steady/burst, drain |
 | `eval/` | The author's 20 questions and answer key with the frozen two-level rubric, the eval runner and grading tools |
 | `relay/` | The pipeline: admission and budget ledger, router (tool call), retrieval, decide, draft, citation gate |
 | `standin/` | The stand-in model service and its calibration from the probe data |
@@ -47,6 +53,7 @@ python -m relay.pipeline "Why are dot products scaled by sqrt(d_k)?"           #
 python -m relay.pipeline "..." --source real --dry-run                        # token cost of a real request, no call
 python -m tests.test_gate && python -m tests.smoke_pipeline                    # tests, no Groq
 python -m load.run_load overload                                              # a stand-in load scenario
+powershell -File tools\render_writeup.ps1                                     # WRITEUP.md -> WRITEUP.pdf, prints the page count
 ```
 
 Real Groq calls spend a shared daily budget (200K tokens per model), so every real run has a `--dry-run` and needs `--confirm-real`.
