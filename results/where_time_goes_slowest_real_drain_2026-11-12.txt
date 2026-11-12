@@ -1,0 +1,12 @@
+﻿Request fd7fbdcbc76c: status=ok tier=full branch=decompose retries=0; first answer token at 36098.1 ms, done at 36570.7 ms
+
+kind      what                                             from       to  before 1st token    after
+working   retrieval loop + decide (local)                     0      160               160        0
+waiting   admission queue (gpt-oss-120b)                    162    34886             34724        0
+waiting   Groq queue (drafter call)                       34886    35045               159        0
+working   drafter: prompt processing to first byte        35045    35970               925        0
+working   drafter: generating the answer                  35970    36570               128      472
+
+total                                                                                36096      472   (unattributed: 2 ms)
+  working      1686 ms =   4.6% of the request (1213 ms before the first token, 472 ms after)
+  waiting     34883 ms =  95.4% of the request (34883 ms before the first token, 0 ms after)

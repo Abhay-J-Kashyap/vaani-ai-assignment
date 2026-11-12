@@ -69,15 +69,17 @@ Seven steps:
 | 512, 4, yes | 20 | 35.0% | 40.0% | 25.0% | 2,431 | 5,583 / 14,883 | 5,865 / 15,229 |
 | 256, 8, no: shipped pipeline | 20 | 50.0% | 25.0% | 25.0% | 3,065 | 1,399 / 3,265 | 1,721 / 3,535 |
 
-**The number we couldn't have guessed [AUTHOR picks]:** the slowest real requests spent 91–95% of their time waiting in *our own* queue, not in Groq. *(Alternatives: the same setting scored 10/15 twice, but a different 10; naive retries doubled the median first token.)*
+**The number we couldn't have guessed [AUTHOR picks]:** the slowest real requests spent 91–95% of their time waiting in *our own* queue, not in Groq (the slowest: 34.7 s queued, estimated to within 0.1 s). *(Alternatives: the same setting scored 10/15 twice, but a different 10; naive retries doubled the median first token.)*
 
 ## 4. Where the time goes
-The slowest real request (burst, `789595165023`) took **16,237 ms**.
-- **Waiting: 14,707 ms (90.6%), all before the first token.** 14,551 ms was in our admission queue for the 120b's per-minute budget: their patience allowed a full answer, so they were queued, not downgraded. 156 ms was in Groq's queue.
-- **Working: 1,527 ms.** Retrieval 20 ms, prompt processing 396 ms, generation 1,111 ms, of which 678 ms came after the first token.
+The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **36,571 ms**.
+- **Waiting: 34,883 ms (95.4%), all before the first token.**
+  - 34,724 ms was in our admission queue for the 120b's per-minute budget. We estimated 34.7 s, and their patience was 38.2 s, so they were queued for a full answer, not downgraded.
+  - 159 ms was in Groq's queue.
+- **Working: 1,686 ms.** Retrieval and decide took 160 ms, prompt processing 925 ms and generation 600 ms, of which 472 ms came after the first token.
 - **Retrying: 0 ms.**
 
-**How we know:** per-phase trace timestamps plus Groq's own `usage.queue_time` (`eval/where_time_goes.py`). The slowest steady request: 94.5% waiting in our queue.
+**How we know:** per-phase trace timestamps plus Groq's own `usage.queue_time` (`eval/where_time_goes.py`). The slowest burst and steady requests were 90.6% and 94.5% waiting, also in our queue.
 
 ## 5. When a limit is hit
 **Per-minute.** Admission is first in, first out against a ledger that mirrors Groq's buckets.
