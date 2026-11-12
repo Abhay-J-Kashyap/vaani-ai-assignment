@@ -1,6 +1,6 @@
 # The Relay: write-up
 
-> **DRAFT, 2026-11-12.** Every table is recomputed from `results.csv` by `python -m tools.tables --table 1|2|3`. **[AUTHOR]** = the author's own words. Detail behind each claim: `docs/adr/0001-relay-pipeline-architecture.md`.
+> Every table is recomputed from `results.csv` by `python -m tools.tables --table 1|2|3`. Detail behind each claim: `docs/adr/0001-relay-pipeline-architecture.md`.
 
 ## 1. What I built and why
 Seven steps:
@@ -82,12 +82,21 @@ The slowest real request (drain, `fd7fbdcbc76c`, a two-paper comparison) took **
 **How we know:** per-phase trace timestamps plus Groq's own `usage.queue_time` (`eval/where_time_goes.py`). The slowest burst and steady requests were 90.6% and 94.5% waiting, also in our queue.
 
 ## 5. When a limit is hit
-**Per-minute.** Admission is first in, first out against a ledger that mirrors Groq's buckets.
-- **Delayed:** anyone whose estimated wait fits their patience.
-- **A weaker answer at once:** everyone else, shorter 20b answers or quoted passages.
-- **Dropped:** nobody. In the real burst, 14 of 20 got a weaker answer in about 50 ms and none gave up.
+**Per-minute.** Admission is first in, first out against a ledger that mirrors Groq's per-minute buckets.
+- **Delayed:** anyone whose estimated wait fits their patience, less a 2 s margin. In the real drain, one person waited 34.7 s for a full answer.
+- **A weaker answer at once:** everyone else gets a shorter 20b answer, or quoted passages if the 20b is busy too. In the real burst, 14 of 20 got one in about 50 ms.
+- **Dropped:** nobody is refused, but people can still give up. Nobody did in the real runs. Under stand-in overload, 1 of 113 (0.9%) gave up while queued.
 
-**Per-day.** A 20% reserve is released evenly until 18:00, then 20b answers labelled as shorter, then quoted passages.
+**Per-day.** The 120b's 200K tokens are the scarce resource.
+- **Delayed:** nobody. A daily wait is minutes to hours, longer than anyone's patience.
+- **A weaker answer:** 20% of the day is held back and released evenly until 18:00, so a morning burst cannot spend the evening's full answers. When the released share is spent, everyone gets a 20b answer labelled as shorter, with the expected wait. When the 20b's day is gone too, they get quoted passages with no model call.
+- **Dropped:** nobody. After the real drain emptied the 120b, 20 people got 18 shorter answers and 2 cached ones.
+
+**What "weaker" cost (167 real answers from steady, burst and drain, graded like Table 3):**
+- On answerable questions, the 20b was correct as often as the 120b: 20 of 30 against 48 of 72, 66.7% each.
+- They differed on particular questions. The 20b got the H-Net pipeline question wrong 3 times out of 3, while the 120b got it right 3 times out of 3.
+- Quoted passages answer nothing: 8 of 8 were refusals of answerable questions.
+- Every unanswerable question was refused correctly.
 
 ## Retrieval: quality versus cost
 **Chosen: 256-token pieces × 8, no re-rank.** It had the best correct-and-cited rate, no misread sentence past the gate (0 of 14), and a first token inside our 4 s target.

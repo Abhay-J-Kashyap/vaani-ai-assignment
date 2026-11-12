@@ -406,6 +406,14 @@ Naive retries more than doubled the median wait and reserved 81% more per-minute
 
 **Drain started early (author, 2026-11-12 17:10):** the author asked to start it at 17:10 instead of 18:05. At that time the unreleased reserve was ~1.9K tokens (40K x 50/1,080 min), less than one Full answer (~2.8K), falling to ~1K by the switch. The switch therefore came within one answer of a truly empty budget. Result: 100 `drain` requests (73 Full, 14 cached, 13 Lean under per-minute pressure) spent the 120b's day in 1,888 s. The ledger level was then ~1,905. 20 `daily_exhausted` requests followed: 18 Lean on the 20b and 2 cached, with no quoted-passage fallbacks, since the 20b's day was untouched. The notices stated a wait of 4-8 min for the next Full answer, not the ~21 min shown from an empty budget, because the daily budget refills continuously. Log: `results/load_real_drain_2026-11-12.log`.
 
+**Real load answers graded (author, 2026-11-12):** the 172 real answers from steady, burst, drain, daily_exhausted and real_smoke were graded by the assistant against the frozen rubric. They are in `results/grades_load.csv`, written by `eval/grades_load_2026-11-12.py` from `results/load_answers.jsonl`.
+- **Rule set by the author:** a quoted-passages answer makes no claim, so it counts as a refusal: `refused_correctly` if the question is unanswerable, `refused_wrongly` if it is answerable.
+- **Cache hits** inherit the grade of the answer they replay.
+- **Which question each request asked** comes from replaying the load generator's seeded draws. The replay was checked against all 151 requests whose query the trace shows.
+- **Why:** to measure what "a weaker answer" costs.
+- **Result on answerable questions:** Full (120b) 48/72 and Lean (20b) 20/30, both 66.7% correct. The 20b failed the H-Net pipeline question (Q10) 3 times out of 3 by confusing the encoder with compression, a question the 120b got right 3 times out of 3.
+- **Left empty after this:** `answer_grade` is now empty only for probe rows (no answer) and stand-in rows (the stand-in quotes passages, so a grade would measure the fake).
+
 **Four strategies the author proposed, reviewed against sources and our measurements (2026-11-11):**
 - **Prefix caching (adopted, small).** Groq caches prompt prefixes automatically on gpt-oss only. Cached tokens cost 50% less and don't count toward rate limits. In the real eval, 7,680 of 117,962 drafter prompt tokens were cached (6.5%). Our prompt is already static-first; the only fully repeated prompts are identical questions, which the answer cache serves without a call. Change: the trace records cached tokens per request (router included), and the ledger no longer charges them to TPD.
 - **CQRS (not applicable).** Ingestion (fetch → parse → chunk → index) is already an offline batch; the query path only reads a fixed index.

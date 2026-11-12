@@ -1,0 +1,173 @@
+request_id,setting,qid,answer_grade,points_covered,points_required,notes
+2c815bc21203,full,Q1,correct,3,3,"growth with d_k, small softmax gradients, 1/sqrt(d_k)"
+0992b0c8c8c9,full,Q15,wrong,2,6,Moshi side only; decoder said to use the smoothing module; the contrast was withheld
+f43b62aa11f9,full,Q16,refused_correctly,,,states the papers do not say; no value given
+236d753ccc91,full,Q1,correct,3,3,all three
+261de3570169,full,Q15,wrong,2,6,H-Net order wrong (DC before the encoder) [wrong-fact]; no contrast
+3a1526c55198,full,Q6,correct,4,5,"streams, acoustic delay + concatenation into one sequence, no turns, overlap; R4 (L2) missing"
+bb71ee733f04,full,Q4,correct,6,6,all six base values from AIAYN Table 3
+f163b2d991af,full,Q19,refused_correctly,,,states the papers do not say; no value given
+e19e36acaa87,full,Q19,refused_correctly,,,states the papers do not say; no value given
+413789695915,extractive,Q7,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+054ee9d79b1e,full,Q12,wrong,2,3,"both scales and differences right, §3.1's 2.2/2.6 attributed, but the asked discrepancy sentence was withheld (no citation) [gate catch] (eval_v2 precedent)"
+1d3a338eef7e,full,Q4,correct,6,6,all six
+2da8c7488445,full,Q18,refused_correctly,,,states the papers do not say; no value given
+a60b004c4906,lean,Q3,correct,4,4,all four
+5b4b7dc5df71,full,Q19,refused_correctly,,,states the papers do not say; no value given
+e26ccf5aa767,full,Q2,correct,4,4,"all four, incl. -inf masking"
+9c05e21ce1c0,lean,Q20,refused_correctly,,,states the papers do not say; no value given
+0211dc5ccc5a,full,Q7,wrong,3,4,"R3 missing: plain RVQ layering (first level semantic, later acoustic), no split RVQ (eval_v2 precedent)"
+4fa6e1ba6fa8,full,Q16,refused_correctly,,,states the papers do not say; no value given
+76411d655b1a,full,Q18,refused_correctly,,,states the papers do not say; no value given
+9c09ead8007f,full,Q14,wrong,1,4,"acoustic delay as frames held back for look-ahead, not the semantic-to-acoustic offset; text-audio delay direction muddled, no ASR/TTS (eval_v2 precedent)"
+2e0e0d015220,full,Q11,correct,3,4,"cosine routing, p>=0.5 boundary, direct selection; R4 (L2) missing"
+b619594abc73,full,Q15,wrong,3,6,"R5 given as compute on long sequences, not replacing tokenization; DC sentence withheld; no axis contrast (R6)"
+9a7352b0f53e,full,Q19,refused_correctly,,,states the papers do not say; no value given
+5019f4142497,full,Q15,wrong,4,6,R5 and R6 missing (eval_v2 precedent)
+b99d82f6f4d6,full,Q12,wrong,2,3,as above; the withheld sentence's reasoning was also off
+4a94f0f134da,full,Q10,correct,5,5,every stage's role (HNET §1 puts smoothing in DC; consistent with its cite)
+d00f10eecfc4,full,Q8,correct,4,4,"prefix text stream, per-timestep alignment, scaffolding, delay -> TTS/ASR in the right direction"
+195aac6a3152,full,Q6,correct,4,5,as above; R4 (L2) missing
+a624032cdbf7,full,Q8,wrong,3,4,"R4 reversed in one sentence: 'delaying audio tokens (audio ahead of text) ... streaming ASR'; a later sentence gives the right direction, so the answer contradicts itself [wrong-fact]"
+da143e4237d5,full,Q3,correct,4,4,all four
+ba16e74b859b,full,Q19,refused_correctly,,,states the papers do not say; no value given
+d1994817e6ba,lean,Q2,correct,4,4,all four
+040169da9f92,lean,Q18,refused_correctly,,,states the papers do not say; no value given
+789595165023,full,Q5,correct,6,6,"all six; credits paralinguistic retention partly to Inner Monologue (it is the audio domain), not material"
+cf53f524ee0e,lean,Q10,wrong,3,5,encoder said to compress into a lower-resolution representation [wrong-fact]; dechunking conflated with the decoder
+89da196abf42,extractive,Q14,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+c60c039fd4f0,lean,Q5,correct,6,6,all six
+2fa0d09dbafd,cached,Q18,refused_correctly,,,cache hit: replay of 76411d655b1a
+cebd1134af9e,extractive,Q4,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+b7cef1ce222b,extractive,Q19,refused_correctly,,,quoted passages only (no claim): counted as a refusal
+9ad152111f65,extractive,Q10,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+d9757cf134c6,extractive,Q18,refused_correctly,,,quoted passages only (no claim): counted as a refusal
+adb954544b9c,extractive,Q6,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+e10d0863ca12,extractive,Q4,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+001eeae57628,cached,Q19,refused_correctly,,,cache hit: replay of ba16e74b859b
+fe2530561590,cached,Q19,refused_correctly,,,cache hit: replay of ba16e74b859b
+bae6d62636bb,extractive,Q7,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+744b6c2f26ae,extractive,Q12,refused_wrongly,,,quoted passages only (no claim): counted as a refusal
+740935c435c9,cached,Q4,correct,6,6,cache hit: replay of 1d3a338eef7e
+779b4ddb4a67,extractive,Q18,refused_correctly,,,quoted passages only (no claim): counted as a refusal
+d61fe9296f44,cached,Q3,correct,4,4,cache hit: replay of da143e4237d5
+dbd134f3af5a,full,Q11,correct,3,4,as above
+fa711bf25d7c,full,Q4,correct,6,6,all six
+31c7829e76c0,full,Q14,wrong,2,4,"acoustic delay right (semantic before acoustic), but text-before-audio is said to give both TTS and ASR [wrong-fact]"
+b1e4675e50f0,lean,Q19,refused_correctly,,,states the papers do not say; no value given
+e5fdd086d374,cached,Q19,refused_correctly,,,cache hit: replay of ba16e74b859b
+cf6863ca16f2,full,Q5,correct,6,6,all six
+05eb6acc393f,full,Q6,correct,4,5,as above; R4 (L2) missing
+5756f51636e1,full,Q3,correct,3,4,"R3 (learned embeddings, Level 2) withheld by the gate [gate catch: 25.7/25.8 not in cited passage]"
+e2acddf73914,full,Q11,correct,3,4,as above
+e6c3574929c3,full,Q6,wrong,3,5,"R2 missing: 'processed together ... separate autoregressive sequences', never combined into one jointly modelled sequence (eval_v2 precedent); R4 missing"
+f7174b0a7504,full,Q11,correct,3,4,as above
+a390f57a6be0,lean,Q14,wrong,1,4,acoustic delay given as 2 s relative to text [wrong-fact]; text-audio delay described as the pre-training randomisation
+ae1e7bf1d7a6,full,Q3,correct,4,4,all four
+20d3e54b05c3,lean,Q12,wrong,2,3,as above; discrepancy sentences withheld
+230ba5b0d882,full,Q9,correct,6,6,all six from MOSHI Table 1
+9cf032bb1f08,full,Q19,refused_correctly,,,states the papers do not say; no value given
+d61740852d04,full,Q15,wrong,3,6,R5 and R6 missing
+f33d5dbaa555,full,Q10,correct,5,5,every stage; 'encoder first compresses the input vectors' is loose but claims no change of resolution
+b52c1f2b0fdc,full,Q3,correct,4,4,all four
+c2a6c5729ede,full,Q14,wrong,1,4,acoustic delay vague; text 'provided later than acoustic tokens' yet conditions acoustic generation [wrong-fact]; no ASR/TTS
+905e28ad16a2,lean,Q13,correct,3,3,both purposes and the fixed/position vs learned/content contrast; each fact cited to its paper
+621facbb0aac,cached,Q19,refused_correctly,,,cache hit: replay of 9cf032bb1f08
+769a054cd837,full,Q20,refused_correctly,,,states the papers do not say; no value given
+c3ef941946f4,full,Q20,refused_correctly,,,states the papers do not say; no value given
+9327a43f496b,cached,Q18,refused_correctly,,,cache hit: replay of 76411d655b1a
+671e43c6ad8a,full,Q2,correct,4,4,all four
+19ec711a6fbc,full,Q19,refused_correctly,,,states the papers do not say; no value given
+8744c2a369d8,cached,Q5,correct,6,6,cache hit: replay of cf6863ca16f2
+1306035b1856,full,Q15,wrong,4,6,"R5 withheld, R6 missing"
+2046245587e3,full,Q9,correct,6,6,all six
+a0fa1041002f,full,Q17,refused_correctly,,,states the papers do not say; no value given
+0543d499aa5b,full,Q10,correct,5,5,every stage's role
+d6405e39771a,full,Q8,correct,4,4,"all four, directions right"
+ae3d062576b1,full,Q7,wrong,3,4,R3 missing (no split RVQ)
+8b63b7859007,full,Q1,correct,3,3,all three
+e228214e1365,full,Q12,wrong,2,3,as above
+48e3fa205432,lean,Q7,wrong,3,4,R3 missing (no split RVQ)
+541b554bab1a,full,Q1,correct,3,3,all three
+8157aae52e49,cached,Q4,correct,6,6,cache hit: replay of fa711bf25d7c
+6c5664186dd0,full,Q11,correct,4,4,"all four, incl. compressing the boundary probabilities"
+8c3ce099c45b,cached,Q6,wrong,3,5,cache hit: replay of e6c3574929c3
+b48eb42cd0b2,full,Q5,correct,6,6,all six
+bce9611dbc27,cached,Q5,correct,6,6,cache hit: replay of b48eb42cd0b2
+2ef48469e2ea,full,Q4,correct,6,6,all six
+5a793cc7e134,full,Q7,wrong,3,4,R3 missing (no split RVQ)
+671df73597a2,full,Q5,correct,6,6,"all six; same Inner Monologue attribution as 789595165023, not material"
+e4d39a3fffa6,full,Q17,refused_correctly,,,states the papers do not say; no value given
+157c59001179,cached,Q6,wrong,3,5,cache hit: replay of e6c3574929c3
+484a28c87879,full,Q20,refused_correctly,,,states the papers do not say; no value given
+8784a77f49cf,full,Q18,refused_correctly,,,states the papers do not say; no value given
+ca5a40680ad7,full,Q7,wrong,3,4,R3 missing (no split RVQ)
+d60285c75f1c,full,Q3,correct,4,4,all four
+98c990d690f1,full,Q9,correct,6,6,all six
+df0c4b586087,full,Q17,refused_correctly,,,states the papers do not say; no value given
+72fb4420f660,full,Q5,correct,6,6,all six
+301fc011a7c6,full,Q14,wrong,1,4,same pattern as c2a6c5729ede
+eaa15a801e02,full,Q5,correct,6,6,all six
+adf1ed7816b4,full,Q8,correct,4,4,"all four, directions right"
+1b2fdc7987d4,full,Q7,wrong,3,4,R3 missing: states the plain-RVQ reading outright
+0c49d461abba,full,Q15,wrong,2,6,every H-Net sentence withheld (no citation): the person saw only Moshi
+1f4861f5eb80,full,Q17,refused_correctly,,,states the papers do not say; no value given
+df785cfad4bd,lean,Q9,correct,6,6,all six
+dca6af4dd4cc,full,Q9,correct,6,6,all six
+fe938594d3be,cached,Q11,correct,4,4,cache hit: replay of 6c5664186dd0
+02ddd44f2ae6,full,Q3,correct,4,4,all four
+8400206fc2ab,full,Q4,correct,6,6,all six
+5ebbdcfacdcf,full,Q9,correct,6,6,all six
+53f703db0f25,full,Q6,correct,4,5,as 3a1526c55198; R4 (L2) missing
+b6330069b08d,full,Q17,refused_correctly,,,states the papers do not say; no value given
+0712702e40e6,full,Q12,wrong,2,3,as above
+db6e2fe1c9b6,full,Q15,wrong,4,6,R5 and R6 missing
+a16c22579417,full,Q17,refused_correctly,,,states the papers do not say; no value given
+8f459f0e8614,cached,Q5,correct,6,6,cache hit: replay of eaa15a801e02
+d3deac22cbaa,full,Q3,correct,4,4,all four
+fd7fbdcbc76c,full,Q13,correct,3,3,"both purposes and the contrast, each cited to its paper"
+95814bd3bd10,lean,Q10,wrong,3,5,encoder said to compress into a lower-resolution representation [wrong-fact]; dechunking 'implemented by a decoder network'
+37a4c8433f95,lean,Q2,correct,4,4,all four
+74e4cfec28b5,lean,Q13,correct,3,3,both purposes and the contrast
+ecfc8291e123,lean,Q1,correct,3,3,"all three, plus the footnote's variance argument"
+d28b19f00ce8,lean,Q8,correct,4,4,"all four, directions right"
+cb275af5e555,full,Q20,refused_correctly,,,states the papers do not say; no value given
+f48596daf8d9,lean,Q20,refused_correctly,,,states the papers do not say; no value given
+f5aae1bd9485,full,Q14,wrong,1,4,same pattern as c2a6c5729ede
+cc38a6bbca66,cached,Q17,refused_correctly,,,cache hit: replay of a16c22579417
+8c9de9f1ec50,full,Q8,correct,4,4,"direction sentence withheld [gate catch], but the TTS = audio-delayed / ASR = text-delayed configuration states it"
+ea69cfc2a63f,cached,Q18,refused_correctly,,,cache hit: replay of 8784a77f49cf
+a6d80ff0e047,full,Q17,refused_correctly,,,states the papers do not say; no value given
+1b26a0f7a9b4,cached,Q9,correct,6,6,cache hit: replay of 5ebbdcfacdcf
+b6083aac6564,full,Q15,wrong,4,6,R5 and R6 missing
+c9c546d22ae2,full,Q2,correct,4,4,all four
+054ae6f1cc28,full,Q9,correct,6,6,all six
+4ed04d53e976,full,Q16,refused_correctly,,,states the papers do not say; no value given
+2f35cd88fbc3,full,Q16,refused_correctly,,,states the papers do not say; no value given
+5d2bd5b277c6,full,Q4,correct,6,6,all six
+b0c5c5b8ce24,cached,Q3,correct,4,4,cache hit: replay of d3deac22cbaa
+770782502d85,full,Q7,wrong,3,4,R3 missing (no split RVQ)
+b95d97229956,full,Q17,refused_correctly,,,states the papers do not say; no value given
+69f749bd5d82,full,Q16,refused_correctly,,,states the papers do not say; no value given
+4fbe181512f7,lean,Q13,correct,3,3,both purposes and the contrast (one restating sentence withheld)
+34bc3276b058,full,Q11,correct,3,4,formula + 0.5 threshold state R1-R2; direct selection; R4 (L2) missing
+83a520c29985,lean,Q10,wrong,4,5,'the dechunking (or decoder) network': two distinct stages conflated [wrong-fact]
+db5586b69ddc,lean,Q3,correct,3,4,R3 (Level 2) withheld by the gate (cite to a table row not retrieved)
+8e0ab0a00271,lean,Q4,wrong,3,6,"d_ff, d_k/d_v and steps withheld: cited §3.1 does not hold them [gate catch, retrieval]; the person saw only N, d_model, h"
+c01cf83ca08d,lean,Q11,correct,3,4,"R1-R3 (formula drops the norms in the denominator, a typesetting slip); R4 missing"
+bfac6217ced9,lean,Q13,correct,3,3,both purposes and the contrast
+41b524b3d8a8,lean,Q15,wrong,3,6,R5 not stated as replacing tokenization; R6 missing
+9a5925bdb1b9,lean,Q18,refused_correctly,,,states the papers do not say; no value given
+5de5b23efa3d,lean,Q9,correct,6,6,all six
+728a552b720f,cached,Q4,correct,6,6,cache hit: replay of 5d2bd5b277c6
+5a19a110fc94,lean,Q16,refused_correctly,,,states the papers do not say; no value given
+bc29f68ed587,lean,Q14,wrong,1,4,acoustic delay as audio frame pacing [wrong-fact]; no ASR/TTS
+a078a2bfb3b1,lean,Q3,correct,4,4,all four
+d723ef794854,lean,Q1,correct,3,3,all three
+f0b0d030de22,lean,Q13,correct,3,3,"purposes in sentences 1-2, contrast framed by 'In contrast' (two summary sentences withheld)"
+b5c88870075b,lean,Q12,correct,3,3,"states 2.7 from the table 'whereas §3.1 states 2.6', each attributed; Large matches"
+48ff2584fc41,lean,Q7,wrong,3,4,R3 missing (no split RVQ)
+22a9500f6a34,lean,Q1,correct,3,3,all three; 'variance becomes 1' follows from the cited footnote
+892b93b358a6,lean,Q19,refused_correctly,,,states the papers do not say; no value given
+1ccfc25f989c,cached,Q17,refused_correctly,,,cache hit: replay of b95d97229956
+6bced2bfe080,lean,Q4,correct,6,6,"all six (a first, uncited copy was withheld; the cited copy passed)"

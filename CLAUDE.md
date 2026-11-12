@@ -60,11 +60,25 @@ A Python pipeline that answers engineers' questions using **only** three arXiv p
 - **TPD is the binding daily limit: about 65–75 full answers per day on the drafter**, against an RPD of 1,000. The real eval measured 2.6–3.1K tokens per full answer (router + drafter); the Day 1 estimate of 3.6K and 55 answers was too pessimistic. Plan real calls per day before any eval or load run.
 - **Groq caches prompt prefixes automatically** on gpt-oss: cached tokens cost 50% less and don't count toward limits. The real eval had 6.5% of drafter prompt tokens cached. The ledger doesn't charge them to TPD.
 
-## State of the work (2026-11-11; deadline 2026-11-13)
+## State of the work (2026-11-12; deadline 2026-11-13)
 
 - **Chosen retrieval setting: h256k8** (author). Grading uses the two-level rubric frozen in `eval/answer_key.json`. Do not change it.
-- **Done:** probes and Table 1; stand-in; pipeline; Table 3 (first eval: 3 settings; eval_v2: h256k8 on the shipped pipeline); stand-in Table 2 rows (overload, tpm_half, daily_exhausted); retry experiment (heading 6); naive-retriever evidence; the 3pm reply; README; WRITEUP.md draft.
-- **Left:** on Nov 12 evening, real `steady`, `burst`, then `drain` (the real daily_exhausted row) via `python -m load.run_load <scenario> --source real` (dry-run first); one `headers` probe per model versus the console capture; heading 4 from the slowest real request; the author's sections of the write-up (Vaani feedback, How I worked with the assistant, heading 8 wording); the exported conversation history.
+- **Done:**
+  - probes and Table 1;
+  - the stand-in and the pipeline;
+  - Table 3: the first eval over 3 settings, plus eval_v2 (h256k8 on the shipped pipeline);
+  - all Table 2 rows: real steady, burst and drain/daily_exhausted (Nov 12; the drain started at 17:10, the author's call); stand-in overload and tpm_half;
+  - the final-day header recheck;
+  - heading 4, from the slowest real request (drain, 36.6 s);
+  - the retry experiment (heading 6);
+  - the naive-retriever evidence;
+  - the 3pm reply;
+  - the 172 real load answers graded (`eval/grades_load_2026-11-12.py`; quality by tier: `python -m eval.load_quality`).
+- **In progress (Nov 12 evening):** the RPD measurement on qwen (`results/probe_rpd_qwen_2026-11-12.log`), so Table 1's RPD is measured rather than read from a header. Then make the rest of Table 1 computable from `results.csv`.
+- **Left:**
+  - the author's sections (Vaani feedback, How I worked with the assistant, heading 8 "learned", the number nobody could guess);
+  - the 2-page check (render to PDF, then trim);
+  - the conversation export (the author, by hand).
 - **Budget plan and product budget manager:** see the "Budget plan" section of the ADR. It covers the 20% drafter reserve (released evenly until 18:00 local time), the answer tiers (Full on 120b, Lean on 20b, Extractive, Cached), and the answer cache.
 - **`results.csv` is derived:** `tools/build_results_csv.py` rebuilds it from `results/probe_raw.jsonl` plus `results/pipeline_rows*.csv`. Probe rows use `scenario=probe_*` and leave `answer_grade` empty. Table 1 numbers must come from the CSV where it can supply them. For example, recovery is measured start-to-start: 2,051 ms (RPM) and 4,068 ms (TPM).
 
