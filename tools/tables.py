@@ -160,6 +160,25 @@ def table1(rs: list[dict]) -> None:
     first_rl = next((r for r in rec if r["status"] == "rate_limited"), None)
     rec_ok = [r for r in rec if r["status"] == "ok" and first_rl and t(r) > t(first_rl)]
     daily_rec = f"first ok {t(rec_ok[0]) - t(first_rl):,.0f} s after a daily 429" if rec_ok else "see probe_raw"
+    probes = [r for r in rs if r["scenario"].startswith("probe_")]
+    slow_503 = [r for r in probes if r["status"] == "error" and r["total_ms"] and float(r["total_ms"]) >= 29_000]
+
+    # Requests per day (2026-11-12, qwen): tiny requests paced under RPM until the daily 429, which ends the run.
+    # The budget refills continuously (one request per 86,400/L s), so over a run of T s the oks before the 429 are
+    # N = L * (1 + T/86,400); hence L = N / (1 + T/86,400), from the row count and timestamps alone.
+    rpd = sorted((r for r in rs if r["scenario"] == "probe_rpd"), key=t)
+    rpd_row = ("Requests per day | 1,000 (header) | x-ratelimit-limit-requests header on every response (probe_raw); "
+               "console; not driven to the limit | medium")
+    if rpd and rpd[-1]["status"] == "rate_limited":
+        n_ok = sum(1 for r in rpd if r["status"] == "ok")
+        span = t(rpd[-1]) - t(rpd[0])
+        est = n_ok / (1 + span / 86_400)
+        rpd_rec = sorted((r for r in rs if r["scenario"] == "probe_rpd_recovery"), key=t)
+        back = next((r for r in rpd_rec if r["status"] == "ok"), None)
+        back_s = f"; next ok {t(back) - t(rpd[-1]):,.0f} s after it" if back else ""
+        rpd_row = (f"Requests per day | {est:,.0f} | driven to the limit (probe_rpd): {n_ok:,} ok in {span / 60:.1f} min, "
+                   f"then a daily 429{back_s}; N / (1 + T/86,400) removes the refill during the run; header and "
+                   f"console say 1,000 | high")
     print("Table 1 - limits found in the real service (gpt-oss-120b / gpt-oss-20b; daily budget measured on "
           "qwen/qwen3.8-27b, same console limits)\n")
     print("Limit | Value found | How found | Confidence")
@@ -167,15 +186,14 @@ def table1(rs: list[dict]) -> None:
           f"{(t(rl) - t(rpm[0])) * 1000:,.0f} ms in (probe_rpm); 429 body 'Limit 30'; console | high")
     print(f"Tokens per minute | 8,000 | {tpm_used:,} tokens used in the 60 s before the first token 429 (a lower bound, "
           f"since max_tokens is reserved up front); 429 body 'Limit 8000'; console | high")
-    print("Requests per day | 1,000 | x-ratelimit-limit-requests header on every response (probe_raw); console; not "
-          "driven to the limit | medium")
+    print(rpd_row)
     print(f"Tokens per day | 200,000 per model | {len(daily)} ok requests used {daily_tok:,} tokens before the first "
           f"daily 429 (probe_daily); 429 body 'Limit 200000'; refill fitted at 2.31 tokens/s; console | high")
     print(f"Requests in flight at once | no limit hit at {in_flight} | {in_flight} requests overlapped, all ok "
           f"(probe_concurrency); RPM 30 stops a larger test | low")
     print(f"What it returns when a limit is hit | HTTP 429 in {pct(rl_ms, 50):,.0f} ms (p50, n={len(rl_ms)}) | "
           f"error.type 'requests' or 'tokens'; message states limit, used, requested and the exact wait; retry-after "
-          f"header; separately, 503 'over capacity' after ~30 s (2 of ~310 calls) | high")
+          f"header; separately, 503 'over capacity' after ~30 s ({len(slow_503)} of {len(probes):,} probe calls) | high")
     print(f"Time until it recovers | RPM {(t(rpm_rec) - t(rl)) * 1000:,.0f} ms, TPM {(t(tpm_rec) - t(tl)) * 1000:,.0f} ms "
           f"(start to start); daily: continuous refill, {daily_rec} | next ok request after each 429 "
           f"(probe_*_recovery); the daily 429's stated wait was exact | high")

@@ -30,7 +30,7 @@ SCENARIO = {
     "rpm_burst": "probe_rpm", "rpm_recovery": "probe_rpm_recovery",
     "tpm_burst": "probe_tpm", "tpm_recovery": "probe_tpm_recovery",
     "concurrency": "probe_concurrency",
-    "daily_tokens": "probe_daily", "daily_requests": "probe_daily",
+    "daily_tokens": "probe_daily", "daily_requests": "probe_rpd",
     "daily_drain": "probe_daily_drain", "daily_watch": "probe_daily_recovery",
     "daily_check_before": "probe_daily_check", "daily_check_after": "probe_daily_check",
 }
@@ -49,17 +49,20 @@ def status_of(r: dict) -> str:
 
 def probe_rows() -> list[dict]:
     rows = []
-    for line in RAW.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        r = json.loads(line)
+    raws = [json.loads(line) for line in RAW.read_text(encoding="utf-8").splitlines() if line.strip()]
+    # The requests-per-day run (2026-11-12) has its own watch phase; keep it apart from the Nov 9 token test's.
+    rpd_runs = {r.get("run_id") for r in raws if r["phase"] == "daily_requests"}
+    for r in raws:
         if r.get("dry_run"):
             continue
         u = r.get("usage") or {}
         st = status_of(r)
+        scenario = SCENARIO.get(r["phase"], f"probe_{r['phase']}")
+        if r["phase"] == "daily_watch" and r.get("run_id") in rpd_runs:
+            scenario = "probe_rpd_recovery"
         rows.append({
             "request_id": f"probe-{r['probe_id']}",
-            "scenario": SCENARIO.get(r["phase"], f"probe_{r['phase']}"),
+            "scenario": scenario,
             "source": "real",
             "start_time": r["start_time"],
             # first answer token; empty when the call wasn't streamed or produced no answer text
